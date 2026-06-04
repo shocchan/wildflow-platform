@@ -1,30 +1,32 @@
 import { useState, useEffect } from 'react';
-
-const SESSION_KEY = 'wildflow_admin_authed';
-const ADMIN_PASSWORD = 'Hiranosy0709';
+import { supabase } from '../services/supabaseClient';
 
 export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = sessionStorage.getItem(SESSION_KEY);
-    setIsAuthenticated(stored === 'true');
-    setLoading(false);
+    // 既存セッションを確認
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+      setLoading(false);
+    });
+
+    // セッション変化を監視
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const login = (password: string): boolean => {
-    if (password === ADMIN_PASSWORD) {
-      sessionStorage.setItem(SESSION_KEY, 'true');
-      setIsAuthenticated(true);
-      return true;
-    }
-    return false;
+  const login = async (email: string, password: string): Promise<void> => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw new Error('メールアドレスまたはパスワードが正しくありません');
   };
 
-  const logout = () => {
-    sessionStorage.removeItem(SESSION_KEY);
-    setIsAuthenticated(false);
+  const logout = async () => {
+    await supabase.auth.signOut();
   };
 
   return { loading, login, logout, isAuthenticated };

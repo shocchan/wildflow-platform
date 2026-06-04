@@ -18,26 +18,27 @@ const emptyForm = (): Omit<Post, 'id' | 'created_at'> => ({
 });
 
 // ── ログイン画面 ──────────────────────────────────────────
-function LoginScreen({ onLogin }: { onLogin: (pw: string) => boolean }) {
+function LoginScreen({ onLogin }: { onLogin: (email: string, pw: string) => Promise<void> }) {
+  const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
-  const [error, setError] = useState(false);
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { inputRef.current?.focus(); }, []);
+  useEffect(() => { emailRef.current?.focus(); }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      const ok = onLogin(pw);
-      if (!ok) {
-        setError(true);
-        setPw('');
-        inputRef.current?.focus();
-      }
+    setError('');
+    try {
+      await onLogin(email, pw);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'ログインに失敗しました');
+      setPw('');
+    } finally {
       setLoading(false);
-    }, 300);
+    }
   };
 
   return (
@@ -52,29 +53,45 @@ function LoginScreen({ onLogin }: { onLogin: (pw: string) => boolean }) {
         <div className="rounded-2xl border p-8" style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}>
           {error && (
             <div className="text-sm px-4 py-3 rounded-xl mb-4 border" style={{ backgroundColor: 'rgba(239,68,68,0.1)', borderColor: 'rgba(239,68,68,0.3)', color: '#f87171' }}>
-              パスワードが正しくありません
+              {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#94a3b8' }}>
+                メールアドレス
+              </label>
+              <input
+                ref={emailRef}
+                type="email"
+                required
+                value={email}
+                onChange={e => { setEmail(e.target.value); setError(''); }}
+                className="w-full px-4 py-3 rounded-xl border outline-none text-white transition-colors focus:border-blue-500"
+                style={{ backgroundColor: '#0a0f1e', borderColor: error ? 'rgba(239,68,68,0.5)' : '#1e3a5f' }}
+                placeholder="admin@example.com"
+                autoComplete="email"
+              />
+            </div>
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: '#94a3b8' }}>
                 パスワード
               </label>
               <input
-                ref={inputRef}
                 type="password"
                 required
                 value={pw}
-                onChange={e => { setPw(e.target.value); setError(false); }}
+                onChange={e => { setPw(e.target.value); setError(''); }}
                 className="w-full px-4 py-3 rounded-xl border outline-none text-white transition-colors focus:border-blue-500"
                 style={{ backgroundColor: '#0a0f1e', borderColor: error ? 'rgba(239,68,68,0.5)' : '#1e3a5f' }}
                 placeholder="••••••••••"
+                autoComplete="current-password"
               />
             </div>
             <button
               type="submit"
-              disabled={loading || !pw}
+              disabled={loading || !email || !pw}
               className="w-full py-3 rounded-xl font-bold text-white transition-all hover:opacity-90 disabled:opacity-40 mt-2"
               style={{ backgroundColor: '#3b82f6' }}
             >

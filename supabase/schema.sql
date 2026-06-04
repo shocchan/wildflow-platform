@@ -1,4 +1,5 @@
 -- wildflow Supabase スキーマ & RLSポリシー
+-- 認証方式: Supabase Auth（メアド＋パスワード）
 
 -- ───────────────────────────────────────────
 -- posts テーブル
@@ -33,6 +34,7 @@ alter table quiz_results enable row level security;
 -- 既存ポリシーをクリア（再実行時の冪等性確保）
 drop policy if exists "published_posts_public_read"  on posts;
 drop policy if exists "all_posts_anon_write"         on posts;
+drop policy if exists "authenticated_posts_all"      on posts;
 drop policy if exists "quiz_results_anon_insert"     on quiz_results;
 
 -- ───────────────────────────────────────────
@@ -44,19 +46,31 @@ create policy "published_posts_public_read" on posts
   for select
   using (status = 'published');
 
--- 2. 書き込み（insert / update / delete）は anon キーで全許可
---    ※ wildflow の管理画面は固定パスワード認証（Supabase Auth 未使用）のため
---       anon キーで全操作を許可。本番では IP制限 or Edge Function 経由を推奨。
-create policy "all_posts_anon_write" on posts
+-- 2. 書き込み（insert / update / delete）は認証済みユーザーのみ
+--    Supabase Auth でログインしたユーザー（管理者）だけが操作可能
+create policy "authenticated_posts_all" on posts
   for all
-  using (true)
-  with check (true);
+  using (auth.role() = 'authenticated')
+  with check (auth.role() = 'authenticated');
 
 -- ───────────────────────────────────────────
 -- quiz_results RLSポリシー
 -- ───────────────────────────────────────────
 
--- 診断結果の集計は誰でも挿入可（匿名ユーザーの診断結果を記録）
+-- 診断結果の挿入は誰でも可（匿名ユーザーの診断結果を記録）
 create policy "quiz_results_anon_insert" on quiz_results
   for insert
   with check (true);
+
+-- ───────────────────────────────────────────
+-- 管理者ユーザーの作成方法
+-- ───────────────────────────────────────────
+-- Supabase ダッシュボード > Authentication > Users > Add user
+-- または以下のSQLを実行（パスワードは強力なものに変更すること）:
+--
+-- select auth.create_user(
+--   email    := 'your-email@example.com',
+--   password := 'your-strong-password'
+-- );
+--
+-- ※ コードにパスワードを書かない。Supabase側で管理する。
