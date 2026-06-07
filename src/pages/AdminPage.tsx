@@ -298,6 +298,8 @@ function PostForm({
 function ProfileForm({ onToast }: { onToast: (msg: string) => void }) {
   const [form, setForm] = useState<ProfileSettings | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchProfileSettings().then(setForm);
@@ -306,6 +308,27 @@ function ProfileForm({ onToast }: { onToast: (msg: string) => void }) {
   if (!form) return <p className="text-slate-400 text-sm">読み込み中...</p>;
 
   const set = (k: keyof ProfileSettings, v: string) => setForm(f => f ? { ...f, [k]: v } : f);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const path = `profile.${ext}`;
+      const { error } = await (await import('../services/supabaseClient')).supabase
+        .storage.from('avatars').upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data } = (await import('../services/supabaseClient')).supabase
+        .storage.from('avatars').getPublicUrl(path);
+      set('photo_url', data.publicUrl);
+      onToast('✅ 画像をアップロードしました');
+    } catch {
+      onToast('❌ アップロードに失敗しました');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -336,15 +359,39 @@ function ProfileForm({ onToast }: { onToast: (msg: string) => void }) {
         </Field>
       </div>
 
-      <Field label="プロフィール画像URL（/profile.jpg または外部URL）">
-        <input value={form.photo_url} onChange={e => set('photo_url', e.target.value)}
-          className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm"
-          style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }}
-          placeholder="/profile.jpg または https://..." />
-        {form.photo_url && (
-          <img src={form.photo_url} alt="preview" className="mt-2 w-20 h-20 rounded-full object-cover border-2" style={{ borderColor: '#3b82f6' }}
-            onError={e => (e.currentTarget.style.display = 'none')} />
-        )}
+      <Field label="プロフィール画像">
+        <div className="flex items-center gap-4">
+          {/* 画像プレビュー */}
+          <div className="flex-shrink-0">
+            {form.photo_url ? (
+              <img src={form.photo_url} alt="preview"
+                className="w-20 h-20 rounded-full object-cover border-2"
+                style={{ borderColor: '#3b82f6' }}
+                onError={e => (e.currentTarget.style.display = 'none')} />
+            ) : (
+              <div className="w-20 h-20 rounded-full flex items-center justify-center text-3xl border-2"
+                style={{ backgroundColor: '#1a3a5c', borderColor: '#1e3a5f' }}>
+                🌊
+              </div>
+            )}
+          </div>
+          <div className="flex-1 space-y-2">
+            {/* アップロードボタン */}
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden"
+              onChange={handleImageUpload} />
+            <button type="button" disabled={uploading}
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full px-4 py-2.5 rounded-xl border font-bold text-sm transition-all hover:border-blue-500 hover:text-blue-400 disabled:opacity-50"
+              style={{ borderColor: '#1e3a5f', color: '#94a3b8', backgroundColor: '#0a0f1e' }}>
+              {uploading ? '⏳ アップロード中...' : '📁 画像ファイルを選択'}
+            </button>
+            {/* URLで直接入力もできる */}
+            <input value={form.photo_url} onChange={e => set('photo_url', e.target.value)}
+              className="w-full px-3 py-2 rounded-xl border outline-none focus:border-blue-500 text-white text-xs"
+              style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f', color: '#64748b' }}
+              placeholder="またはURLを直接入力（https://...）" />
+          </div>
+        </div>
       </Field>
 
       <Field label="ミッション">
