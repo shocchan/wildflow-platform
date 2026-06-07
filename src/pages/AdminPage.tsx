@@ -1,10 +1,12 @@
 import { useEffect, useState, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { fetchAllPostsAdmin, createPost, updatePost, deletePost } from '../services/posts';
+import { fetchProfileSettings, saveProfileSettings, type ProfileSettings } from '../services/settings';
 import { useAuth } from '../hooks/useAuth';
 import type { Post } from '../types';
 
 type Mode = 'list' | 'create' | 'edit';
+type AdminTab = 'posts' | 'profile';
 type PreviewTab = 'write' | 'preview';
 
 const emptyForm = (): Omit<Post, 'id' | 'created_at'> => ({
@@ -292,10 +294,108 @@ function PostForm({
   );
 }
 
+// ── プロフィール編集フォーム ───────────────────────────────
+function ProfileForm({ onToast }: { onToast: (msg: string) => void }) {
+  const [form, setForm] = useState<ProfileSettings | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetchProfileSettings().then(setForm);
+  }, []);
+
+  if (!form) return <p className="text-slate-400 text-sm">読み込み中...</p>;
+
+  const set = (k: keyof ProfileSettings, v: string) => setForm(f => f ? { ...f, [k]: v } : f);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form) return;
+    setSaving(true);
+    try {
+      await saveProfileSettings(form);
+      onToast('✅ プロフィールを更新しました');
+    } catch {
+      onToast('❌ 保存に失敗しました');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Field label="表示名">
+          <input value={form.name} onChange={e => set('name', e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm"
+            style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }} />
+        </Field>
+        <Field label="肩書き">
+          <input value={form.tagline} onChange={e => set('tagline', e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm"
+            style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }} />
+        </Field>
+      </div>
+
+      <Field label="プロフィール画像URL（/profile.jpg または外部URL）">
+        <input value={form.photo_url} onChange={e => set('photo_url', e.target.value)}
+          className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm"
+          style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }}
+          placeholder="/profile.jpg または https://..." />
+        {form.photo_url && (
+          <img src={form.photo_url} alt="preview" className="mt-2 w-20 h-20 rounded-full object-cover border-2" style={{ borderColor: '#3b82f6' }}
+            onError={e => (e.currentTarget.style.display = 'none')} />
+        )}
+      </Field>
+
+      <Field label="ミッション">
+        <textarea value={form.mission} onChange={e => set('mission', e.target.value)} rows={4}
+          className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm resize-y font-mono"
+          style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f', lineHeight: '1.7' }} />
+      </Field>
+
+      <Field label="ストーリー">
+        <textarea value={form.story} onChange={e => set('story', e.target.value)} rows={5}
+          className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm resize-y font-mono"
+          style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f', lineHeight: '1.7' }} />
+      </Field>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Field label="Twitter / X URL">
+          <input value={form.twitter_url} onChange={e => set('twitter_url', e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm"
+            style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }}
+            placeholder="https://twitter.com/..." />
+        </Field>
+        <Field label="小紅書（XHS）URL">
+          <input value={form.xhs_url} onChange={e => set('xhs_url', e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm"
+            style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }}
+            placeholder="https://xhslink.com/..." />
+        </Field>
+        <Field label="lemon8 URL">
+          <input value={form.lemon8_url} onChange={e => set('lemon8_url', e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm"
+            style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }}
+            placeholder="https://s.lemon8-app.com/..." />
+        </Field>
+      </div>
+
+      <div className="pt-2 border-t" style={{ borderColor: '#1e3a5f' }}>
+        <button type="submit" disabled={saving}
+          className="px-8 py-3 rounded-xl font-bold text-white transition-all hover:opacity-90 disabled:opacity-50"
+          style={{ backgroundColor: '#3b82f6' }}>
+          {saving ? '保存中...' : '✓ 保存する'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
 // ── メインコンポーネント ───────────────────────────────────
 export function AdminPage() {
   const { isAuthenticated, loading: authLoading, login, logout } = useAuth();
   const [mode, setMode] = useState<Mode>('list');
+  const [activeTab, setActiveTab] = useState<AdminTab>('posts');
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
@@ -391,29 +491,51 @@ export function AdminPage() {
       {toast && <Toast msg={toast} />}
 
       {/* ヘッダー */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-black text-white">📝 記事管理</h1>
-          <p className="text-sm mt-1" style={{ color: '#475569' }}>
-            全 {posts.length} 件（公開 {published} · 下書き {draft}）
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => { setEditingPost(null); setMode('create'); }}
-            className="px-5 py-2.5 rounded-xl font-bold text-white text-sm transition-all hover:opacity-90 flex items-center gap-1"
-            style={{ backgroundColor: '#3b82f6' }}
-          >
-            + 新規作成
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-black text-white">🛠 管理画面</h1>
+        <button
+          onClick={logout}
+          className="px-4 py-2.5 rounded-xl text-sm border transition-colors hover:border-red-500 hover:text-red-400"
+          style={{ borderColor: '#1e3a5f', color: '#64748b' }}
+        >
+          ログアウト
+        </button>
+      </div>
+
+      {/* タブ */}
+      <div className="flex gap-1 mb-8 p-1 rounded-xl" style={{ backgroundColor: '#111827' }}>
+        {([['posts', '📝 記事管理'], ['profile', '👤 プロフィール']] as [AdminTab, string][]).map(([tab, label]) => (
+          <button key={tab} onClick={() => setActiveTab(tab)}
+            className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all"
+            style={{
+              backgroundColor: activeTab === tab ? '#3b82f6' : 'transparent',
+              color: activeTab === tab ? '#fff' : '#64748b',
+            }}>
+            {label}
           </button>
-          <button
-            onClick={logout}
-            className="px-4 py-2.5 rounded-xl text-sm border transition-colors hover:border-red-500 hover:text-red-400"
-            style={{ borderColor: '#1e3a5f', color: '#64748b' }}
-          >
-            ログアウト
-          </button>
+        ))}
+      </div>
+
+      {/* プロフィールタブ */}
+      {activeTab === 'profile' && (
+        <div className="rounded-2xl border p-6 md:p-8" style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}>
+          <ProfileForm onToast={showToast} />
         </div>
+      )}
+
+      {/* 記事タブ */}
+      {activeTab === 'posts' && (<>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm" style={{ color: '#475569' }}>
+          全 {posts.length} 件（公開 {published} · 下書き {draft}）
+        </p>
+        <button
+          onClick={() => { setEditingPost(null); setMode('create'); }}
+          className="px-5 py-2.5 rounded-xl font-bold text-white text-sm transition-all hover:opacity-90 flex items-center gap-1"
+          style={{ backgroundColor: '#3b82f6' }}
+        >
+          + 新規作成
+        </button>
       </div>
 
       {/* 検索 */}
@@ -467,6 +589,7 @@ export function AdminPage() {
           ))}
         </div>
       )}
+      </>)}
     </main>
   );
 }
