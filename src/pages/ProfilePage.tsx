@@ -52,15 +52,35 @@ export function ProfilePage() {
           <p className="text-slate-300 leading-relaxed">
             コラボ・取材・その他のお問い合わせは X（Twitter）のDMからお気軽にどうぞ。
           </p>
-          <a
-            href="https://twitter.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm text-white transition-all hover:opacity-80"
-            style={{ backgroundColor: '#1d9bf0' }}
-          >
-            𝕏 Twitter / X でフォローする
-          </a>
+          <div className="mt-4 flex flex-col sm:flex-row flex-wrap gap-3">
+            <a
+              href="https://twitter.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm text-white transition-all hover:opacity-80"
+              style={{ backgroundColor: '#1d9bf0' }}
+            >
+              𝕏 Twitter / X でフォローする
+            </a>
+            <a
+              href="https://xhslink.com/m/4cEpE8uM5oz"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm text-white transition-all hover:opacity-80"
+              style={{ backgroundColor: '#ff2442' }}
+            >
+              📕 小紅書（RED）でフォローする
+            </a>
+            <a
+              href="https://s.lemon8-app.com/s/GgbxwycvTj"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm text-white transition-all hover:opacity-80"
+              style={{ backgroundColor: '#ffb800', color: '#1a1a1a' }}
+            >
+              🍋 lemon8でフォローする
+            </a>
+          </div>
         </Section>
       </div>
     </main>

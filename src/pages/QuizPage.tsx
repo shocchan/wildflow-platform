@@ -125,9 +125,93 @@ export function QuizPage() {
     setResult(null);
   };
 
+  const generateShareImage = async (p: AnimalProfile) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1080;
+    canvas.height = 1080;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Background gradient
+    const grad = ctx.createLinearGradient(0, 0, 0, 1080);
+    grad.addColorStop(0, '#0d1117');
+    grad.addColorStop(1, '#0a1628');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 1080, 1080);
+
+    // Accent circle
+    ctx.beginPath();
+    ctx.arc(540, 420, 280, 0, Math.PI * 2);
+    ctx.fillStyle = p.color + '18';
+    ctx.fill();
+
+    // Emoji
+    ctx.font = '180px serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(p.emoji, 540, 420);
+
+    // Type label
+    ctx.font = 'bold 64px sans-serif';
+    ctx.fillStyle = p.color;
+    ctx.fillText(p.name, 540, 530);
+
+    // Title
+    ctx.font = '36px sans-serif';
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText(p.title, 540, 590);
+
+    // Description (wrap)
+    ctx.font = '28px sans-serif';
+    ctx.fillStyle = '#cbd5e1';
+    const words = p.description.split('');
+    let line = '';
+    let y = 660;
+    for (const ch of words) {
+      const test = line + ch;
+      if (ctx.measureText(test).width > 860) {
+        ctx.fillText(line, 540, y);
+        line = ch;
+        y += 40;
+      } else {
+        line = test;
+      }
+    }
+    ctx.fillText(line, 540, y);
+
+    // Watermark
+    ctx.font = 'bold 28px sans-serif';
+    ctx.fillStyle = '#3b82f6';
+    ctx.fillText('wildflow | 野生の身体を、すべての人へ。', 540, 1020);
+
+    if (navigator.share) {
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        const file = new File([blob], 'wildflow-result.png', { type: 'image/png' });
+        try {
+          await navigator.share({
+            title: '野生タイプ診断結果',
+            text: `私は${p.emoji} ${p.name}でした！あなたは？ wildflow で診断してみて！`,
+            files: [file],
+          });
+        } catch (_) {
+          download(canvas);
+        }
+      }, 'image/png');
+    } else {
+      download(canvas);
+    }
+  };
+
+  const download = (canvas: HTMLCanvasElement) => {
+    const link = document.createElement('a');
+    link.download = 'wildflow-result.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  };
+
   if (step === 'result' && result) {
     const p = profiles[result];
-    const tweetText = encodeURIComponent(`私の野生タイプは「${p.emoji} ${p.name}」でした！\n「${p.title}」\n\n#wildflow #野生タイプ診断\nhttps://wildflow.jp/quiz`);
+    const tweetText = encodeURIComponent(`私の野生タイプは「${p.emoji} ${p.name}」でした！\n「${p.title}」\n\n#wildflow #野生タイプ診断\nhttps://wildflow-platform.pages.dev/quiz`);
     const tweetUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
 
     return (
@@ -155,6 +239,13 @@ export function QuizPage() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <button
+            onClick={() => generateShareImage(p)}
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-bold text-white transition-all hover:opacity-80"
+            style={{ backgroundColor: p.color }}
+          >
+            📸 結果をシェアする
+          </button>
           <a
             href={tweetUrl}
             target="_blank"
@@ -162,7 +253,7 @@ export function QuizPage() {
             className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-bold text-white transition-all hover:opacity-80"
             style={{ backgroundColor: '#1d9bf0' }}
           >
-            𝕏 結果をシェアする
+            𝕏 Xでシェアする
           </a>
           <button
             onClick={reset}
@@ -177,7 +268,7 @@ export function QuizPage() {
   }
 
   const q = questions[current];
-  const progress = ((current) / questions.length) * 100;
+  const progress = ((current + 1) / questions.length) * 100;
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-16">
@@ -188,9 +279,8 @@ export function QuizPage() {
 
       {/* Progress */}
       <div className="mb-8">
-        <div className="flex justify-between text-xs mb-2" style={{ color: '#64748b' }}>
+        <div className="flex justify-start text-xs mb-2" style={{ color: '#64748b' }}>
           <span>質問 {current + 1} / {questions.length}</span>
-          <span>{Math.round(progress)}%</span>
         </div>
         <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: '#1e3a5f' }}>
           <div
@@ -209,7 +299,7 @@ export function QuizPage() {
           <button
             key={opt.label}
             onClick={() => handleAnswer(opt.type as AnimalType)}
-            className="w-full text-left p-4 rounded-xl border transition-all hover:border-blue-500 hover:bg-blue-500/10"
+            className="w-full text-left p-4 rounded-xl border border-l-2 transition-all duration-150 hover:border-l-blue-400 hover:bg-gray-800 active:scale-[0.98]"
             style={{ backgroundColor: '#111827', borderColor: '#1e3a5f', color: '#cbd5e1' }}
           >
             {opt.label}

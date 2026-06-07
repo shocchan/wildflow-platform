@@ -64,7 +64,21 @@ export function BlogPage() {
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <p className="text-center py-20" style={{ color: '#475569' }}>記事がありません</p>
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <p className="text-6xl mb-6">🌿</p>
+          <h2 className="text-xl font-bold text-white mb-3">コンテンツ準備中です</h2>
+          <p className="text-sm leading-relaxed mb-8 max-w-sm" style={{ color: '#94a3b8' }}>
+            野生の知恵と身体づくりのヒントをお届けする予定です。<br />
+            まずは野生タイプ診断を受けてみてください！
+          </p>
+          <a
+            href="/quiz"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-white transition-all hover:scale-105"
+            style={{ backgroundColor: '#3b82f6' }}
+          >
+            野生タイプ診断を受ける →
+          </a>
+        </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {filtered.map(post => <PostCard key={post.id} post={post} />)}

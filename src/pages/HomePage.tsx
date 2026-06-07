@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PostCard } from '../components/PostCard';
 import { fetchLatestPosts } from '../services/posts';
@@ -7,6 +7,7 @@ import type { Post } from '../types';
 export function HomePage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const nextSectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     fetchLatestPosts(3).then(setPosts).finally(() => setLoading(false));
@@ -41,38 +42,47 @@ export function HomePage() {
             🦁 野生タイプ診断を受ける
           </Link>
           <p className="mt-4 text-sm" style={{ color: '#475569' }}>無料・30秒で診断完了</p>
+          <div
+            className="mt-12 flex justify-center cursor-pointer animate-bounce"
+            style={{ color: '#475569' }}
+            onClick={() => nextSectionRef.current?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
         </div>
       </section>
 
       {/* Latest Posts */}
-      <section className="max-w-5xl mx-auto px-4 pb-20">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-white">最新記事</h2>
-          <Link to="/blog" className="text-sm transition-colors hover:text-blue-300" style={{ color: '#3b82f6' }}>
-            すべて見る →
-          </Link>
-        </div>
+      {(loading || posts.length > 0) && (
+        <section ref={nextSectionRef} className="max-w-5xl mx-auto px-4 pb-20">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold text-white">最新記事</h2>
+            <Link to="/blog" className="text-sm transition-colors hover:text-blue-300" style={{ color: '#3b82f6' }}>
+              すべて見る →
+            </Link>
+          </div>
 
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="rounded-xl overflow-hidden" style={{ backgroundColor: '#111827' }}>
-                <div className="skeleton aspect-video" />
-                <div className="p-4 space-y-2">
-                  <div className="skeleton h-4 w-3/4" />
-                  <div className="skeleton h-3 w-1/2" />
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="rounded-xl overflow-hidden" style={{ backgroundColor: '#111827' }}>
+                  <div className="skeleton aspect-video" />
+                  <div className="p-4 space-y-2">
+                    <div className="skeleton h-4 w-3/4" />
+                    <div className="skeleton h-3 w-1/2" />
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : posts.length === 0 ? (
-          <p className="text-center py-12" style={{ color: '#475569' }}>まだ記事がありません</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {posts.map(post => <PostCard key={post.id} post={post} />)}
-          </div>
-        )}
-      </section>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {posts.map(post => <PostCard key={post.id} post={post} />)}
+            </div>
+          )}
+        </section>
+      )}
 
       {/* Quiz CTA */}
       <section className="py-20 px-4" style={{ backgroundColor: '#050a14' }}>
