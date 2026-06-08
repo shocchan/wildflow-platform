@@ -1,8 +1,11 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
+import Cropper from 'react-easy-crop';
 import { fetchAllPostsAdmin, createPost, updatePost, deletePost } from '../services/posts';
 import { fetchProfileSettings, saveProfileSettings, type ProfileSettings } from '../services/settings';
+import { supabase } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
+import { getCroppedImg, type CropArea } from '../utils/cropImage';
 import type { Post } from '../types';
 
 type Mode = 'list' | 'create' | 'edit';
@@ -301,6 +304,13 @@ function ProfileForm({ onToast }: { onToast: (msg: string) => void }) {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // クロッパー用 state
+  const [rawImageSrc, setRawImageSrc] = useState<string | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<CropArea | null>(null);
+
   useEffect(() => {
     fetchProfileSettings().then(setForm);
   }, []);
@@ -309,19 +319,46 @@ function ProfileForm({ onToast }: { onToast: (msg: string) => void }) {
 
   const set = (k: keyof ProfileSettings, v: string) => setForm(f => f ? { ...f, [k]: v } : f);
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // ファイル選択 → クロッパーモーダルを表示
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setRawImageSrc(reader.result as string);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+      setShowCropper(true);
+    };
+    reader.readAsDataURL(file);
+    // input をリセット（同じファイルを再選択できるように）
+    e.target.value = '';
+  };
+
+  // クロップ完了コールバック
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const onCropComplete = useCallback((_: unknown, pixels: CropArea) => {
+    setCroppedAreaPixels(pixels);
+  }, []);
+
+  // クロップ → Supabase Storage にアップロード
+  const handleCropAndUpload = async () => {
+    if (!rawImageSrc || !croppedAreaPixels) return;
     setUploading(true);
     try {
-      const ext = file.name.split('.').pop();
-      const path = `profile.${ext}`;
-      const { error } = await (await import('../services/supabaseClient')).supabase
-        .storage.from('avatars').upload(path, file, { upsert: true });
+      const blob = await getCroppedImg(rawImageSrc, croppedAreaPixels);
+      const { error } = await supabase.storage
+        .from('avatars')
+        .upload('profile.jpg', blob, { upsert: true, contentType: 'image/jpeg' });
       if (error) throw error;
-      const { data } = (await import('../services/supabaseClient')).supabase
-        .storage.from('avatars').getPublicUrl(path);
-      set('photo_url', data.publicUrl);
+
+      // キャッシュバスターを付けてURLを取得（即時反映のため）
+      const { data } = supabase.storage.from('avatars').getPublicUrl('profile.jpg');
+      const urlWithBust = `${data.publicUrl}?t=${Date.now()}`;
+      set('photo_url', urlWithBust);
+
+      setShowCropper(false);
+      setRawImageSrc(null);
       onToast('✅ 画像をアップロードしました');
     } catch {
       onToast('❌ アップロードに失敗しました');
@@ -345,6 +382,7 @@ function ProfileForm({ onToast }: { onToast: (msg: string) => void }) {
   };
 
   return (
+    <>
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Field label="表示名">
@@ -378,7 +416,7 @@ function ProfileForm({ onToast }: { onToast: (msg: string) => void }) {
           <div className="flex-1 space-y-2">
             {/* アップロードボタン */}
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden"
-              onChange={handleImageUpload} />
+              onChange={handleFileSelect} />
             <button type="button" disabled={uploading}
               onClick={() => fileInputRef.current?.click()}
               className="w-full px-4 py-2.5 rounded-xl border font-bold text-sm transition-all hover:border-blue-500 hover:text-blue-400 disabled:opacity-50"
@@ -435,6 +473,73 @@ function ProfileForm({ onToast }: { onToast: (msg: string) => void }) {
         </button>
       </div>
     </form>
+
+    {/* ── クロッパーモーダル ── */}
+    {showCropper && rawImageSrc && (
+      <div
+        className="fixed inset-0 z-50 flex flex-col"
+        style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}
+      >
+        {/* ヘッダー */}
+        <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: '#1e3a5f' }}>
+          <h3 className="text-white font-bold">📐 画像をトリミング</h3>
+          <button
+            onClick={() => { setShowCropper(false); setRawImageSrc(null); }}
+            className="text-slate-400 hover:text-white text-xl leading-none px-2"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* クロッパー */}
+        <div className="relative flex-1">
+          <Cropper
+            image={rawImageSrc}
+            crop={crop}
+            zoom={zoom}
+            aspect={1}
+            cropShape="round"
+            showGrid={false}
+            onCropChange={setCrop}
+            onZoomChange={setZoom}
+            onCropComplete={onCropComplete}
+          />
+        </div>
+
+        {/* ズームスライダー */}
+        <div className="px-6 py-3 flex items-center gap-4" style={{ backgroundColor: '#0a0f1e' }}>
+          <span className="text-xs text-slate-400 w-12">縮小</span>
+          <input
+            type="range"
+            min={1} max={3} step={0.05}
+            value={zoom}
+            onChange={e => setZoom(Number(e.target.value))}
+            className="flex-1 accent-blue-500"
+          />
+          <span className="text-xs text-slate-400 w-12 text-right">拡大</span>
+        </div>
+
+        {/* ボタン */}
+        <div className="flex gap-3 justify-end px-5 py-4 border-t" style={{ borderColor: '#1e3a5f', backgroundColor: '#0a0f1e' }}>
+          <button
+            onClick={() => { setShowCropper(false); setRawImageSrc(null); }}
+            className="px-5 py-2.5 rounded-xl border text-sm font-medium transition-colors"
+            style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}
+          >
+            キャンセル
+          </button>
+          <button
+            onClick={handleCropAndUpload}
+            disabled={uploading}
+            className="px-6 py-2.5 rounded-xl font-bold text-white text-sm transition-all hover:opacity-90 disabled:opacity-50"
+            style={{ backgroundColor: '#3b82f6' }}
+          >
+            {uploading ? '⏳ アップロード中...' : '✓ この範囲で保存'}
+          </button>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
 
