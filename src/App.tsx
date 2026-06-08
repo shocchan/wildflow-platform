@@ -1,8 +1,50 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, Component, type ReactNode, type ErrorInfo } from 'react';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { ScrollToTop } from './components/ScrollToTop';
+
+// ── エラーバウンダリ ──────────────────────────────────────
+class ErrorBoundary extends Component<
+  { children: ReactNode; fallback?: ReactNode },
+  { error: Error | null }
+> {
+  constructor(props: { children: ReactNode; fallback?: ReactNode }) {
+    super(props);
+    this.state = { error: null };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error('[ErrorBoundary]', error, info.componentStack);
+  }
+  render() {
+    if (this.state.error) {
+      return this.props.fallback ?? (
+        <div className="min-h-[60vh] flex items-center justify-center px-4">
+          <div className="max-w-lg w-full rounded-2xl border p-8 text-center"
+            style={{ backgroundColor: '#111827', borderColor: '#ef4444' }}>
+            <p className="text-2xl mb-3">⚠️</p>
+            <p className="font-bold text-white mb-2">レンダリングエラーが発生しました</p>
+            <pre className="text-xs text-left overflow-auto mt-4 p-3 rounded-lg"
+              style={{ backgroundColor: '#0a0f1e', color: '#f87171', maxHeight: '200px' }}>
+              {this.state.error.message}
+            </pre>
+            <button
+              onClick={() => this.setState({ error: null })}
+              className="mt-4 px-5 py-2 rounded-xl text-sm font-bold text-white"
+              style={{ backgroundColor: '#3b82f6' }}
+            >
+              再試行
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const HomePage       = lazy(() => import('./pages/HomePage').then(m => ({ default: m.HomePage })));
 const BlogPage       = lazy(() => import('./pages/BlogPage').then(m => ({ default: m.BlogPage })));
@@ -21,19 +63,21 @@ const PageLoader = () => (
 const AnimatedRoutes = () => {
   const location = useLocation();
   return (
-    <Suspense fallback={<PageLoader />}>
-      <div key={location.pathname} className="page-fade">
-        <Routes location={location}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/blog" element={<BlogPage />} />
-          <Route path="/blog/:id" element={<BlogDetailPage />} />
-          <Route path="/quiz" element={<QuizPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </div>
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense fallback={<PageLoader />}>
+        <div key={location.pathname} className="page-fade">
+          <Routes location={location}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/blog" element={<BlogPage />} />
+            <Route path="/blog/:id" element={<BlogDetailPage />} />
+            <Route path="/quiz" element={<QuizPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </div>
+      </Suspense>
+    </ErrorBoundary>
   );
 };
 

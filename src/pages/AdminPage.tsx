@@ -315,7 +315,10 @@ function ProfileForm({ onToast }: { onToast: (msg: string) => void }) {
     fetchProfileSettings().then(setForm).catch(() => setForm({ ...defaultProfileSettings }));
   }, []);
 
-  const set = (k: keyof ProfileSettings, v: string) => setForm(f => f ? { ...f, [k]: v } : f);
+  // ── すべての関数・コールバックをフックと同じトップレベルに定義 ──
+
+  const set = (k: keyof ProfileSettings, v: string) =>
+    setForm(f => f ? { ...f, [k]: v } : f);
 
   // ファイル選択 → クロッパーモーダルを表示
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -329,16 +332,13 @@ function ProfileForm({ onToast }: { onToast: (msg: string) => void }) {
       setShowCropper(true);
     };
     reader.readAsDataURL(file);
-    // input をリセット（同じファイルを再選択できるように）
     e.target.value = '';
   };
 
-  // クロップ完了コールバック（フックルール遵守のため早期returnより前に定義）
+  // クロップ完了コールバック
   const onCropComplete = useCallback((_: unknown, pixels: CropArea) => {
     setCroppedAreaPixels(pixels);
   }, []);
-
-  if (!form) return <p className="text-slate-400 text-sm">読み込み中...</p>;
 
   // クロップ → Supabase Storage にアップロード
   const handleCropAndUpload = async () => {
@@ -350,12 +350,9 @@ function ProfileForm({ onToast }: { onToast: (msg: string) => void }) {
         .from('avatars')
         .upload('profile.jpg', blob, { upsert: true, contentType: 'image/jpeg' });
       if (error) throw error;
-
-      // キャッシュバスターを付けてURLを取得（即時反映のため）
       const { data } = supabase.storage.from('avatars').getPublicUrl('profile.jpg');
       const urlWithBust = `${data.publicUrl}?t=${Date.now()}`;
       set('photo_url', urlWithBust);
-
       setShowCropper(false);
       setRawImageSrc(null);
       onToast('✅ 画像をアップロードしました');
@@ -379,6 +376,10 @@ function ProfileForm({ onToast }: { onToast: (msg: string) => void }) {
       setSaving(false);
     }
   };
+
+  // ─────────────────────────────────────────────────────────
+  // 早期returnはすべてのフック・関数定義の後に置く
+  if (!form) return <p className="text-slate-400 text-sm">読み込み中...</p>;
 
   return (
     <>
