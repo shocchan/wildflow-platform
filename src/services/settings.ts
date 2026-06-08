@@ -11,7 +11,7 @@ export interface ProfileSettings {
   lemon8_url: string;
 }
 
-const DEFAULTS: ProfileSettings = {
+export const defaultProfileSettings: ProfileSettings = {
   name: 'しょっちゃん',
   tagline: '野生の身体を研究する人',
   photo_url: '',
@@ -30,7 +30,7 @@ export async function fetchProfileSettings(): Promise<ProfileSettings> {
     .select('value')
     .eq('key', 'profile')
     .single();
-  return data ? { ...DEFAULTS, ...(data.value as Partial<ProfileSettings>) } : DEFAULTS;
+  return data ? { ...defaultProfileSettings, ...(data.value as Partial<ProfileSettings>) } : defaultProfileSettings;
 }
 
 export async function saveProfileSettings(profile: ProfileSettings): Promise<void> {

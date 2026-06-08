@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import Cropper from 'react-easy-crop';
 import { fetchAllPostsAdmin, createPost, updatePost, deletePost } from '../services/posts';
-import { fetchProfileSettings, saveProfileSettings, type ProfileSettings } from '../services/settings';
+import { fetchProfileSettings, saveProfileSettings, defaultProfileSettings, type ProfileSettings } from '../services/settings';
 import { supabase } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import { getCroppedImg, type CropArea } from '../utils/cropImage';
@@ -312,10 +312,8 @@ function ProfileForm({ onToast }: { onToast: (msg: string) => void }) {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<CropArea | null>(null);
 
   useEffect(() => {
-    fetchProfileSettings().then(setForm);
+    fetchProfileSettings().then(setForm).catch(() => setForm({ ...defaultProfileSettings }));
   }, []);
-
-  if (!form) return <p className="text-slate-400 text-sm">読み込み中...</p>;
 
   const set = (k: keyof ProfileSettings, v: string) => setForm(f => f ? { ...f, [k]: v } : f);
 
@@ -335,11 +333,12 @@ function ProfileForm({ onToast }: { onToast: (msg: string) => void }) {
     e.target.value = '';
   };
 
-  // クロップ完了コールバック
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // クロップ完了コールバック（フックルール遵守のため早期returnより前に定義）
   const onCropComplete = useCallback((_: unknown, pixels: CropArea) => {
     setCroppedAreaPixels(pixels);
   }, []);
+
+  if (!form) return <p className="text-slate-400 text-sm">読み込み中...</p>;
 
   // クロップ → Supabase Storage にアップロード
   const handleCropAndUpload = async () => {

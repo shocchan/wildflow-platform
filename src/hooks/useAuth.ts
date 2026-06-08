@@ -10,6 +10,8 @@ export const useAuth = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsAuthenticated(!!session);
       setLoading(false);
+    }).catch(() => {
+      setLoading(false);
     });
 
     // セッション変化を監視
