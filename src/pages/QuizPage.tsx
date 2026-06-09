@@ -177,7 +177,7 @@ export function QuizPage() {
   return (
     <main className="max-w-2xl mx-auto px-4 py-12">
       <div className="text-center mb-8">
-        <p className="text-sm font-medium mb-1" style={{ color: '#3b82f6' }}>野生タイプ診断 v2</p>
+        <p className="text-sm font-medium mb-1" style={{ color: '#3b82f6' }}>野生タイプ診断</p>
         <h1 className="text-2xl font-black text-white">あなたの野生タイプを診断する</h1>
       </div>
 
