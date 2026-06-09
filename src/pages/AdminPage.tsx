@@ -1,5 +1,9 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import ReactMarkdown from 'react-markdown';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Image from '@tiptap/extension-image';
+import Link from '@tiptap/extension-link';
+import Placeholder from '@tiptap/extension-placeholder';
 import Cropper from 'react-easy-crop';
 import { fetchAllPostsAdmin, createPost, updatePost, deletePost } from '../services/posts';
 import { fetchProfileSettings, saveProfileSettings, defaultProfileSettings, type ProfileSettings } from '../services/settings';
@@ -10,7 +14,6 @@ import type { Post } from '../types';
 
 type Mode = 'list' | 'create' | 'edit';
 type AdminTab = 'posts' | 'profile';
-type PreviewTab = 'write' | 'preview';
 
 const emptyForm = (): Omit<Post, 'id' | 'created_at'> => ({
   title: '',
@@ -21,6 +24,211 @@ const emptyForm = (): Omit<Post, 'id' | 'created_at'> => ({
   tags: [],
   status: 'draft',
 });
+
+// ── ツールバーボタン ───────────────────────────────────────
+function ToolbarBtn({
+  onClick, active, children, title,
+}: {
+  onClick: () => void; active?: boolean; children: React.ReactNode; title?: string;
+}) {
+  return (
+    <button
+      type="button"
+      title={title}
+      onClick={onClick}
+      className="px-2 py-1 rounded text-sm font-bold transition-colors"
+      style={{
+        backgroundColor: active ? '#3b82f6' : 'transparent',
+        color: active ? '#fff' : '#94a3b8',
+      }}
+      onMouseEnter={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1e3a5f'; }}
+      onMouseLeave={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent'; }}
+    >
+      {children}
+    </button>
+  );
+}
+
+// ── リッチテキストエディタ ─────────────────────────────────
+function RichEditor({ value, onChange }: { value: string; onChange: (html: string) => void }) {
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Image,
+      Link.configure({ openOnClick: false }),
+      Placeholder.configure({ placeholder: '本文を入力してください…' }),
+    ],
+    content: value || '',
+    onUpdate: ({ editor }) => onChange(editor.getHTML()),
+    editorProps: {
+      attributes: {
+        class: 'outline-none min-h-[400px] px-5 py-4 text-slate-200 leading-relaxed prose-wild',
+      },
+    },
+  });
+
+  const setLink = () => {
+    const url = window.prompt('URL を入力してください');
+    if (!url) return;
+    editor?.chain().focus().setLink({ href: url }).run();
+  };
+
+  if (!editor) return null;
+
+  return (
+    <div
+      className="rounded-xl border overflow-hidden transition-colors focus-within:border-blue-500"
+      style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }}
+    >
+      {/* ツールバー */}
+      <div
+        className="flex flex-wrap items-center gap-0.5 px-2 py-2 border-b"
+        style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}
+      >
+        <ToolbarBtn onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} active={editor.isActive('heading', { level: 1 })} title="見出し1">H1</ToolbarBtn>
+        <ToolbarBtn onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} active={editor.isActive('heading', { level: 2 })} title="見出し2">H2</ToolbarBtn>
+        <ToolbarBtn onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} active={editor.isActive('heading', { level: 3 })} title="見出し3">H3</ToolbarBtn>
+        <div className="w-px h-5 mx-1" style={{ backgroundColor: '#1e3a5f' }} />
+        <ToolbarBtn onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')} title="太字"><b>B</b></ToolbarBtn>
+        <ToolbarBtn onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive('italic')} title="斜体"><i>I</i></ToolbarBtn>
+        <div className="w-px h-5 mx-1" style={{ backgroundColor: '#1e3a5f' }} />
+        <ToolbarBtn onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive('bulletList')} title="箇条書き">・</ToolbarBtn>
+        <ToolbarBtn onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive('orderedList')} title="番号付きリスト">1.</ToolbarBtn>
+        <div className="w-px h-5 mx-1" style={{ backgroundColor: '#1e3a5f' }} />
+        <ToolbarBtn onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive('blockquote')} title="引用">❝</ToolbarBtn>
+        <ToolbarBtn onClick={setLink} active={editor.isActive('link')} title="リンク">🔗</ToolbarBtn>
+        <ToolbarBtn onClick={() => editor.chain().focus().setHorizontalRule().run()} title="水平線">—</ToolbarBtn>
+      </div>
+      {/* エディタ本体 */}
+      <EditorContent editor={editor} />
+    </div>
+  );
+}
+
+// ── サムネイルアップローダー ───────────────────────────────
+function ThumbnailUploader({ value, onChange }: { value: string; onChange: (url: string) => void }) {
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const filename = `${Date.now()}-${file.name.replace(/\s/g, '_')}`;
+      const { error } = await supabase.storage
+        .from('thumbnails')
+        .upload(filename, file, { upsert: true });
+      if (error) throw error;
+      const { data } = supabase.storage.from('thumbnails').getPublicUrl(filename);
+      onChange(data.publicUrl);
+    } catch {
+      alert('アップロードに失敗しました');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      {value && (
+        <div className="relative">
+          <img
+            src={value}
+            alt="サムネイル"
+            className="w-full max-w-xs rounded-xl object-cover aspect-video border"
+            style={{ borderColor: '#1e3a5f' }}
+          />
+        </div>
+      )}
+      <div className="flex items-center gap-3">
+        <label
+          className="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-bold transition-all hover:border-blue-500 hover:text-blue-400"
+          style={{ borderColor: '#1e3a5f', color: uploading ? '#475569' : '#94a3b8', backgroundColor: '#0a0f1e' }}
+        >
+          {uploading ? '⏳ アップロード中...' : '📁 画像を選択'}
+          <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" disabled={uploading} />
+        </label>
+        {value && (
+          <button
+            type="button"
+            onClick={() => onChange('')}
+            className="text-sm transition-colors hover:text-red-300"
+            style={{ color: '#ef4444' }}
+          >
+            削除
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── タグ入力 ──────────────────────────────────────────────
+function TagInput({ tags, onChange }: { tags: string[]; onChange: (tags: string[]) => void }) {
+  const [input, setInput] = useState('');
+
+  const add = () => {
+    const val = input.trim();
+    if (val && !tags.includes(val)) onChange([...tags, val]);
+    setInput('');
+  };
+
+  const remove = (tag: string) => onChange(tags.filter(t => t !== tag));
+
+  return (
+    <div
+      className="flex flex-wrap gap-2 items-center px-3 py-2 rounded-xl border min-h-[46px] transition-colors focus-within:border-blue-500"
+      style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }}
+    >
+      {tags.map(tag => (
+        <span
+          key={tag}
+          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold"
+          style={{ backgroundColor: '#1e3a5f', color: '#7dd3fc' }}
+        >
+          #{tag}
+          <button type="button" onClick={() => remove(tag)} className="ml-0.5 hover:text-red-400 text-xs leading-none">×</button>
+        </span>
+      ))}
+      <input
+        value={input}
+        onChange={e => setInput(e.target.value)}
+        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); add(); } if (e.key === ',') { e.preventDefault(); add(); } }}
+        onBlur={add}
+        placeholder={tags.length === 0 ? 'タグを入力してEnter' : '+ タグを追加'}
+        className="flex-1 min-w-[100px] bg-transparent outline-none text-sm text-white placeholder:text-slate-600"
+      />
+    </div>
+  );
+}
+
+// ── ステータス切り替え ─────────────────────────────────────
+function StatusToggle({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const options = [
+    { value: 'draft', label: '🔒 下書き', desc: '非公開' },
+    { value: 'published', label: '🌐 公開', desc: '全員に表示' },
+  ];
+  return (
+    <div className="flex gap-2">
+      {options.map(opt => (
+        <button
+          key={opt.value}
+          type="button"
+          onClick={() => onChange(opt.value)}
+          className="flex-1 py-2.5 px-3 rounded-xl border text-sm font-bold transition-all"
+          style={{
+            backgroundColor: value === opt.value ? (opt.value === 'published' ? 'rgba(59,130,246,0.15)' : 'rgba(100,116,139,0.1)') : 'transparent',
+            borderColor: value === opt.value ? (opt.value === 'published' ? '#3b82f6' : '#64748b') : '#1e3a5f',
+            color: value === opt.value ? (opt.value === 'published' ? '#3b82f6' : '#94a3b8') : '#475569',
+          }}
+        >
+          {opt.label}
+          <span className="block text-xs font-normal opacity-60">{opt.desc}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
 
 // ── ログイン画面 ──────────────────────────────────────────
 function LoginScreen({ onLogin }: { onLogin: (email: string, pw: string) => Promise<void> }) {
@@ -34,16 +242,10 @@ function LoginScreen({ onLogin }: { onLogin: (email: string, pw: string) => Prom
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
-    try {
-      await onLogin(email, pw);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'ログインに失敗しました');
-      setPw('');
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true); setError('');
+    try { await onLogin(email, pw); }
+    catch (err) { setError(err instanceof Error ? err.message : 'ログインに失敗しました'); setPw(''); }
+    finally { setLoading(false); }
   };
 
   return (
@@ -54,52 +256,32 @@ function LoginScreen({ onLogin }: { onLogin: (email: string, pw: string) => Prom
           <h1 className="text-2xl font-bold text-white">管理者ログイン</h1>
           <p className="text-sm mt-1" style={{ color: '#64748b' }}>wildflow 管理画面</p>
         </div>
-
         <div className="rounded-2xl border p-8" style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}>
           {error && (
             <div className="text-sm px-4 py-3 rounded-xl mb-4 border" style={{ backgroundColor: 'rgba(239,68,68,0.1)', borderColor: 'rgba(239,68,68,0.3)', color: '#f87171' }}>
               {error}
             </div>
           )}
-
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#94a3b8' }}>
-                メールアドレス
-              </label>
-              <input
-                ref={emailRef}
-                type="email"
-                required
-                value={email}
+              <label className="block text-sm font-medium mb-2" style={{ color: '#94a3b8' }}>メールアドレス</label>
+              <input ref={emailRef} type="email" required value={email}
                 onChange={e => { setEmail(e.target.value); setError(''); }}
                 className="w-full px-4 py-3 rounded-xl border outline-none text-white transition-colors focus:border-blue-500"
                 style={{ backgroundColor: '#0a0f1e', borderColor: error ? 'rgba(239,68,68,0.5)' : '#1e3a5f' }}
-                placeholder="admin@example.com"
-                autoComplete="email"
-              />
+                placeholder="admin@example.com" autoComplete="email" />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#94a3b8' }}>
-                パスワード
-              </label>
-              <input
-                type="password"
-                required
-                value={pw}
+              <label className="block text-sm font-medium mb-2" style={{ color: '#94a3b8' }}>パスワード</label>
+              <input type="password" required value={pw}
                 onChange={e => { setPw(e.target.value); setError(''); }}
                 className="w-full px-4 py-3 rounded-xl border outline-none text-white transition-colors focus:border-blue-500"
                 style={{ backgroundColor: '#0a0f1e', borderColor: error ? 'rgba(239,68,68,0.5)' : '#1e3a5f' }}
-                placeholder="••••••••••"
-                autoComplete="current-password"
-              />
+                placeholder="••••••••••" autoComplete="current-password" />
             </div>
-            <button
-              type="submit"
-              disabled={loading || !email || !pw}
+            <button type="submit" disabled={loading || !email || !pw}
               className="w-full py-3 rounded-xl font-bold text-white transition-all hover:opacity-90 disabled:opacity-40 mt-2"
-              style={{ backgroundColor: '#3b82f6' }}
-            >
+              style={{ backgroundColor: '#3b82f6' }}>
               {loading ? 'ログイン中...' : 'ログイン'}
             </button>
           </form>
@@ -109,12 +291,9 @@ function LoginScreen({ onLogin }: { onLogin: (email: string, pw: string) => Prom
   );
 }
 
-// ── フォーム ──────────────────────────────────────────────
+// ── 記事フォーム ──────────────────────────────────────────
 function PostForm({
-  mode,
-  initial,
-  onSave,
-  onCancel,
+  mode, initial, onSave, onCancel,
 }: {
   mode: 'create' | 'edit';
   initial: Omit<Post, 'id' | 'created_at'>;
@@ -122,19 +301,16 @@ function PostForm({
   onCancel: () => void;
 }) {
   const [form, setForm] = useState(initial);
-  const [tagInput, setTagInput] = useState(initial.tags?.join(', ') || '');
   const [saving, setSaving] = useState(false);
-  const [previewTab, setPreviewTab] = useState<PreviewTab>('write');
 
-  const set = (k: keyof typeof form, v: string) => setForm(f => ({ ...f, [k]: v }));
+  const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
+    setForm(f => ({ ...f, [k]: v }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    const tags = tagInput.split(',').map(t => t.trim()).filter(Boolean);
     await onSave({
       ...form,
-      tags,
       thumbnail_url: form.thumbnail_url || null,
       youtube_url: form.youtube_url || null,
       external_url: form.external_url || null,
@@ -146,152 +322,59 @@ function PostForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* タイトル */}
       <Field label="タイトル *">
-        <input
-          required
-          value={form.title}
-          onChange={e => set('title', e.target.value)}
-          className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-base"
+        <input required value={form.title} onChange={e => set('title', e.target.value)}
+          className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-base transition-colors"
           style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }}
-          placeholder="記事タイトルを入力"
-        />
+          placeholder="記事タイトルを入力" />
       </Field>
 
-      {/* 本文 + プレビュー */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <label className="text-sm font-medium" style={{ color: '#94a3b8' }}>本文（Markdown）*</label>
-          <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: '#1e3a5f' }}>
-            {(['write', 'preview'] as PreviewTab[]).map(tab => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => setPreviewTab(tab)}
-                className="px-4 py-1.5 text-xs font-medium transition-colors"
-                style={{
-                  backgroundColor: previewTab === tab ? '#3b82f6' : '#0a0f1e',
-                  color: previewTab === tab ? '#fff' : '#64748b',
-                }}
-              >
-                {tab === 'write' ? '✏️ 編集' : '👁 プレビュー'}
-              </button>
-            ))}
-          </div>
-        </div>
+      {/* リッチテキストエディタ */}
+      <Field label="本文 *">
+        <RichEditor value={form.body} onChange={v => set('body', v)} />
+      </Field>
 
-        {previewTab === 'write' ? (
-          <textarea
-            required
-            value={form.body}
-            onChange={e => set('body', e.target.value)}
-            rows={16}
-            className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white font-mono text-sm resize-y"
-            style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f', lineHeight: '1.7' }}
-            placeholder={'# 見出し\n\n本文をMarkdownで書いてください。\n\n## サブ見出し\n\n- リスト1\n- リスト2'}
-          />
-        ) : (
-          <div
-            className="min-h-64 px-6 py-5 rounded-xl border prose-wild overflow-auto"
-            style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }}
-          >
-            {form.body
-              ? <ReactMarkdown>{form.body}</ReactMarkdown>
-              : <p style={{ color: '#334155' }}>本文を入力するとプレビューが表示されます</p>
-            }
-          </div>
-        )}
-      </div>
+      {/* サムネイル */}
+      <Field label="サムネイル画像">
+        <ThumbnailUploader value={form.thumbnail_url || ''} onChange={v => set('thumbnail_url', v)} />
+      </Field>
 
-      {/* メディア系 */}
+      {/* YouTube / 外部リンク */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Field label="サムネイル画像URL">
-          <input
-            value={form.thumbnail_url || ''}
-            onChange={e => set('thumbnail_url', e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm"
-            style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }}
-            placeholder="https://..."
-          />
-        </Field>
         <Field label="YouTube URL">
-          <input
-            value={form.youtube_url || ''}
-            onChange={e => set('youtube_url', e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm"
+          <input value={form.youtube_url || ''} onChange={e => set('youtube_url', e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm transition-colors"
             style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }}
-            placeholder="https://youtube.com/watch?v=..."
-          />
+            placeholder="https://youtube.com/watch?v=..." />
+        </Field>
+        <Field label="外部リンクURL">
+          <input value={form.external_url || ''} onChange={e => set('external_url', e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm transition-colors"
+            style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }}
+            placeholder="https://..." />
         </Field>
       </div>
 
-      <Field label="外部リンクURL">
-        <input
-          value={form.external_url || ''}
-          onChange={e => set('external_url', e.target.value)}
-          className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm"
-          style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }}
-          placeholder="https://..."
-        />
+      {/* タグ */}
+      <Field label="タグ">
+        <TagInput tags={form.tags || []} onChange={v => set('tags', v)} />
       </Field>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Field label="タグ（カンマ区切り）">
-          <input
-            value={tagInput}
-            onChange={e => setTagInput(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm"
-            style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }}
-            placeholder="筋トレ, 食事, マインドセット"
-          />
-        </Field>
-        <Field label="公開ステータス">
-          <select
-            value={form.status}
-            onChange={e => set('status', e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm"
-            style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }}
-          >
-            <option value="draft">📝 下書き</option>
-            <option value="published">🌐 公開</option>
-          </select>
-        </Field>
-      </div>
-
-      {/* サムネイルプレビュー */}
-      {form.thumbnail_url && (
-        <div className="rounded-xl overflow-hidden border" style={{ borderColor: '#1e3a5f' }}>
-          <p className="text-xs px-3 py-2 border-b" style={{ color: '#64748b', borderColor: '#1e3a5f' }}>サムネイルプレビュー</p>
-          <img src={form.thumbnail_url} alt="thumbnail" className="w-full max-h-48 object-cover" onError={e => (e.currentTarget.style.display = 'none')} />
-        </div>
-      )}
+      {/* ステータス */}
+      <Field label="公開ステータス">
+        <StatusToggle value={form.status} onChange={v => set('status', v as 'published' | 'draft')} />
+      </Field>
 
       <div className="flex gap-3 pt-2 border-t" style={{ borderColor: '#1e3a5f' }}>
-        <button
-          type="submit"
-          disabled={saving}
+        <button type="submit" disabled={saving}
           className="px-8 py-3 rounded-xl font-bold text-white transition-all hover:opacity-90 disabled:opacity-50"
-          style={{ backgroundColor: '#3b82f6' }}
-        >
+          style={{ backgroundColor: '#3b82f6' }}>
           {saving ? '保存中...' : mode === 'edit' ? '✓ 更新する' : '✓ 作成する'}
         </button>
-        <button
-          type="button"
-          onClick={onCancel}
+        <button type="button" onClick={onCancel}
           className="px-6 py-3 rounded-xl font-bold border transition-all hover:bg-white/5"
-          style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}
-        >
+          style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}>
           キャンセル
         </button>
-        <div className="ml-auto flex items-center gap-2">
-          <span className="text-xs px-3 py-1.5 rounded-full border"
-            style={{
-              borderColor: form.status === 'published' ? 'rgba(59,130,246,0.4)' : '#1e3a5f',
-              color: form.status === 'published' ? '#3b82f6' : '#64748b',
-              backgroundColor: form.status === 'published' ? 'rgba(59,130,246,0.1)' : 'transparent',
-            }}
-          >
-            {form.status === 'published' ? '🌐 公開予定' : '📝 下書き'}
-          </span>
-        </div>
       </div>
     </form>
   );
@@ -303,8 +386,6 @@ function ProfileForm({ onToast }: { onToast: (msg: string) => void }) {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // クロッパー用 state
   const [rawImageSrc, setRawImageSrc] = useState<string | null>(null);
   const [showCropper, setShowCropper] = useState(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -315,70 +396,46 @@ function ProfileForm({ onToast }: { onToast: (msg: string) => void }) {
     fetchProfileSettings().then(setForm).catch(() => setForm({ ...defaultProfileSettings }));
   }, []);
 
-  // ── すべての関数・コールバックをフックと同じトップレベルに定義 ──
-
   const set = (k: keyof ProfileSettings, v: string) =>
     setForm(f => f ? { ...f, [k]: v } : f);
 
-  // ファイル選択 → クロッパーモーダルを表示
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => {
-      setRawImageSrc(reader.result as string);
-      setCrop({ x: 0, y: 0 });
-      setZoom(1);
-      setShowCropper(true);
-    };
+    reader.onload = () => { setRawImageSrc(reader.result as string); setCrop({ x: 0, y: 0 }); setZoom(1); setShowCropper(true); };
     reader.readAsDataURL(file);
     e.target.value = '';
   };
 
-  // クロップ完了コールバック
   const onCropComplete = useCallback((_: unknown, pixels: CropArea) => {
     setCroppedAreaPixels(pixels);
   }, []);
 
-  // クロップ → Supabase Storage にアップロード
   const handleCropAndUpload = async () => {
     if (!rawImageSrc || !croppedAreaPixels) return;
     setUploading(true);
     try {
       const blob = await getCroppedImg(rawImageSrc, croppedAreaPixels);
-      const { error } = await supabase.storage
-        .from('avatars')
-        .upload('profile.jpg', blob, { upsert: true, contentType: 'image/jpeg' });
+      const { error } = await supabase.storage.from('avatars').upload('profile.jpg', blob, { upsert: true, contentType: 'image/jpeg' });
       if (error) throw error;
       const { data } = supabase.storage.from('avatars').getPublicUrl('profile.jpg');
-      const urlWithBust = `${data.publicUrl}?t=${Date.now()}`;
-      set('photo_url', urlWithBust);
-      setShowCropper(false);
-      setRawImageSrc(null);
+      set('photo_url', `${data.publicUrl}?t=${Date.now()}`);
+      setShowCropper(false); setRawImageSrc(null);
       onToast('✅ 画像をアップロードしました');
-    } catch {
-      onToast('❌ アップロードに失敗しました');
-    } finally {
-      setUploading(false);
-    }
+    } catch { onToast('❌ アップロードに失敗しました'); }
+    finally { setUploading(false); }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form) return;
     setSaving(true);
-    try {
-      await saveProfileSettings(form);
-      onToast('✅ プロフィールを更新しました');
-    } catch {
-      onToast('❌ 保存に失敗しました');
-    } finally {
-      setSaving(false);
-    }
+    try { await saveProfileSettings(form); onToast('✅ プロフィールを更新しました'); }
+    catch { onToast('❌ 保存に失敗しました'); }
+    finally { setSaving(false); }
   };
 
-  // ─────────────────────────────────────────────────────────
-  // 早期returnはすべてのフック・関数定義の後に置く
   if (!form) return <p className="text-slate-400 text-sm">読み込み中...</p>;
 
   return (
@@ -399,31 +456,19 @@ function ProfileForm({ onToast }: { onToast: (msg: string) => void }) {
 
       <Field label="プロフィール画像">
         <div className="flex items-center gap-4">
-          {/* 画像プレビュー */}
           <div className="flex-shrink-0">
-            {form.photo_url ? (
-              <img src={form.photo_url} alt="preview"
-                className="w-20 h-20 rounded-full object-cover border-2"
-                style={{ borderColor: '#3b82f6' }}
-                onError={e => (e.currentTarget.style.display = 'none')} />
-            ) : (
-              <div className="w-20 h-20 rounded-full flex items-center justify-center text-3xl border-2"
-                style={{ backgroundColor: '#1a3a5c', borderColor: '#1e3a5f' }}>
-                🌊
-              </div>
-            )}
+            {form.photo_url
+              ? <img src={form.photo_url} alt="preview" className="w-20 h-20 rounded-full object-cover border-2" style={{ borderColor: '#3b82f6' }} onError={e => (e.currentTarget.style.display = 'none')} />
+              : <div className="w-20 h-20 rounded-full flex items-center justify-center text-3xl border-2" style={{ backgroundColor: '#1a3a5c', borderColor: '#1e3a5f' }}>🌊</div>
+            }
           </div>
           <div className="flex-1 space-y-2">
-            {/* アップロードボタン */}
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden"
-              onChange={handleFileSelect} />
-            <button type="button" disabled={uploading}
-              onClick={() => fileInputRef.current?.click()}
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
+            <button type="button" disabled={uploading} onClick={() => fileInputRef.current?.click()}
               className="w-full px-4 py-2.5 rounded-xl border font-bold text-sm transition-all hover:border-blue-500 hover:text-blue-400 disabled:opacity-50"
               style={{ borderColor: '#1e3a5f', color: '#94a3b8', backgroundColor: '#0a0f1e' }}>
               {uploading ? '⏳ アップロード中...' : '📁 画像ファイルを選択'}
             </button>
-            {/* URLで直接入力もできる */}
             <input value={form.photo_url} onChange={e => set('photo_url', e.target.value)}
               className="w-full px-3 py-2 rounded-xl border outline-none focus:border-blue-500 text-white text-xs"
               style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f', color: '#64748b' }}
@@ -434,13 +479,13 @@ function ProfileForm({ onToast }: { onToast: (msg: string) => void }) {
 
       <Field label="ミッション">
         <textarea value={form.mission} onChange={e => set('mission', e.target.value)} rows={4}
-          className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm resize-y font-mono"
+          className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm resize-y"
           style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f', lineHeight: '1.7' }} />
       </Field>
 
       <Field label="ストーリー">
         <textarea value={form.story} onChange={e => set('story', e.target.value)} rows={5}
-          className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm resize-y font-mono"
+          className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm resize-y"
           style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f', lineHeight: '1.7' }} />
       </Field>
 
@@ -448,20 +493,17 @@ function ProfileForm({ onToast }: { onToast: (msg: string) => void }) {
         <Field label="Twitter / X URL">
           <input value={form.twitter_url} onChange={e => set('twitter_url', e.target.value)}
             className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm"
-            style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }}
-            placeholder="https://twitter.com/..." />
+            style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }} placeholder="https://twitter.com/..." />
         </Field>
         <Field label="小紅書（XHS）URL">
           <input value={form.xhs_url} onChange={e => set('xhs_url', e.target.value)}
             className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm"
-            style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }}
-            placeholder="https://xhslink.com/..." />
+            style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }} placeholder="https://xhslink.com/..." />
         </Field>
         <Field label="lemon8 URL">
           <input value={form.lemon8_url} onChange={e => set('lemon8_url', e.target.value)}
             className="w-full px-4 py-3 rounded-xl border outline-none focus:border-blue-500 text-white text-sm"
-            style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }}
-            placeholder="https://s.lemon8-app.com/..." />
+            style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }} placeholder="https://s.lemon8-app.com/..." />
         </Field>
       </div>
 
@@ -474,66 +516,28 @@ function ProfileForm({ onToast }: { onToast: (msg: string) => void }) {
       </div>
     </form>
 
-    {/* ── クロッパーモーダル ── */}
     {showCropper && rawImageSrc && (
-      <div
-        className="fixed inset-0 z-50 flex flex-col"
-        style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}
-      >
-        {/* ヘッダー */}
+      <div className="fixed inset-0 z-50 flex flex-col" style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}>
         <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: '#1e3a5f' }}>
           <h3 className="text-white font-bold">📐 画像をトリミング</h3>
-          <button
-            onClick={() => { setShowCropper(false); setRawImageSrc(null); }}
-            className="text-slate-400 hover:text-white text-xl leading-none px-2"
-          >
-            ✕
-          </button>
+          <button onClick={() => { setShowCropper(false); setRawImageSrc(null); }} className="text-slate-400 hover:text-white text-xl leading-none px-2">✕</button>
         </div>
-
-        {/* クロッパー */}
         <div className="relative flex-1">
-          <Cropper
-            image={rawImageSrc}
-            crop={crop}
-            zoom={zoom}
-            aspect={1}
-            cropShape="round"
-            showGrid={false}
-            onCropChange={setCrop}
-            onZoomChange={setZoom}
-            onCropComplete={onCropComplete}
-          />
+          <Cropper image={rawImageSrc} crop={crop} zoom={zoom} aspect={1} cropShape="round" showGrid={false}
+            onCropChange={setCrop} onZoomChange={setZoom} onCropComplete={onCropComplete} />
         </div>
-
-        {/* ズームスライダー */}
         <div className="px-6 py-3 flex items-center gap-4" style={{ backgroundColor: '#0a0f1e' }}>
           <span className="text-xs text-slate-400 w-12">縮小</span>
-          <input
-            type="range"
-            min={1} max={3} step={0.05}
-            value={zoom}
-            onChange={e => setZoom(Number(e.target.value))}
-            className="flex-1 accent-blue-500"
-          />
+          <input type="range" min={1} max={3} step={0.05} value={zoom} onChange={e => setZoom(Number(e.target.value))} className="flex-1 accent-blue-500" />
           <span className="text-xs text-slate-400 w-12 text-right">拡大</span>
         </div>
-
-        {/* ボタン */}
         <div className="flex gap-3 justify-end px-5 py-4 border-t" style={{ borderColor: '#1e3a5f', backgroundColor: '#0a0f1e' }}>
-          <button
-            onClick={() => { setShowCropper(false); setRawImageSrc(null); }}
+          <button onClick={() => { setShowCropper(false); setRawImageSrc(null); }}
             className="px-5 py-2.5 rounded-xl border text-sm font-medium transition-colors"
-            style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}
-          >
-            キャンセル
-          </button>
-          <button
-            onClick={handleCropAndUpload}
-            disabled={uploading}
+            style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}>キャンセル</button>
+          <button onClick={handleCropAndUpload} disabled={uploading}
             className="px-6 py-2.5 rounded-xl font-bold text-white text-sm transition-all hover:opacity-90 disabled:opacity-50"
-            style={{ backgroundColor: '#3b82f6' }}
-          >
+            style={{ backgroundColor: '#3b82f6' }}>
             {uploading ? '⏳ アップロード中...' : '✓ この範囲で保存'}
           </button>
         </div>
@@ -554,193 +558,105 @@ export function AdminPage() {
   const [toast, setToast] = useState('');
   const [search, setSearch] = useState('');
 
-  const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(''), 3000);
-  };
-
-  const load = () => {
-    setLoading(true);
-    fetchAllPostsAdmin().then(setPosts).finally(() => setLoading(false));
-  };
+  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
+  const load = () => { setLoading(true); fetchAllPostsAdmin().then(setPosts).finally(() => setLoading(false)); };
 
   useEffect(() => { if (isAuthenticated) load(); }, [isAuthenticated]);
 
   if (authLoading) return null;
-
   if (!isAuthenticated) return <LoginScreen onLogin={login} />;
 
-  // フィルタ
   const filtered = posts.filter(p =>
     !search || p.title.toLowerCase().includes(search.toLowerCase()) ||
     p.tags?.some(t => t.includes(search))
   );
-
   const published = posts.filter(p => p.status === 'published').length;
   const draft = posts.filter(p => p.status === 'draft').length;
 
-  // ── 記事フォーム画面 ──
   if (mode === 'create' || mode === 'edit') {
     const initial = editingPost
-      ? {
-          title: editingPost.title,
-          body: editingPost.body,
-          thumbnail_url: editingPost.thumbnail_url || '',
-          youtube_url: editingPost.youtube_url || '',
-          external_url: editingPost.external_url || '',
-          tags: editingPost.tags || [],
-          status: editingPost.status,
-        }
+      ? { title: editingPost.title, body: editingPost.body, thumbnail_url: editingPost.thumbnail_url || '', youtube_url: editingPost.youtube_url || '', external_url: editingPost.external_url || '', tags: editingPost.tags || [], status: editingPost.status }
       : emptyForm();
 
     const handleSave = async (form: Omit<Post, 'id' | 'created_at'>) => {
       try {
-        if (mode === 'edit' && editingPost) {
-          await updatePost(editingPost.id, form);
-          showToast('✅ 記事を更新しました');
-        } else {
-          await createPost(form);
-          showToast('✅ 記事を作成しました');
-        }
-        load();
-        setMode('list');
-      } catch {
-        showToast('❌ 保存に失敗しました');
-      }
+        if (mode === 'edit' && editingPost) { await updatePost(editingPost.id, form); showToast('✅ 記事を更新しました'); }
+        else { await createPost(form); showToast('✅ 記事を作成しました'); }
+        load(); setMode('list');
+      } catch { showToast('❌ 保存に失敗しました'); }
     };
 
     return (
       <main className="max-w-4xl mx-auto px-4 py-10">
         {toast && <Toast msg={toast} />}
         <div className="flex items-center gap-3 mb-8">
-          <button
-            onClick={() => setMode('list')}
-            className="flex items-center gap-1 text-sm transition-colors hover:text-blue-300"
-            style={{ color: '#3b82f6' }}
-          >
-            ← 一覧に戻る
-          </button>
+          <button onClick={() => setMode('list')} className="flex items-center gap-1 text-sm transition-colors hover:text-blue-300" style={{ color: '#3b82f6' }}>← 一覧に戻る</button>
           <span style={{ color: '#1e3a5f' }}>/</span>
-          <h1 className="text-xl font-bold text-white">
-            {mode === 'edit' ? '記事を編集' : '新規記事作成'}
-          </h1>
+          <h1 className="text-xl font-bold text-white">{mode === 'edit' ? '記事を編集' : '新規記事作成'}</h1>
         </div>
         <div className="rounded-2xl border p-6 md:p-8" style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}>
-          <PostForm
-            mode={mode}
-            initial={initial}
-            onSave={handleSave}
-            onCancel={() => setMode('list')}
-          />
+          <PostForm mode={mode} initial={initial} onSave={handleSave} onCancel={() => setMode('list')} />
         </div>
       </main>
     );
   }
 
-  // ── 一覧画面 ──
   return (
     <main className="max-w-5xl mx-auto px-4 py-10">
       {toast && <Toast msg={toast} />}
-
-      {/* ヘッダー */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-black text-white">🛠 管理画面</h1>
-        <button
-          onClick={logout}
-          className="px-4 py-2.5 rounded-xl text-sm border transition-colors hover:border-red-500 hover:text-red-400"
-          style={{ borderColor: '#1e3a5f', color: '#64748b' }}
-        >
-          ログアウト
-        </button>
+        <button onClick={logout} className="px-4 py-2.5 rounded-xl text-sm border transition-colors hover:border-red-500 hover:text-red-400" style={{ borderColor: '#1e3a5f', color: '#64748b' }}>ログアウト</button>
       </div>
-
-      {/* タブ */}
       <div className="flex gap-1 mb-8 p-1 rounded-xl" style={{ backgroundColor: '#111827' }}>
         {([['posts', '📝 記事管理'], ['profile', '👤 プロフィール']] as [AdminTab, string][]).map(([tab, label]) => (
-          <button key={tab} onClick={() => setActiveTab(tab)}
-            className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all"
-            style={{
-              backgroundColor: activeTab === tab ? '#3b82f6' : 'transparent',
-              color: activeTab === tab ? '#fff' : '#64748b',
-            }}>
+          <button key={tab} onClick={() => setActiveTab(tab)} className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all"
+            style={{ backgroundColor: activeTab === tab ? '#3b82f6' : 'transparent', color: activeTab === tab ? '#fff' : '#64748b' }}>
             {label}
           </button>
         ))}
       </div>
 
-      {/* プロフィールタブ */}
       {activeTab === 'profile' && (
         <div className="rounded-2xl border p-6 md:p-8" style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}>
           <ProfileForm onToast={showToast} />
         </div>
       )}
 
-      {/* 記事タブ */}
       {activeTab === 'posts' && (<>
-      <div className="flex items-center justify-between mb-4">
-        <p className="text-sm" style={{ color: '#475569' }}>
-          全 {posts.length} 件（公開 {published} · 下書き {draft}）
-        </p>
-        <button
-          onClick={() => { setEditingPost(null); setMode('create'); }}
-          className="px-5 py-2.5 rounded-xl font-bold text-white text-sm transition-all hover:opacity-90 flex items-center gap-1"
-          style={{ backgroundColor: '#3b82f6' }}
-        >
-          + 新規作成
-        </button>
-      </div>
-
-      {/* 検索 */}
-      <div className="mb-6">
-        <input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="w-full md:w-72 px-4 py-2.5 rounded-xl border outline-none focus:border-blue-500 text-white text-sm"
-          style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}
-          placeholder="🔍 タイトル・タグで検索"
-        />
-      </div>
-
-      {/* 記事一覧 */}
-      {loading ? (
-        <div className="space-y-3">
-          {[1,2,3].map(i => <div key={i} className="skeleton h-20 rounded-xl" />)}
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-sm" style={{ color: '#475569' }}>全 {posts.length} 件（公開 {published} · 下書き {draft}）</p>
+          <button onClick={() => { setEditingPost(null); setMode('create'); }}
+            className="px-5 py-2.5 rounded-xl font-bold text-white text-sm transition-all hover:opacity-90 flex items-center gap-1"
+            style={{ backgroundColor: '#3b82f6' }}>+ 新規作成</button>
         </div>
-      ) : filtered.length === 0 ? (
-        <div className="text-center py-24 rounded-2xl border" style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}>
-          <p className="text-5xl mb-4">📝</p>
-          <p className="font-bold text-white mb-1">{search ? '検索結果がありません' : 'まだ記事がありません'}</p>
-          {!search && (
-            <button
-              onClick={() => { setEditingPost(null); setMode('create'); }}
-              className="mt-4 text-sm underline"
-              style={{ color: '#3b82f6' }}
-            >
-              最初の記事を作成する
-            </button>
-          )}
+        <div className="mb-6">
+          <input value={search} onChange={e => setSearch(e.target.value)}
+            className="w-full md:w-72 px-4 py-2.5 rounded-xl border outline-none focus:border-blue-500 text-white text-sm"
+            style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}
+            placeholder="🔍 タイトル・タグで検索" />
         </div>
-      ) : (
-        <div className="space-y-3">
-          {filtered.map(post => (
-            <PostRow
-              key={post.id}
-              post={post}
-              onEdit={() => { setEditingPost(post); setMode('edit'); }}
-              onDelete={async () => {
-                if (!confirm(`「${post.title}」を削除しますか？`)) return;
-                try {
-                  await deletePost(post.id);
-                  showToast('🗑 削除しました');
-                  load();
-                } catch {
-                  showToast('❌ 削除に失敗しました');
-                }
-              }}
-            />
-          ))}
-        </div>
-      )}
+        {loading ? (
+          <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="skeleton h-20 rounded-xl" />)}</div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-24 rounded-2xl border" style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}>
+            <p className="text-5xl mb-4">📝</p>
+            <p className="font-bold text-white mb-1">{search ? '検索結果がありません' : 'まだ記事がありません'}</p>
+            {!search && <button onClick={() => { setEditingPost(null); setMode('create'); }} className="mt-4 text-sm underline" style={{ color: '#3b82f6' }}>最初の記事を作成する</button>}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filtered.map(post => (
+              <PostRow key={post.id} post={post}
+                onEdit={() => { setEditingPost(post); setMode('edit'); }}
+                onDelete={async () => {
+                  if (!confirm(`「${post.title}」を削除しますか？`)) return;
+                  try { await deletePost(post.id); showToast('🗑 削除しました'); load(); }
+                  catch { showToast('❌ 削除に失敗しました'); }
+                }} />
+            ))}
+          </div>
+        )}
       </>)}
     </main>
   );
@@ -750,50 +666,27 @@ export function AdminPage() {
 function PostRow({ post, onEdit, onDelete }: { post: Post; onEdit: () => void; onDelete: () => void }) {
   const date = new Date(post.created_at).toLocaleDateString('ja-JP', { year: 'numeric', month: 'short', day: 'numeric' });
   return (
-    <div
-      className="flex items-center gap-4 p-4 rounded-xl border transition-colors hover:border-blue-900"
-      style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}
-    >
-      {post.thumbnail_url ? (
-        <img src={post.thumbnail_url} alt="" className="w-16 h-12 object-cover rounded-lg flex-shrink-0" />
-      ) : (
-        <div className="w-16 h-12 rounded-lg flex-shrink-0 flex items-center justify-center text-2xl" style={{ backgroundColor: '#1a3a5c' }}>🌊</div>
-      )}
+    <div className="flex items-center gap-4 p-4 rounded-xl border transition-colors hover:border-blue-900" style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}>
+      {post.thumbnail_url
+        ? <img src={post.thumbnail_url} alt="" className="w-16 h-12 object-cover rounded-lg flex-shrink-0" />
+        : <div className="w-16 h-12 rounded-lg flex-shrink-0 flex items-center justify-center text-2xl" style={{ backgroundColor: '#1a3a5c' }}>🌊</div>
+      }
       <div className="flex-1 min-w-0">
         <p className="font-bold text-white text-sm truncate leading-snug">{post.title}</p>
         <div className="flex items-center flex-wrap gap-2 mt-1.5">
-          <span
-            className="text-xs px-2 py-0.5 rounded-full"
-            style={{
-              backgroundColor: post.status === 'published' ? 'rgba(59,130,246,0.15)' : 'rgba(100,116,139,0.15)',
-              color: post.status === 'published' ? '#3b82f6' : '#64748b',
-            }}
-          >
-            {post.status === 'published' ? '🌐 公開' : '📝 下書き'}
+          <span className="text-xs px-2 py-0.5 rounded-full"
+            style={{ backgroundColor: post.status === 'published' ? 'rgba(59,130,246,0.15)' : 'rgba(100,116,139,0.15)', color: post.status === 'published' ? '#3b82f6' : '#64748b' }}>
+            {post.status === 'published' ? '🌐 公開' : '🔒 下書き'}
           </span>
           {post.tags?.slice(0, 3).map(tag => (
-            <span key={tag} className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: '#1e3a5f', color: '#7dd3fc' }}>
-              #{tag}
-            </span>
+            <span key={tag} className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: '#1e3a5f', color: '#7dd3fc' }}>#{tag}</span>
           ))}
           <span className="text-xs" style={{ color: '#334155' }}>{date}</span>
         </div>
       </div>
       <div className="flex gap-2 flex-shrink-0">
-        <button
-          onClick={onEdit}
-          className="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors hover:border-blue-500 hover:text-blue-400"
-          style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}
-        >
-          編集
-        </button>
-        <button
-          onClick={onDelete}
-          className="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors hover:border-red-500 hover:text-red-400"
-          style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}
-        >
-          削除
-        </button>
+        <button onClick={onEdit} className="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors hover:border-blue-500 hover:text-blue-400" style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}>編集</button>
+        <button onClick={onDelete} className="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors hover:border-red-500 hover:text-red-400" style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}>削除</button>
       </div>
     </div>
   );
@@ -810,10 +703,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function Toast({ msg }: { msg: string }) {
   return (
-    <div
-      className="fixed top-4 right-4 z-50 px-5 py-3 rounded-xl text-sm font-medium text-white shadow-lg"
-      style={{ backgroundColor: '#1a3a5c', border: '1px solid #1e3a5f' }}
-    >
+    <div className="fixed top-4 right-4 z-50 px-5 py-3 rounded-xl text-sm font-medium text-white shadow-lg" style={{ backgroundColor: '#1a3a5c', border: '1px solid #1e3a5f' }}>
       {msg}
     </div>
   );
