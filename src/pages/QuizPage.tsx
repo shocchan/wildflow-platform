@@ -196,7 +196,7 @@ export function QuizPage() {
         try {
           const { data: { session } } = await supabase.auth.getSession();
           const anonKey = (supabase as unknown as { supabaseKey: string }).supabaseKey;
-          await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-quiz-result-email`, {
+          await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/clever-action`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
