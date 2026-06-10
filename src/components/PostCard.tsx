@@ -13,8 +13,10 @@ export function PostCard({ post }: Props) {
   return (
     <Link
       to={`/blog/${post.id}`}
-      className="block rounded-xl overflow-hidden border transition-all hover:border-blue-500 hover:-translate-y-0.5"
-      style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}
+      className="block rounded-xl overflow-hidden border-2 transition-all hover:-translate-y-0.5"
+      style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}
+      onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = '#2D8F4E'; }}
+      onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = '#E2E8E4'; }}
     >
       {post.thumbnail_url && (
         <div className="aspect-video overflow-hidden">
@@ -26,7 +28,7 @@ export function PostCard({ post }: Props) {
         </div>
       )}
       {!post.thumbnail_url && (
-        <div className="aspect-video flex items-center justify-center text-4xl" style={{ backgroundColor: '#1a3a5c' }}>
+        <div className="aspect-video flex items-center justify-center text-4xl" style={{ backgroundColor: '#EDF7EE' }}>
           🌊
         </div>
       )}
@@ -36,16 +38,16 @@ export function PostCard({ post }: Props) {
             <span
               key={tag}
               className="text-xs px-2 py-0.5 rounded-full"
-              style={{ backgroundColor: '#1e3a5f', color: '#7dd3fc' }}
+              style={{ backgroundColor: '#EDF7EE', color: '#2D8F4E' }}
             >
               #{tag}
             </span>
           ))}
         </div>
-        <h3 className="font-bold text-white text-sm leading-snug line-clamp-2 mb-2">
+        <h3 className="font-bold text-sm leading-snug line-clamp-2 mb-2" style={{ color: '#1C2A1E' }}>
           {post.title}
         </h3>
-        <p className="text-xs" style={{ color: '#64748b' }}>{date}</p>
+        <p className="text-xs" style={{ color: '#4A6550' }}>{date}</p>
       </div>
     </Link>
   );

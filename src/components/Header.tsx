@@ -13,11 +13,11 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b" style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }}>
+    <header className="sticky top-0 z-50 bg-white border-b" style={{ borderColor: '#E2E8E4' }}>
       <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <span className="text-2xl font-black tracking-tight" style={{ color: '#3b82f6' }}>wild</span>
-          <span className="text-2xl font-black tracking-tight text-white">flow</span>
+        <Link to="/" className="flex items-center gap-1">
+          <span className="text-2xl font-black tracking-tight" style={{ color: '#2D8F4E' }}>wild</span>
+          <span className="text-2xl font-black tracking-tight" style={{ color: '#1C2A1E' }}>flow</span>
         </Link>
 
         {/* Desktop nav */}
@@ -26,8 +26,11 @@ export function Header() {
             <Link
               key={to}
               to={to}
-              className="text-sm font-medium transition-colors"
-              style={{ color: pathname === to ? '#3b82f6' : '#94a3b8' }}
+              className="text-sm transition-colors"
+              style={{
+                color: pathname === to ? '#2D8F4E' : '#1C2A1E',
+                fontWeight: pathname === to ? 700 : 500,
+              }}
             >
               {label}
             </Link>
@@ -36,7 +39,8 @@ export function Header() {
 
         {/* Mobile hamburger */}
         <button
-          className="md:hidden p-2 text-slate-400"
+          className="md:hidden p-2"
+          style={{ color: '#1C2A1E' }}
           onClick={() => setMenuOpen(o => !o)}
           aria-label="メニュー"
         >
@@ -48,13 +52,16 @@ export function Header() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden border-t px-4 py-3 flex flex-col gap-3" style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f' }}>
+        <div className="md:hidden border-t bg-white px-4 py-3 flex flex-col gap-3" style={{ borderColor: '#E2E8E4' }}>
           {navLinks.map(({ to, label }) => (
             <Link
               key={to}
               to={to}
-              className="text-sm font-medium py-1"
-              style={{ color: pathname === to ? '#3b82f6' : '#94a3b8' }}
+              className="text-sm py-1"
+              style={{
+                color: pathname === to ? '#2D8F4E' : '#1C2A1E',
+                fontWeight: pathname === to ? 700 : 500,
+              }}
               onClick={() => setMenuOpen(false)}
             >
               {label}

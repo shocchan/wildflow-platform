@@ -29,40 +29,40 @@ export function ProfilePage() {
   ];
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-16">
+    <main className="max-w-3xl mx-auto px-4 py-16" style={{ backgroundColor: '#F8F7F2' }}>
       <div className="text-center mb-12">
         {profile.photo_url ? (
           <img
             src={profile.photo_url}
             alt={profile.name}
             className="w-32 h-32 rounded-full mx-auto mb-6 object-cover border-4"
-            style={{ borderColor: '#3b82f6' }}
+            style={{ borderColor: '#2D8F4E' }}
           />
         ) : (
           <div
             className="w-32 h-32 rounded-full mx-auto mb-6 flex items-center justify-center text-5xl border-4"
-            style={{ backgroundColor: '#1a3a5c', borderColor: '#3b82f6' }}
+            style={{ backgroundColor: '#EDF7EE', borderColor: '#2D8F4E' }}
           >
             🌊
           </div>
         )}
-        <h1 className="text-3xl font-black text-white mb-2">{profile.name}</h1>
-        <p className="font-medium" style={{ color: '#3b82f6' }}>{profile.tagline}</p>
+        <h1 className="text-3xl font-black mb-2" style={{ color: '#1C2A1E' }}>{profile.name}</h1>
+        <p className="font-medium" style={{ color: '#2D8F4E' }}>{profile.tagline}</p>
       </div>
 
       <div className="space-y-8">
         <Section title="🦁 ミッション">
-          <p className="text-slate-300 leading-relaxed whitespace-pre-line">{profile.mission}</p>
+          <p className="leading-relaxed whitespace-pre-line" style={{ color: '#4A6550' }}>{profile.mission}</p>
         </Section>
 
         <Section title="📖 ストーリー">
-          <p className="text-slate-300 leading-relaxed whitespace-pre-line">{profile.story}</p>
+          <p className="leading-relaxed whitespace-pre-line" style={{ color: '#4A6550' }}>{profile.story}</p>
         </Section>
 
         <Section title="🎯 活動">
           <ul className="space-y-3">
             {activities.map(item => (
-              <li key={item.text} className="flex items-start gap-3 text-slate-300">
+              <li key={item.text} className="flex items-start gap-3" style={{ color: '#4A6550' }}>
                 <span className="text-xl">{item.icon}</span>
                 <span>{item.text}</span>
               </li>
@@ -71,19 +71,26 @@ export function ProfilePage() {
         </Section>
 
         <Section title="📬 お問い合わせ">
-          <p className="text-slate-300 leading-relaxed">
+          <p className="leading-relaxed mb-4" style={{ color: '#4A6550' }}>
             コラボ・取材・その他のお問い合わせは X（Twitter）のDMからお気軽にどうぞ。
           </p>
-          <div className="mt-4 flex flex-col gap-3 max-w-xs">
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '10px',
+              maxWidth: '360px',
+            }}
+          >
             {profile.twitter_url && (
               <a
                 href={profile.twitter_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm text-white transition-all hover:opacity-80"
-                style={{ backgroundColor: '#1d9bf0' }}
+                className="inline-flex items-center justify-center gap-2 font-bold text-sm text-white transition-all hover:opacity-80"
+                style={{ backgroundColor: '#1d9bf0', borderRadius: '12px', padding: '12px 16px' }}
               >
-                𝕏 Twitter / X でフォローする
+                𝕏 X でフォロー
               </a>
             )}
             {profile.xhs_url && (
@@ -91,10 +98,10 @@ export function ProfilePage() {
                 href={profile.xhs_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm text-white transition-all hover:opacity-80"
-                style={{ backgroundColor: '#ff2442' }}
+                className="inline-flex items-center justify-center gap-2 font-bold text-sm text-white transition-all hover:opacity-80"
+                style={{ backgroundColor: '#ff2442', borderRadius: '12px', padding: '12px 16px' }}
               >
-                📕 小紅書（RED）でフォローする
+                📕 小紅書
               </a>
             )}
             {profile.lemon8_url && (
@@ -102,10 +109,10 @@ export function ProfilePage() {
                 href={profile.lemon8_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm transition-all hover:opacity-80"
-                style={{ backgroundColor: '#ffb800', color: '#1a1a1a' }}
+                className="inline-flex items-center justify-center gap-2 font-bold text-sm transition-all hover:opacity-80"
+                style={{ backgroundColor: '#ffb800', color: '#1a1a1a', borderRadius: '12px', padding: '12px 16px' }}
               >
-                🍋 lemon8でフォローする
+                🍋 lemon8
               </a>
             )}
           </div>
@@ -117,8 +124,8 @@ export function ProfilePage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="p-6 rounded-2xl border" style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}>
-      <h2 className="text-lg font-bold text-white mb-4">{title}</h2>
+    <div className="p-6 rounded-2xl border" style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}>
+      <h2 className="text-lg font-bold mb-4" style={{ color: '#1C2A1E' }}>{title}</h2>
       {children}
     </div>
   );

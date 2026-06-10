@@ -91,7 +91,7 @@ function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
-      <div className="min-h-dvh flex flex-col" style={{ backgroundColor: '#0a0f1e' }}>
+      <div className="min-h-dvh flex flex-col" style={{ backgroundColor: '#F8F7F2' }}>
         <Header />
         <div className="flex-1">
           <AnimatedRoutes />

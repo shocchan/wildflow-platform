@@ -20,14 +20,18 @@ const ABILITY_ORDER = ['strength', 'endurance', 'speed', 'flexibility', 'coordin
 type Step = 'quiz' | 'result';
 
 function AbilityBar({ label, score, isHigh, isLow }: { label: string; score: number; isHigh: boolean; isLow: boolean }) {
-  const color = isHigh ? '#22c55e' : isLow ? '#ef4444' : '#64748b';
+  const color = isHigh ? '#2D8F4E' : isLow ? '#EF4444' : '#4A6550';
   return (
     <div className="mb-3">
       <div className="flex justify-between text-xs mb-1">
-        <span style={{ color: isHigh ? '#22c55e' : isLow ? '#ef4444' : '#94a3b8' }}>{label}</span>
+        <span style={{ color: isHigh ? '#2D8F4E' : isLow ? '#EF4444' : '#4A6550' }}>
+          {label}
+          {isHigh && <span className="ml-1 text-xs" style={{ color: '#2D8F4E' }}>▲ 高い</span>}
+          {isLow && <span className="ml-1 text-xs" style={{ color: '#EF4444' }}>▼ 伸びしろ</span>}
+        </span>
         <span style={{ color }}>{score}</span>
       </div>
-      <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#1e3a5f' }}>
+      <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#E2E8E4' }}>
         <div
           className="h-full rounded-full transition-all duration-700"
           style={{ width: `${score}%`, backgroundColor: color }}
@@ -40,7 +44,7 @@ function AbilityBar({ label, score, isHigh, isLow }: { label: string; score: num
 function ResultView({ result, scores, onReset }: { result: WildType; scores: AbilityScores; onReset: () => void }) {
   const isDragon = result.special === 'dragon';
   const isEgg = result.special === 'egg';
-  const accentColor = isDragon ? '#f59e0b' : isEgg ? '#06b6d4' : '#3b82f6';
+  const accentColor = isDragon ? '#F59E0B' : isEgg ? '#3B82F6' : '#2D8F4E';
 
   const maxScore = Math.max(...ABILITY_ORDER.map(a => scores[a]));
   const minScore = Math.min(...ABILITY_ORDER.map(a => scores[a]));
@@ -51,14 +55,14 @@ function ResultView({ result, scores, onReset }: { result: WildType; scores: Abi
   const tweetUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-12 text-center">
+    <main className="max-w-2xl mx-auto px-4 py-12 text-center" style={{ backgroundColor: '#F8F7F2' }}>
       {isDragon && (
-        <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: '#f59e0b' }}>
+        <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: '#F59E0B' }}>
           ✨ レアタイプ出現
         </p>
       )}
       {isEgg && (
-        <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: '#06b6d4' }}>
+        <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: '#3B82F6' }}>
           🥚 野生覚醒前
         </p>
       )}
@@ -67,17 +71,20 @@ function ResultView({ result, scores, onReset }: { result: WildType; scores: Abi
       <p className="text-sm font-medium tracking-widest uppercase mb-2" style={{ color: accentColor }}>
         あなたの野生タイプは
       </p>
-      <h1 className="text-4xl font-black text-white mb-2">{result.name}</h1>
+      <h1 className="text-4xl font-black mb-2" style={{ color: '#1C2A1E' }}>{result.name}</h1>
       <p className="text-base font-bold mb-8" style={{ color: accentColor }}>{result.subtitle}</p>
 
       <div
         className="p-6 rounded-2xl border mb-6 text-left"
-        style={{ backgroundColor: '#111827', borderColor: isDragon ? '#854d0e' : isEgg ? '#164e63' : '#1e3a5f' }}
+        style={{
+          backgroundColor: '#FFFFFF',
+          borderColor: isDragon ? '#F59E0B' : isEgg ? '#3B82F6' : '#E2E8E4',
+        }}
       >
         <p className="text-sm font-bold mb-3" style={{ color: accentColor }}>💬 {result.catch}</p>
-        <p className="text-slate-300 leading-relaxed text-sm mb-6">{result.description}</p>
+        <p className="leading-relaxed text-sm mb-6" style={{ color: '#4A6550' }}>{result.description}</p>
 
-        <p className="text-xs font-bold mb-3" style={{ color: '#94a3b8' }}>── 5軸能力スコア ──</p>
+        <p className="text-xs font-bold mb-3" style={{ color: '#4A6550' }}>── 5軸能力スコア ──</p>
         {ABILITY_ORDER.map(ab => (
           <AbilityBar
             key={ab}
@@ -88,15 +95,18 @@ function ResultView({ result, scores, onReset }: { result: WildType; scores: Abi
           />
         ))}
 
-        <div className="mt-5 p-4 rounded-xl" style={{ backgroundColor: '#050a14', borderLeft: `3px solid ${accentColor}` }}>
+        <div
+          className="mt-5 p-4 rounded-xl"
+          style={{ backgroundColor: '#EDF7EE', borderLeft: `3px solid ${accentColor}` }}
+        >
           <p className="text-xs font-bold mb-1" style={{ color: accentColor }}>🎯 処方レッスン</p>
-          <p className="text-sm text-slate-300">{result.lesson}</p>
-          <p className="text-xs mt-2" style={{ color: '#475569' }}>
+          <p className="text-sm" style={{ color: '#1C2A1E' }}>{result.lesson}</p>
+          <p className="text-xs mt-2" style={{ color: '#4A6550' }}>
             あなたのタイプに最適化されたトレーニングプログラムです。まずはこのレッスンから始めてみてください。
           </p>
           <a
             href="/#quiz-start"
-            className="inline-flex items-center gap-1 mt-3 text-sm font-bold transition-colors hover:opacity-80"
+            className="inline-flex items-center gap-1 mt-3 text-sm font-bold transition-colors hover:opacity-70"
             style={{ color: accentColor }}
           >
             レッスンの詳細を見る →
@@ -104,7 +114,7 @@ function ResultView({ result, scores, onReset }: { result: WildType; scores: Abi
         </div>
       </div>
 
-      <p className="text-xs mb-6" style={{ color: '#475569' }}>{result.hashtag}</p>
+      <p className="text-xs mb-6" style={{ color: '#4A6550' }}>{result.hashtag}</p>
 
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
         <a
@@ -114,12 +124,18 @@ function ResultView({ result, scores, onReset }: { result: WildType; scores: Abi
           className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-bold text-white transition-all hover:opacity-80"
           style={{ backgroundColor: '#1d9bf0' }}
         >
-          𝕏 Xにシェアする
+          𝕏 X でポストする
         </a>
         <button
           onClick={onReset}
-          className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-bold border transition-all hover:bg-white/5"
-          style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}
+          className="inline-flex items-center justify-center gap-2 font-bold border-2 transition-all hover:opacity-80"
+          style={{
+            borderColor: '#2D8F4E',
+            color: '#2D8F4E',
+            padding: '14px 32px',
+            borderRadius: '100px',
+            backgroundColor: 'transparent',
+          }}
         >
           🔄 もう一度診断する
         </button>
@@ -192,39 +208,42 @@ export function QuizPage() {
   }
 
   const q = questions[current];
-  const progress = ((current + 1) / questions.length) * 100;
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-12">
       <div className="text-center mb-8">
-        <p className="text-sm font-medium mb-1" style={{ color: '#3b82f6' }}>野生タイプ診断</p>
-        <h1 className="text-2xl font-black text-white">あなたの野生タイプを診断する</h1>
+        <p className="text-sm font-medium mb-1" style={{ color: '#2D8F4E' }}>野生タイプ診断</p>
+        <h1 className="text-2xl font-black" style={{ color: '#1C2A1E' }}>あなたの野生タイプを診断する</h1>
       </div>
 
       <div className="mb-8">
-        <div className="flex justify-between items-center text-xs mb-2" style={{ color: '#64748b' }}>
+        <div className="flex justify-between items-center text-xs mb-2" style={{ color: '#4A6550' }}>
           <span>質問 {current + 1} / {questions.length}</span>
           {current > 0 && (
             <button
               onClick={handlePrev}
               disabled={selected !== null}
-              className="text-xs transition-colors hover:text-white disabled:opacity-30"
-              style={{ color: '#64748b' }}
+              className="text-xs transition-colors disabled:opacity-30 flex items-center gap-1"
+              style={{ color: '#4A6550' }}
             >
               ← 前の質問へ
             </button>
           )}
         </div>
-        <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: '#1e3a5f' }}>
+        <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: '#E2E8E4' }}>
           <div
             className="h-full rounded-full transition-all duration-500"
-            style={{ width: `${progress}%`, backgroundColor: '#3b82f6' }}
+            style={{ width: `${((current + 1) / questions.length) * 100}%`, backgroundColor: '#2D8F4E' }}
           />
         </div>
       </div>
 
-      <div key={current} className="question-fade p-6 rounded-2xl border mb-6" style={{ backgroundColor: '#1a2535', borderColor: '#1e3a5f' }}>
-        <p className="text-base font-bold text-white text-center leading-snug">{q.text}</p>
+      <div
+        key={current}
+        className="quiz-question-enter p-6 rounded-2xl border mb-6"
+        style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}
+      >
+        <p className="text-base font-bold text-center leading-snug" style={{ color: '#1C2A1E' }}>{q.text}</p>
       </div>
 
       <div className="space-y-3">
@@ -236,16 +255,15 @@ export function QuizPage() {
               key={value}
               onClick={() => handleSelect(value)}
               disabled={isTransitioning}
-              className="w-full text-left p-4 rounded-xl border transition-all duration-150 hover:bg-gray-800 active:scale-[0.98] disabled:cursor-default"
+              className="w-full text-left p-4 rounded-xl transition-all duration-150 active:scale-[0.98] disabled:cursor-default"
               style={{
-                backgroundColor: isSelected ? '#1e3a5f' : '#111827',
-                borderColor: isSelected ? '#3b82f6' : '#1e3a5f',
-                color: isSelected ? '#ffffff' : '#cbd5e1',
-                borderLeftWidth: '3px',
-                borderLeftColor: isSelected ? '#3b82f6' : '#1e3a5f',
+                backgroundColor: isSelected ? '#EDF7EE' : '#FFFFFF',
+                border: `2px solid ${isSelected ? '#2D8F4E' : '#E2E8E4'}`,
+                borderLeftWidth: isSelected ? '4px' : '2px',
+                color: '#1C2A1E',
               }}
             >
-              <span className="text-sm font-medium mr-2" style={{ color: '#475569' }}>{value}</span>
+              <span className="text-sm font-medium mr-2" style={{ color: '#4A6550' }}>{value}</span>
               {label}
             </button>
           );
