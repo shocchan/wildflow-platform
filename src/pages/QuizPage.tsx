@@ -53,13 +53,12 @@ export function QuizPage() {
           }]);
         } catch (_) { /* non-blocking */ }
         try {
-          const { data: { session } } = await supabase.auth.getSession();
-          const anonKey = (supabase as unknown as { supabaseKey: string }).supabaseKey;
+          const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
           await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/clever-action`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${session?.access_token ?? anonKey}`,
+              'Authorization': `Bearer ${anonKey}`,
             },
             body: JSON.stringify({
               name: userName,
