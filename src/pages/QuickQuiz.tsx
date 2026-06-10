@@ -51,7 +51,7 @@ export function QuickQuiz() {
       <div className="text-center mb-8">
         <p className="text-sm font-medium mb-1" style={{ color: '#2D8F4E' }}>簡易診断 — 約1分</p>
         <h1 className="font-black" style={{ color: '#1C2A1E', fontSize: '28px', lineHeight: '1.3' }}>
-          あなたの弱点アビリティを診断する
+          あなたの伸びしろアビリティを診断する
         </h1>
       </div>
 

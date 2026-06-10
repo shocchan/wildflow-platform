@@ -146,7 +146,17 @@ export function LessonDetailPage() {
         <div className="space-y-2 text-sm" style={{ color: '#5a7a62' }}>
           <p>📅 {formatDate(lesson.date)}　{formatTime(lesson.start_time)}〜{formatTime(lesson.end_time)}</p>
           <p>📍 {lesson.location}</p>
-          <p>👤 インストラクター：{lesson.instructor}</p>
+          <div>
+            <p className="mb-0.5">👤 インストラクター：{lesson.instructor}</p>
+            {lesson.instructor === 'しょっちゃん' && (
+              <div className="ml-5 mt-1">
+                <p className="text-xs" style={{ color: '#5a7a62' }}>Animal Flow Level 1認定インストラクター・小紅書フォロワー5,000+</p>
+                <a href="/profile" className="text-xs underline" style={{ color: '#2D8F4E' }}>
+                  インストラクター紹介を見る →
+                </a>
+              </div>
+            )}
+          </div>
           <p>
             👥 残り{' '}
             <span className="font-bold" style={{ color: isFull ? '#ef4444' : '#2D8F4E' }}>
@@ -235,7 +245,7 @@ export function LessonDetailPage() {
             </button>
           </form>
           <p className="text-xs mt-3 text-center" style={{ color: '#9ca3af' }}>
-            申込後、PayPayでのお支払い案内メールをお送りします。
+            申込後、PayPay / WeChat Pay のお支払い案内メールをお送りします。
           </p>
         </div>
       )}

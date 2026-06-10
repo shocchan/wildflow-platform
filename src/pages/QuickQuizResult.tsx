@@ -1,17 +1,20 @@
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { QuickResult } from '../utils/calcQuickType';
 import { ABILITY_LABELS, ABILITY_TO_ANIMALS, ABILITY_LESSON } from '../utils/calcQuickType';
 
 const ABILITY_ORDER = ['strength', 'endurance', 'speed', 'flexibility', 'coordination'] as const;
 
+const SITE_URL = 'https://wildflow-platform.shodorannga.workers.dev';
+
 function AbilityBar({ label, score, isLow }: { label: string; score: number; isLow: boolean }) {
-  const color = isLow ? '#EF4444' : '#2D8F4E';
+  const color = isLow ? '#F59E0B' : '#2D8F4E';
   return (
     <div className="mb-3">
       <div className="flex justify-between text-xs mb-1">
         <span style={{ color }}>
           {label}
-          {isLow && <span className="ml-1 text-xs">▼ 伸びしろ</span>}
+          {isLow && <span className="ml-1 text-xs">▲ 伸びしろ</span>}
         </span>
         <span style={{ color }}>{score}</span>
       </div>
@@ -29,6 +32,7 @@ export function QuickQuizResult() {
   const location = useLocation();
   const navigate = useNavigate();
   const result = location.state?.result as QuickResult | undefined;
+  const [copied, setCopied] = useState(false);
 
   if (!result) {
     navigate('/quiz/quick');
@@ -40,19 +44,28 @@ export function QuickQuizResult() {
   const animals = ABILITY_TO_ANIMALS[lowestAbility];
   const lesson = ABILITY_LESSON[lowestAbility];
 
+  const shareTextX = `私は${lowestLabel}が伸びしろの身体タイプでした！🐾\nあなたの野生タイプは何型？ #wildflow #身体のMBTI\n${SITE_URL}/quiz/quick`;
+  const shareTextLine = `私は${lowestLabel}が伸びしろの身体タイプでした！あなたは？wildflowで診断してみて👇 ${SITE_URL}/quiz/quick`;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(`${SITE_URL}/quiz/quick`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <main className="max-w-2xl mx-auto px-4 py-12">
       <div className="text-center mb-8">
         <p className="text-sm font-medium mb-1" style={{ color: '#2D8F4E' }}>簡易診断 結果</p>
         <h1 className="font-black mb-2" style={{ color: '#1C2A1E', fontSize: '28px', lineHeight: '1.3' }}>
-          あなたが最も鍛えるべきアビリティは
+          あなたが最も伸ばせるアビリティは
         </h1>
         <div
           className="inline-block px-6 py-3 rounded-2xl mt-2"
-          style={{ backgroundColor: '#FEE2E2', border: '2px solid #EF4444' }}
+          style={{ backgroundColor: '#FEF3C7', border: '2px solid #F59E0B' }}
         >
-          <p className="text-2xl font-black" style={{ color: '#EF4444' }}>
-            💪 {lowestLabel}
+          <p className="text-2xl font-black" style={{ color: '#D97706' }}>
+            🌱 {lowestLabel}
           </p>
         </div>
       </div>
@@ -79,7 +92,7 @@ export function QuickQuizResult() {
         style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}
       >
         <p className="text-sm font-bold mb-3" style={{ color: '#1C2A1E' }}>
-          「{lowestLabel}」が低い動物タイプはこれら：
+          「{lowestLabel}」が伸びしろの動物タイプはこれら：
         </p>
         <div className="flex flex-wrap gap-2 mb-4">
           {animals.map(animal => (
@@ -115,7 +128,7 @@ export function QuickQuizResult() {
 
       {/* 詳細診断CTA */}
       <div
-        className="p-6 rounded-2xl border text-center"
+        className="p-6 rounded-2xl border text-center mb-6"
         style={{ backgroundColor: '#FFFFFF', borderColor: '#2D8F4E', borderWidth: '2px' }}
       >
         <p className="font-bold mb-1" style={{ color: '#1C2A1E' }}>どのタイプか詳しく知りたい方は</p>
@@ -130,6 +143,43 @@ export function QuickQuizResult() {
         >
           📊 60問で詳しく診断する →
         </a>
+      </div>
+
+      {/* シェアボタン */}
+      <div
+        className="p-5 rounded-2xl border mb-6"
+        style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}
+      >
+        <p className="text-sm font-bold mb-3 text-center" style={{ color: '#1C2A1E' }}>
+          📣 友達にシェアする
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <a
+            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTextX)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-bold text-sm text-white transition-opacity hover:opacity-80"
+            style={{ backgroundColor: '#000000' }}
+          >
+            𝕏 でシェアする
+          </a>
+          <a
+            href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(`${SITE_URL}/quiz/quick`)}&text=${encodeURIComponent(shareTextLine)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-bold text-sm text-white transition-opacity hover:opacity-80"
+            style={{ backgroundColor: '#06C755' }}
+          >
+            LINE でシェアする
+          </a>
+          <button
+            onClick={handleCopy}
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-bold text-sm border-2 transition-opacity hover:opacity-80"
+            style={{ borderColor: '#E2E8E4', color: '#1C2A1E', backgroundColor: '#F8F7F2' }}
+          >
+            {copied ? '✅ コピーしました！' : '🔗 URLをコピー（XHS・lemon8用）'}
+          </button>
+        </div>
       </div>
 
       <div className="text-center mt-6">

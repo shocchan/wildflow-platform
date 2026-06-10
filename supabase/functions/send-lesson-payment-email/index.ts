@@ -25,7 +25,12 @@ wildflow Animal Flowレッスンへのお申し込みありがとうございま
 ■ PayPay でのお支払い
 PayPay ID：${lessonData.paypay_id}
 
-お支払い後、返信不要です。
+■ WeChat Pay でのお支払い
+WeChat ID：${lessonData.paypay_id}
+※ WeChat Payをご利用の場合は、お支払い後に
+  shodorannga@gmail.com までお知らせください。
+
+お支払い後、返信不要です（WeChat Pay除く）。
 支払いが確認できない場合はキャンセルとなる場合があります。
 
 ━━━━━━━━━━━━━━━━━━━━━━━━

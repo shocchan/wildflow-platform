@@ -5,7 +5,33 @@ import { calcAbilityScores, determineWildType } from '../utils/calcWildType';
 
 const LABELS = ['まったく違う', '少し違う', 'どちらでもない', '少しそう', 'とてもそう'];
 
+const ABILITY_LABELS: Record<string, string> = {
+  strength: '筋力',
+  endurance: '持久力',
+  speed: '敏捷性',
+  flexibility: '柔軟性',
+  coordination: '協調性',
+};
+
+const SITE_URL = 'https://wildflow-platform.shodorannga.workers.dev';
+
 type Step = 'gate' | 'quiz' | 'done';
+
+interface DoneData {
+  wildTypeName: string;
+  lowestAbilityLabel: string;
+}
+
+function getEncouragementMessage(current: number, total: number): string {
+  const progress = current / total;
+  if (progress === 0) return 'さあ、はじめよう！';
+  if (progress <= 0.2) return 'いいスタート！この調子で！';
+  if (progress <= 0.4) return '順調です！もう少し続けて！';
+  if (progress === 0.5) return '折り返し地点！あと半分！';
+  if (progress <= 0.7) return 'もう少し！ゴールが見えてきた！';
+  if (progress <= 0.9) return 'あと少し！最後まで頑張ろう！';
+  return 'ラストスパート！🔥';
+}
 
 export function QuizPage() {
   const [step, setStep] = useState<Step>('gate');
@@ -16,6 +42,8 @@ export function QuizPage() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [selected, setSelected] = useState<number | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [doneData, setDoneData] = useState<DoneData | null>(null);
+  const [urlCopied, setUrlCopied] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -37,7 +65,15 @@ export function QuizPage() {
       } else {
         const abilityScores = calcAbilityScores(newAnswers, questions);
         const wildType = determineWildType(abilityScores);
+
+        const abilities = ['strength', 'endurance', 'speed', 'flexibility', 'coordination'] as const;
+        const lowestAbility = abilities.reduce((a, b) => abilityScores[a] <= abilityScores[b] ? a : b);
+        setDoneData({
+          wildTypeName: wildType.name,
+          lowestAbilityLabel: ABILITY_LABELS[lowestAbility],
+        });
         setStep('done');
+
         try {
           await supabase.from('quiz_results').insert([{
             animal_type: wildType.id,
@@ -86,6 +122,7 @@ export function QuizPage() {
     setAnswers({});
     setSelected(null);
     setIsTransitioning(false);
+    setDoneData(null);
   };
 
   if (step === 'gate') {
@@ -177,6 +214,14 @@ export function QuizPage() {
   }
 
   if (step === 'done') {
+    const shareText = `wildflow の野生タイプ詳細診断を受けました🐉\n結果はメールで届きます。あなたも診断してみて！\n#wildflow #身体のMBTI\n${SITE_URL}/quiz`;
+
+    const handleCopy = () => {
+      navigator.clipboard.writeText(`${SITE_URL}/quiz`);
+      setUrlCopied(true);
+      setTimeout(() => setUrlCopied(false), 2000);
+    };
+
     return (
       <main className="max-w-lg mx-auto px-4 py-16 text-center">
         <p className="text-5xl mb-6">📬</p>
@@ -186,8 +231,25 @@ export function QuizPage() {
         <h1 className="text-2xl font-black mb-6" style={{ color: '#1C2A1E' }}>
           診断結果をメールでお送りしました！
         </h1>
+
+        {/* 結果プレビュー */}
+        {doneData && (
+          <div
+            className="p-5 rounded-2xl mb-6 text-left"
+            style={{ backgroundColor: '#EDF7EE', borderLeft: '4px solid #2D8F4E' }}
+          >
+            <p className="text-xs font-bold mb-2" style={{ color: '#2D8F4E' }}>診断結果のヒント</p>
+            <p className="text-sm" style={{ color: '#1C2A1E' }}>
+              あなたは <strong>{doneData.lowestAbilityLabel}が伸びしろ</strong> のタイプです。
+            </p>
+            <p className="text-xs mt-2" style={{ color: '#4A6550' }}>
+              詳しい野生タイプと5軸スコアはメールでご確認ください 📧
+            </p>
+          </div>
+        )}
+
         <div
-          className="p-6 rounded-2xl border mb-8 text-left"
+          className="p-6 rounded-2xl border mb-6 text-left"
           style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}
         >
           <p className="text-sm leading-relaxed mb-4" style={{ color: '#1C2A1E' }}>
@@ -205,6 +267,42 @@ export function QuizPage() {
             までご連絡ください。
           </p>
         </div>
+
+        {/* シェアボタン */}
+        <div
+          className="p-5 rounded-2xl border mb-6"
+          style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}
+        >
+          <p className="text-sm font-bold mb-3" style={{ color: '#1C2A1E' }}>📣 友達にシェアする</p>
+          <div className="flex flex-col gap-3">
+            <a
+              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-bold text-sm text-white transition-opacity hover:opacity-80"
+              style={{ backgroundColor: '#000000' }}
+            >
+              𝕏 でシェアする
+            </a>
+            <a
+              href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(`${SITE_URL}/quiz`)}&text=${encodeURIComponent(shareText)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-bold text-sm text-white transition-opacity hover:opacity-80"
+              style={{ backgroundColor: '#06C755' }}
+            >
+              LINE でシェアする
+            </a>
+            <button
+              onClick={handleCopy}
+              className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-bold text-sm border-2 transition-opacity hover:opacity-80"
+              style={{ borderColor: '#E2E8E4', color: '#1C2A1E', backgroundColor: '#F8F7F2' }}
+            >
+              {urlCopied ? '✅ コピーしました！' : '🔗 URLをコピー（XHS・lemon8用）'}
+            </button>
+          </div>
+        </div>
+
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <a
             href="/lessons"
@@ -254,6 +352,10 @@ export function QuizPage() {
             style={{ width: `${((current + 1) / questions.length) * 100}%`, backgroundColor: '#2D8F4E' }}
           />
         </div>
+        {/* 励ましメッセージ */}
+        <p className="text-sm text-center mt-2 font-medium" style={{ color: '#2D8F4E' }}>
+          {getEncouragementMessage(current, questions.length)}
+        </p>
       </div>
 
       <div
