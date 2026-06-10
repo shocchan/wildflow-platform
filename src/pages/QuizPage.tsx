@@ -133,6 +133,7 @@ export function QuizPage() {
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [selected, setSelected] = useState<number | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [result, setResult] = useState<WildType | null>(null);
   const [scores, setScores] = useState<AbilityScores | null>(null);
 
@@ -141,8 +142,9 @@ export function QuizPage() {
   }, [current]);
 
   const handleSelect = (value: number) => {
-    if (selected !== null) return;
+    if (isTransitioning) return;
     setSelected(value);
+    setIsTransitioning(true);
 
     setTimeout(async () => {
       const newAnswers = { ...answers, [questions[current].id]: value };
@@ -151,6 +153,7 @@ export function QuizPage() {
       if (current < questions.length - 1) {
         setCurrent(c => c + 1);
         setSelected(null);
+        setIsTransitioning(false);
       } else {
         const abilityScores = calcAbilityScores(newAnswers, questions);
         const wildType = determineWildType(abilityScores);
@@ -168,7 +171,7 @@ export function QuizPage() {
   };
 
   const handlePrev = () => {
-    if (current === 0 || selected !== null) return;
+    if (current === 0 || isTransitioning) return;
     const prevIndex = current - 1;
     setCurrent(prevIndex);
     setSelected(answers[questions[prevIndex].id] ?? null);
@@ -179,6 +182,7 @@ export function QuizPage() {
     setCurrent(0);
     setAnswers({});
     setSelected(null);
+    setIsTransitioning(false);
     setResult(null);
     setScores(null);
   };
@@ -231,7 +235,7 @@ export function QuizPage() {
             <button
               key={value}
               onClick={() => handleSelect(value)}
-              disabled={selected !== null}
+              disabled={isTransitioning}
               className="w-full text-left p-4 rounded-xl border transition-all duration-150 hover:bg-gray-800 active:scale-[0.98] disabled:cursor-default"
               style={{
                 backgroundColor: isSelected ? '#1e3a5f' : '#111827',
