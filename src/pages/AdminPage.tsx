@@ -7,13 +7,16 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Cropper from 'react-easy-crop';
 import { fetchAllPostsAdmin, createPost, updatePost, deletePost } from '../services/posts';
 import { fetchProfileSettings, saveProfileSettings, defaultProfileSettings, type ProfileSettings } from '../services/settings';
+import { fetchAllLessonsAdmin, createLesson, updateLesson, deleteLesson, fetchEntriesForLesson, updateEntryPaymentStatus } from '../services/lessons';
+import { LESSON_TYPE_MAP } from '../types/lesson';
+import type { Lesson, LessonEntry, LessonType, LessonStatus } from '../types/lesson';
 import { supabase } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import { getCroppedImg, type CropArea } from '../utils/cropImage';
 import type { Post } from '../types';
 
 type Mode = 'list' | 'create' | 'edit';
-type AdminTab = 'posts' | 'profile';
+type AdminTab = 'posts' | 'lessons' | 'profile';
 
 const emptyForm = (): Omit<Post, 'id' | 'created_at'> => ({
   title: '',
@@ -703,7 +706,7 @@ export function AdminPage() {
         <button onClick={logout} className="px-4 py-2.5 rounded-xl text-sm border transition-colors hover:border-red-500 hover:text-red-400" style={{ borderColor: '#1e3a5f', color: '#64748b' }}>ログアウト</button>
       </div>
       <div className="flex gap-1 mb-8 p-1 rounded-xl" style={{ backgroundColor: '#111827' }}>
-        {([['posts', '📝 記事管理'], ['profile', '👤 プロフィール']] as [AdminTab, string][]).map(([tab, label]) => (
+        {([['posts', '📝 記事管理'], ['lessons', '🏃 レッスン管理'], ['profile', '👤 プロフィール']] as [AdminTab, string][]).map(([tab, label]) => (
           <button key={tab} onClick={() => setActiveTab(tab)} className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all"
             style={{ backgroundColor: activeTab === tab ? '#3b82f6' : 'transparent', color: activeTab === tab ? '#fff' : '#64748b' }}>
             {label}
@@ -716,6 +719,8 @@ export function AdminPage() {
           <ProfileForm onToast={showToast} />
         </div>
       )}
+
+      {activeTab === 'lessons' && <LessonsAdminTab onToast={showToast} />}
 
       {activeTab === 'posts' && (<>
         <div className="flex items-center justify-between mb-4">
@@ -799,6 +804,335 @@ function Toast({ msg }: { msg: string }) {
   return (
     <div className="fixed top-4 right-4 z-50 px-5 py-3 rounded-xl text-sm font-medium text-white shadow-lg" style={{ backgroundColor: '#1a3a5c', border: '1px solid #1e3a5f' }}>
       {msg}
+    </div>
+  );
+}
+
+// ── レッスン管理タブ ───────────────────────────────────────
+const emptyLessonForm = (): Omit<Lesson, 'id' | 'created_at'> => ({
+  title: '',
+  lesson_type: 'strength',
+  description: null,
+  date: '',
+  start_time: '',
+  end_time: '',
+  location: '',
+  capacity: 8,
+  price: 3000,
+  instructor: 'しょっちゃん',
+  status: 'draft',
+  payment_deadline: null,
+  paypay_id: 'shocchance',
+});
+
+function LessonsAdminTab({ onToast }: { onToast: (msg: string) => void }) {
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
+  const [form, setForm] = useState<Omit<Lesson, 'id' | 'created_at'>>(emptyLessonForm());
+  const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
+  const [entries, setEntries] = useState<LessonEntry[]>([]);
+  const [loadingEntries, setLoadingEntries] = useState(false);
+
+  const load = () => {
+    setLoading(true);
+    fetchAllLessonsAdmin().then(setLessons).finally(() => setLoading(false));
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const openCreate = () => {
+    setEditingLesson(null);
+    setForm(emptyLessonForm());
+    setShowForm(true);
+    setSelectedLesson(null);
+  };
+
+  const openEdit = (lesson: Lesson) => {
+    setEditingLesson(lesson);
+    setForm({
+      title: lesson.title,
+      lesson_type: lesson.lesson_type,
+      description: lesson.description,
+      date: lesson.date,
+      start_time: lesson.start_time,
+      end_time: lesson.end_time,
+      location: lesson.location,
+      capacity: lesson.capacity,
+      price: lesson.price,
+      instructor: lesson.instructor,
+      status: lesson.status,
+      payment_deadline: lesson.payment_deadline,
+      paypay_id: lesson.paypay_id,
+    });
+    setShowForm(true);
+    setSelectedLesson(null);
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingLesson) {
+        await updateLesson(editingLesson.id, form);
+        onToast('✅ レッスンを更新しました');
+      } else {
+        await createLesson(form);
+        onToast('✅ レッスンを作成しました');
+      }
+      setShowForm(false);
+      load();
+    } catch {
+      onToast('❌ 保存に失敗しました');
+    }
+  };
+
+  const handleDelete = async (lesson: Lesson) => {
+    if (!confirm(`「${lesson.title}」を削除しますか？`)) return;
+    try {
+      await deleteLesson(lesson.id);
+      onToast('🗑 削除しました');
+      load();
+    } catch {
+      onToast('❌ 削除に失敗しました');
+    }
+  };
+
+  const handleStatusToggle = async (lesson: Lesson, status: LessonStatus) => {
+    try {
+      await updateLesson(lesson.id, { status });
+      onToast('✅ ステータスを更新しました');
+      load();
+    } catch {
+      onToast('❌ 更新に失敗しました');
+    }
+  };
+
+  const openEntries = async (lesson: Lesson) => {
+    setSelectedLesson(lesson);
+    setShowForm(false);
+    setLoadingEntries(true);
+    const data = await fetchEntriesForLesson(lesson.id);
+    setEntries(data);
+    setLoadingEntries(false);
+  };
+
+  const handlePaymentStatus = async (entry: LessonEntry, status: LessonEntry['payment_status']) => {
+    try {
+      await updateEntryPaymentStatus(entry.id, status);
+      onToast('✅ 入金ステータスを更新しました');
+      if (selectedLesson) openEntries(selectedLesson);
+    } catch {
+      onToast('❌ 更新に失敗しました');
+    }
+  };
+
+  const inputStyle = { backgroundColor: '#0a0f1e', borderColor: '#1e3a5f', color: '#e2e8f0' };
+
+  if (showForm) {
+    return (
+      <div>
+        <button onClick={() => setShowForm(false)} className="flex items-center gap-1 text-sm mb-6 transition-colors hover:text-blue-300" style={{ color: '#3b82f6' }}>
+          ← 一覧に戻る
+        </button>
+        <h2 className="text-lg font-bold text-white mb-5">{editingLesson ? 'レッスンを編集' : '新規レッスン作成'}</h2>
+        <form onSubmit={handleSave} className="rounded-2xl border p-6 space-y-4" style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium mb-1" style={{ color: '#94a3b8' }}>タイトル <span style={{ color: '#ef4444' }}>*</span></label>
+              <input required value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+                className="w-full px-4 py-2.5 rounded-xl border outline-none text-sm focus:border-blue-500"
+                style={inputStyle} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: '#94a3b8' }}>レッスンタイプ <span style={{ color: '#ef4444' }}>*</span></label>
+              <select required value={form.lesson_type} onChange={e => setForm(f => ({ ...f, lesson_type: e.target.value as LessonType }))}
+                className="w-full px-4 py-2.5 rounded-xl border outline-none text-sm"
+                style={inputStyle}>
+                {(Object.entries(LESSON_TYPE_MAP) as [LessonType, typeof LESSON_TYPE_MAP[LessonType]][]).map(([type, info]) => (
+                  <option key={type} value={type}>{info.emoji} {info.label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: '#94a3b8' }}>ステータス</label>
+              <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value as LessonStatus }))}
+                className="w-full px-4 py-2.5 rounded-xl border outline-none text-sm"
+                style={inputStyle}>
+                <option value="draft">🔒 下書き</option>
+                <option value="published">🌐 公開</option>
+                <option value="cancelled">❌ キャンセル</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: '#94a3b8' }}>開催日 <span style={{ color: '#ef4444' }}>*</span></label>
+              <input required type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
+                className="w-full px-4 py-2.5 rounded-xl border outline-none text-sm"
+                style={inputStyle} />
+            </div>
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <label className="block text-sm font-medium mb-1" style={{ color: '#94a3b8' }}>開始時間 <span style={{ color: '#ef4444' }}>*</span></label>
+                <input required type="time" value={form.start_time} onChange={e => setForm(f => ({ ...f, start_time: e.target.value }))}
+                  className="w-full px-4 py-2.5 rounded-xl border outline-none text-sm"
+                  style={inputStyle} />
+              </div>
+              <div className="flex-1">
+                <label className="block text-sm font-medium mb-1" style={{ color: '#94a3b8' }}>終了時間 <span style={{ color: '#ef4444' }}>*</span></label>
+                <input required type="time" value={form.end_time} onChange={e => setForm(f => ({ ...f, end_time: e.target.value }))}
+                  className="w-full px-4 py-2.5 rounded-xl border outline-none text-sm"
+                  style={inputStyle} />
+              </div>
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium mb-1" style={{ color: '#94a3b8' }}>場所 <span style={{ color: '#ef4444' }}>*</span></label>
+              <input required value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))}
+                className="w-full px-4 py-2.5 rounded-xl border outline-none text-sm"
+                style={inputStyle} placeholder="例：渋谷区代々木公園" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: '#94a3b8' }}>定員</label>
+              <input type="number" min={1} value={form.capacity} onChange={e => setForm(f => ({ ...f, capacity: Number(e.target.value) }))}
+                className="w-full px-4 py-2.5 rounded-xl border outline-none text-sm"
+                style={inputStyle} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: '#94a3b8' }}>参加費（円）</label>
+              <input type="number" min={0} value={form.price} onChange={e => setForm(f => ({ ...f, price: Number(e.target.value) }))}
+                className="w-full px-4 py-2.5 rounded-xl border outline-none text-sm"
+                style={inputStyle} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: '#94a3b8' }}>支払い期限</label>
+              <input type="date" value={form.payment_deadline ?? ''} onChange={e => setForm(f => ({ ...f, payment_deadline: e.target.value || null }))}
+                className="w-full px-4 py-2.5 rounded-xl border outline-none text-sm"
+                style={inputStyle} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: '#94a3b8' }}>PayPay ID</label>
+              <input value={form.paypay_id ?? ''} onChange={e => setForm(f => ({ ...f, paypay_id: e.target.value || null }))}
+                className="w-full px-4 py-2.5 rounded-xl border outline-none text-sm"
+                style={inputStyle} />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium mb-1" style={{ color: '#94a3b8' }}>説明文</label>
+              <textarea rows={4} value={form.description ?? ''} onChange={e => setForm(f => ({ ...f, description: e.target.value || null }))}
+                className="w-full px-4 py-2.5 rounded-xl border outline-none text-sm resize-none"
+                style={inputStyle} />
+            </div>
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button type="submit" className="px-6 py-2.5 rounded-xl font-bold text-white text-sm" style={{ backgroundColor: '#3b82f6' }}>
+              {editingLesson ? '更新する' : '作成する'}
+            </button>
+            <button type="button" onClick={() => setShowForm(false)} className="px-6 py-2.5 rounded-xl text-sm border" style={{ borderColor: '#1e3a5f', color: '#64748b' }}>
+              キャンセル
+            </button>
+          </div>
+        </form>
+      </div>
+    );
+  }
+
+  if (selectedLesson) {
+    return (
+      <div>
+        <button onClick={() => setSelectedLesson(null)} className="flex items-center gap-1 text-sm mb-6 transition-colors hover:text-blue-300" style={{ color: '#3b82f6' }}>
+          ← レッスン一覧に戻る
+        </button>
+        <h2 className="text-lg font-bold text-white mb-1">申込者一覧</h2>
+        <p className="text-sm mb-5" style={{ color: '#64748b' }}>{selectedLesson.title}</p>
+        {loadingEntries ? (
+          <div className="space-y-2">{[1,2,3].map(i => <div key={i} className="h-14 rounded-xl animate-pulse" style={{ backgroundColor: '#1e3a5f' }} />)}</div>
+        ) : entries.length === 0 ? (
+          <div className="text-center py-16 rounded-2xl border" style={{ borderColor: '#1e3a5f', color: '#64748b' }}>
+            <p className="text-3xl mb-2">📋</p>
+            <p>まだ申込者はいません</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {entries.map(entry => (
+              <div key={entry.id} className="flex items-center gap-4 p-4 rounded-xl border" style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-white text-sm">{entry.name}</p>
+                  <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>{entry.email}{entry.phone ? ` · ${entry.phone}` : ''}</p>
+                  <p className="text-xs mt-0.5" style={{ color: '#475569' }}>
+                    申込日：{new Date(entry.created_at).toLocaleDateString('ja-JP', { year: 'numeric', month: 'short', day: 'numeric' })}
+                  </p>
+                  {entry.message && <p className="text-xs mt-1" style={{ color: '#64748b' }}>💬 {entry.message}</p>}
+                </div>
+                <select
+                  value={entry.payment_status}
+                  onChange={e => handlePaymentStatus(entry, e.target.value as LessonEntry['payment_status'])}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium border outline-none"
+                  style={{
+                    backgroundColor: entry.payment_status === 'paid' ? 'rgba(34,197,94,0.15)' : entry.payment_status === 'cancelled' ? 'rgba(239,68,68,0.15)' : 'rgba(100,116,139,0.15)',
+                    borderColor: entry.payment_status === 'paid' ? '#22c55e' : entry.payment_status === 'cancelled' ? '#ef4444' : '#64748b',
+                    color: entry.payment_status === 'paid' ? '#22c55e' : entry.payment_status === 'cancelled' ? '#ef4444' : '#94a3b8',
+                  }}
+                >
+                  <option value="unpaid">⏳ 未払い</option>
+                  <option value="paid">✅ 入金済み</option>
+                  <option value="cancelled">❌ キャンセル</option>
+                </select>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-5">
+        <p className="text-sm" style={{ color: '#475569' }}>全 {lessons.length} 件</p>
+        <button onClick={openCreate} className="px-5 py-2.5 rounded-xl font-bold text-white text-sm" style={{ backgroundColor: '#3b82f6' }}>
+          + 新規作成
+        </button>
+      </div>
+      {loading ? (
+        <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-20 rounded-xl animate-pulse" style={{ backgroundColor: '#1e3a5f' }} />)}</div>
+      ) : lessons.length === 0 ? (
+        <div className="text-center py-20 rounded-2xl border" style={{ borderColor: '#1e3a5f', color: '#64748b' }}>
+          <p className="text-4xl mb-3">🏃</p>
+          <p className="font-bold text-white mb-1">まだレッスンがありません</p>
+          <button onClick={openCreate} className="mt-3 text-sm underline" style={{ color: '#3b82f6' }}>最初のレッスンを作成する</button>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {lessons.map(lesson => {
+            const info = LESSON_TYPE_MAP[lesson.lesson_type];
+            const statusColor = lesson.status === 'published' ? '#3b82f6' : lesson.status === 'cancelled' ? '#ef4444' : '#64748b';
+            const statusLabel = lesson.status === 'published' ? '🌐 公開' : lesson.status === 'cancelled' ? '❌ キャンセル' : '🔒 下書き';
+            return (
+              <div key={lesson.id} className="flex items-center gap-4 p-4 rounded-xl border" style={{ backgroundColor: '#111827', borderColor: '#1e3a5f', borderLeft: `3px solid ${info.color}` }}>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-white text-sm truncate">{info.emoji} {lesson.title}</p>
+                  <p className="text-xs mt-1" style={{ color: '#64748b' }}>
+                    {lesson.date} {lesson.start_time.slice(0,5)}〜{lesson.end_time.slice(0,5)} · {lesson.location}
+                  </p>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: `${statusColor}22`, color: statusColor }}>{statusLabel}</span>
+                    <span className="text-xs" style={{ color: '#475569' }}>¥{lesson.price.toLocaleString()} · {lesson.capacity}名</span>
+                  </div>
+                </div>
+                <div className="flex gap-2 flex-shrink-0 flex-wrap justify-end">
+                  <button onClick={() => openEntries(lesson)} className="px-3 py-1.5 rounded-lg text-xs border transition-colors hover:border-green-500 hover:text-green-400" style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}>申込者</button>
+                  {lesson.status !== 'published' && (
+                    <button onClick={() => handleStatusToggle(lesson, 'published')} className="px-3 py-1.5 rounded-lg text-xs border transition-colors hover:border-blue-500 hover:text-blue-400" style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}>公開</button>
+                  )}
+                  {lesson.status === 'published' && (
+                    <button onClick={() => handleStatusToggle(lesson, 'draft')} className="px-3 py-1.5 rounded-lg text-xs border transition-colors hover:border-yellow-500 hover:text-yellow-400" style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}>下書きに戻す</button>
+                  )}
+                  <button onClick={() => openEdit(lesson)} className="px-3 py-1.5 rounded-lg text-xs border transition-colors hover:border-blue-500 hover:text-blue-400" style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}>編集</button>
+                  <button onClick={() => handleDelete(lesson)} className="px-3 py-1.5 rounded-lg text-xs border transition-colors hover:border-red-500 hover:text-red-400" style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}>削除</button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

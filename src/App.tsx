@@ -46,13 +46,15 @@ class ErrorBoundary extends Component<
   }
 }
 
-const HomePage       = lazy(() => import('./pages/HomePage').then(m => ({ default: m.HomePage })));
-const BlogPage       = lazy(() => import('./pages/BlogPage').then(m => ({ default: m.BlogPage })));
-const BlogDetailPage = lazy(() => import('./pages/BlogDetailPage').then(m => ({ default: m.BlogDetailPage })));
-const QuizPage       = lazy(() => import('./pages/QuizPage').then(m => ({ default: m.QuizPage })));
-const ProfilePage    = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
-const AdminPage      = lazy(() => import('./pages/AdminPage').then(m => ({ default: m.AdminPage })));
-const NotFoundPage   = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
+const HomePage         = lazy(() => import('./pages/HomePage').then(m => ({ default: m.HomePage })));
+const BlogPage         = lazy(() => import('./pages/BlogPage').then(m => ({ default: m.BlogPage })));
+const BlogDetailPage   = lazy(() => import('./pages/BlogDetailPage').then(m => ({ default: m.BlogDetailPage })));
+const QuizPage         = lazy(() => import('./pages/QuizPage').then(m => ({ default: m.QuizPage })));
+const ProfilePage      = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
+const AdminPage        = lazy(() => import('./pages/AdminPage').then(m => ({ default: m.AdminPage })));
+const LessonsPage      = lazy(() => import('./pages/LessonsPage').then(m => ({ default: m.LessonsPage })));
+const LessonDetailPage = lazy(() => import('./pages/LessonDetailPage').then(m => ({ default: m.LessonDetailPage })));
+const NotFoundPage     = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
 const PageLoader = () => {
   const isQuiz = window.location.pathname === '/quiz';
@@ -77,6 +79,8 @@ const AnimatedRoutes = () => {
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:id" element={<BlogDetailPage />} />
             <Route path="/quiz" element={<QuizPage />} />
+            <Route path="/lessons" element={<LessonsPage />} />
+            <Route path="/lessons/:id" element={<LessonDetailPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="*" element={<NotFoundPage />} />
