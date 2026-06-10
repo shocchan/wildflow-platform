@@ -74,7 +74,7 @@ export function ProfilePage() {
           <p className="text-slate-300 leading-relaxed">
             コラボ・取材・その他のお問い合わせは X（Twitter）のDMからお気軽にどうぞ。
           </p>
-          <div className="mt-4 flex flex-col sm:flex-row flex-wrap gap-3">
+          <div className="mt-4 flex flex-col gap-3 max-w-xs">
             {profile.twitter_url && (
               <a
                 href={profile.twitter_url}

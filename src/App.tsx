@@ -54,11 +54,17 @@ const ProfilePage    = lazy(() => import('./pages/ProfilePage').then(m => ({ def
 const AdminPage      = lazy(() => import('./pages/AdminPage').then(m => ({ default: m.AdminPage })));
 const NotFoundPage   = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
-const PageLoader = () => (
-  <div className="flex items-center justify-center min-h-[60vh]">
-    <div className="w-8 h-8 border-4 border-blue-900 border-t-blue-500 rounded-full animate-spin" />
-  </div>
-);
+const PageLoader = () => {
+  const isQuiz = window.location.pathname === '/quiz';
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+      <div className="w-8 h-8 border-4 border-blue-900 border-t-blue-500 rounded-full animate-spin" />
+      <p className="text-sm" style={{ color: '#64748b' }}>
+        {isQuiz ? '60問の診断を準備中...' : '読み込み中...'}
+      </p>
+    </div>
+  );
+};
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -85,7 +91,7 @@ function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
-      <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#0a0f1e' }}>
+      <div className="min-h-dvh flex flex-col" style={{ backgroundColor: '#0a0f1e' }}>
         <Header />
         <div className="flex-1">
           <AnimatedRoutes />

@@ -9,6 +9,10 @@
   animation: pageFadeIn 0.3s ease-out both;
 }
 
+.question-fade {
+  animation: pageFadeIn 0.25s ease-out both;
+}
+
 @keyframes shimmer {
   0%   { background-position: -200% 0; }
   100% { background-position:  200% 0; }

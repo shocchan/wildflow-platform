@@ -91,6 +91,16 @@ function ResultView({ result, scores, onReset }: { result: WildType; scores: Abi
         <div className="mt-5 p-4 rounded-xl" style={{ backgroundColor: '#050a14', borderLeft: `3px solid ${accentColor}` }}>
           <p className="text-xs font-bold mb-1" style={{ color: accentColor }}>🎯 処方レッスン</p>
           <p className="text-sm text-slate-300">{result.lesson}</p>
+          <p className="text-xs mt-2" style={{ color: '#475569' }}>
+            あなたのタイプに最適化されたトレーニングプログラムです。まずはこのレッスンから始めてみてください。
+          </p>
+          <a
+            href="/#quiz-start"
+            className="inline-flex items-center gap-1 mt-3 text-sm font-bold transition-colors hover:opacity-80"
+            style={{ color: accentColor }}
+          >
+            レッスンの詳細を見る →
+          </a>
         </div>
       </div>
 
@@ -104,14 +114,14 @@ function ResultView({ result, scores, onReset }: { result: WildType; scores: Abi
           className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-bold text-white transition-all hover:opacity-80"
           style={{ backgroundColor: '#1d9bf0' }}
         >
-          𝕏 Xでシェアする
+          𝕏 Xにシェアする
         </a>
         <button
           onClick={onReset}
           className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-bold border transition-all hover:bg-white/5"
           style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}
         >
-          もう一度診断する
+          🔄 もう一度診断する
         </button>
       </div>
     </main>
@@ -126,7 +136,6 @@ export function QuizPage() {
   const [result, setResult] = useState<WildType | null>(null);
   const [scores, setScores] = useState<AbilityScores | null>(null);
 
-  // prevent accidental back navigation mid-quiz
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [current]);
@@ -158,6 +167,13 @@ export function QuizPage() {
     }, 300);
   };
 
+  const handlePrev = () => {
+    if (current === 0 || selected !== null) return;
+    const prevIndex = current - 1;
+    setCurrent(prevIndex);
+    setSelected(answers[questions[prevIndex].id] ?? null);
+  };
+
   const reset = () => {
     setStep('quiz');
     setCurrent(0);
@@ -182,9 +198,18 @@ export function QuizPage() {
       </div>
 
       <div className="mb-8">
-        <div className="flex justify-between text-xs mb-2" style={{ color: '#64748b' }}>
+        <div className="flex justify-between items-center text-xs mb-2" style={{ color: '#64748b' }}>
           <span>質問 {current + 1} / {questions.length}</span>
-          <span>{Math.round(progress)}%</span>
+          {current > 0 && (
+            <button
+              onClick={handlePrev}
+              disabled={selected !== null}
+              className="text-xs transition-colors hover:text-white disabled:opacity-30"
+              style={{ color: '#64748b' }}
+            >
+              ← 前の質問へ
+            </button>
+          )}
         </div>
         <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: '#1e3a5f' }}>
           <div
@@ -194,7 +219,7 @@ export function QuizPage() {
         </div>
       </div>
 
-      <div className="p-6 rounded-2xl border mb-6" style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}>
+      <div key={current} className="question-fade p-6 rounded-2xl border mb-6" style={{ backgroundColor: '#1a2535', borderColor: '#1e3a5f' }}>
         <p className="text-base font-bold text-white text-center leading-snug">{q.text}</p>
       </div>
 

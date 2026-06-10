@@ -82,6 +82,17 @@ export function BlogPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {filtered.map(post => <PostCard key={post.id} post={post} />)}
+          {!selectedTag && filtered.length < 3 && Array.from({ length: 3 - filtered.length }).map((_, i) => (
+            <div
+              key={`coming-${i}`}
+              className="rounded-xl p-6 text-center flex flex-col items-center justify-center gap-2 min-h-[180px]"
+              style={{ border: '1px dashed #1e3a5f', opacity: 0.5 }}
+            >
+              <p className="text-2xl">🔜</p>
+              <p className="text-sm font-bold" style={{ color: '#64748b' }}>近日公開予定</p>
+              <p className="text-xs" style={{ color: '#475569' }}>新しい記事を準備中です</p>
+            </div>
+          ))}
         </div>
       )}
     </main>

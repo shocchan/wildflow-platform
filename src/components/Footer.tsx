@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 export function Footer() {
+  const { isAuthenticated } = useAuth();
   return (
     <footer className="border-t mt-16 py-8" style={{ borderColor: '#1e3a5f', backgroundColor: '#050a14' }}>
       <div className="max-w-5xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -15,7 +17,7 @@ export function Footer() {
           <Link to="/blog" className="hover:text-blue-400 transition-colors">ブログ</Link>
           <Link to="/quiz" className="hover:text-blue-400 transition-colors">野生診断</Link>
           <Link to="/profile" className="hover:text-blue-400 transition-colors">プロフィール</Link>
-          <Link to="/admin" className="hover:text-blue-400 transition-colors">管理</Link>
+          {isAuthenticated && <Link to="/admin" className="hover:text-blue-400 transition-colors">管理</Link>}
         </div>
         <p className="text-xs" style={{ color: '#334155' }}>© 2026 wildflow</p>
       </div>

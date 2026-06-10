@@ -49,7 +49,7 @@ export function HomePage() {
   return (
     <main>
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden py-24 px-4 text-center">
+      <section className="relative overflow-hidden py-16 px-4 text-center">
         <div
           className="absolute inset-0 opacity-20"
           style={{ background: 'radial-gradient(ellipse at 50% 0%, #3b82f6 0%, transparent 70%)' }}
@@ -66,7 +66,7 @@ export function HomePage() {
             5つの軸で測定し、22種類の動物タイプで表す身体診断。
           </p>
           <p className="text-sm mb-10" style={{ color: '#475569' }}>
-            性格でなく<strong style={{ color: '#7dd3fc' }}>「身体の特性」</strong>を診断する、動物版フィジカル診断。
+            性格でなく<strong className="text-white">「身体の特性」</strong>を診断する、動物版フィジカル診断。
           </p>
           <Link
             to="/quiz"
@@ -130,7 +130,7 @@ export function HomePage() {
           <h2 className="text-2xl font-bold text-white mb-2">あなたはどの動物？</h2>
           <p className="text-sm mb-10" style={{ color: '#64748b' }}>22種類の動物タイプの中から、あなたの身体特性が判定されます。</p>
 
-          <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3 mb-10">
+          <div className="grid grid-cols-4 sm:grid-cols-6 gap-3 mb-10">
             {TYPE_GRID.map((t, i) => (
               <div
                 key={i}
