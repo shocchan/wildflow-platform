@@ -8,16 +8,17 @@ export type CropArea = {
 export const getCroppedImg = (
   imageSrc: string,
   pixelCrop: CropArea,
+  outputSize?: { width: number; height: number },
 ): Promise<Blob> => {
   return new Promise((resolve, reject) => {
     const image = new Image();
     image.src = imageSrc;
     image.onload = () => {
       const canvas = document.createElement('canvas');
-      // 出力サイズを固定（512x512）
-      const OUTPUT_SIZE = 512;
-      canvas.width = OUTPUT_SIZE;
-      canvas.height = OUTPUT_SIZE;
+      const outW = outputSize?.width ?? 512;
+      const outH = outputSize?.height ?? 512;
+      canvas.width = outW;
+      canvas.height = outH;
       const ctx = canvas.getContext('2d');
       if (!ctx) return reject('Canvas context error');
 
@@ -29,8 +30,8 @@ export const getCroppedImg = (
         pixelCrop.height,
         0,
         0,
-        OUTPUT_SIZE,
-        OUTPUT_SIZE,
+        outW,
+        outH,
       );
 
       canvas.toBlob(

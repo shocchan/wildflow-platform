@@ -7,6 +7,7 @@ export interface Post {
   external_url: string | null;
   tags: string[];
   status: 'published' | 'draft';
+  content_type?: 'html' | 'markdown';
   created_at: string;
 }
 

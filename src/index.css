@@ -60,3 +60,4 @@
 .prose-wild pre code { background: none; padding: 0; }
 .prose-wild img { max-width: 100%; border-radius: 0.5rem; margin: 1rem 0; }
 .prose-wild strong { color: #f1f5f9; }
+.prose-wild hr { border-color: #1e3a5f; margin: 1.5rem 0; }

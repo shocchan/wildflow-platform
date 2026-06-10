@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 import { fetchPostById } from '../services/posts';
 import type { Post } from '../types';
 
@@ -75,10 +76,16 @@ export function BlogDetailPage() {
         </div>
       )}
 
-      <div
-        className="prose-wild"
-        dangerouslySetInnerHTML={{ __html: post.body }}
-      />
+      {post.content_type === 'markdown' ? (
+        <div className="prose-wild">
+          <ReactMarkdown>{post.body}</ReactMarkdown>
+        </div>
+      ) : (
+        <div
+          className="prose-wild"
+          dangerouslySetInnerHTML={{ __html: post.body }}
+        />
+      )}
 
       {post.external_url && (
         <div className="mt-10 p-4 rounded-xl border" style={{ borderColor: '#1e3a5f', backgroundColor: '#111827' }}>

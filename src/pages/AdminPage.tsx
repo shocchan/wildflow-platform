@@ -23,6 +23,7 @@ const emptyForm = (): Omit<Post, 'id' | 'created_at'> => ({
   external_url: '',
   tags: [],
   status: 'draft',
+  content_type: 'html',
 });
 
 // ── ツールバーボタン ───────────────────────────────────────
@@ -105,61 +106,134 @@ function RichEditor({ value, onChange }: { value: string; onChange: (html: strin
   );
 }
 
-// ── サムネイルアップローダー ───────────────────────────────
+// ── サムネイルアップローダー（クロップ付き 16:9）─────────
 function ThumbnailUploader({ value, onChange }: { value: string; onChange: (url: string) => void }) {
   const [uploading, setUploading] = useState(false);
+  const [rawImageSrc, setRawImageSrc] = useState<string | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<CropArea | null>(null);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { alert('ファイルサイズは5MB以下にしてください'); return; }
+    if (!file.type.startsWith('image/')) { alert('画像ファイルを選択してください'); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setRawImageSrc(reader.result as string);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+      setShowCropper(true);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const onCropComplete = useCallback((_: unknown, pixels: CropArea) => {
+    setCroppedAreaPixels(pixels);
+  }, []);
+
+  const handleCropAndUpload = async () => {
+    if (!rawImageSrc || !croppedAreaPixels) return;
     setUploading(true);
     try {
-      const filename = `${Date.now()}-${file.name.replace(/\s/g, '_')}`;
+      const blob = await getCroppedImg(rawImageSrc, croppedAreaPixels, { width: 1280, height: 720 });
+      const filename = `${Date.now()}.jpg`;
       const { error } = await supabase.storage
         .from('thumbnails')
-        .upload(filename, file, { upsert: true });
+        .upload(filename, blob, { upsert: false, contentType: 'image/jpeg' });
       if (error) throw error;
       const { data } = supabase.storage.from('thumbnails').getPublicUrl(filename);
       onChange(data.publicUrl);
-    } catch {
-      alert('アップロードに失敗しました');
+      setShowCropper(false);
+      setRawImageSrc(null);
+    } catch (err) {
+      alert(`アップロードに失敗しました: ${err instanceof Error ? err.message : '不明なエラー'}`);
     } finally {
       setUploading(false);
     }
   };
 
   return (
-    <div className="space-y-3">
-      {value && (
-        <div className="relative">
+    <>
+      <div className="space-y-3">
+        {value && (
           <img
             src={value}
             alt="サムネイル"
-            className="w-full max-w-xs rounded-xl object-cover aspect-video border"
+            className="w-full max-w-sm rounded-xl object-cover aspect-video border"
             style={{ borderColor: '#1e3a5f' }}
           />
+        )}
+        <div className="flex items-center gap-3">
+          <label
+            className="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-bold transition-all hover:border-blue-500 hover:text-blue-400"
+            style={{ borderColor: '#1e3a5f', color: uploading ? '#475569' : '#94a3b8', backgroundColor: '#0a0f1e' }}
+          >
+            {uploading ? '⏳ アップロード中...' : '📁 画像を選択'}
+            <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" disabled={uploading} />
+          </label>
+          {value && (
+            <button type="button" onClick={() => onChange('')} className="text-sm transition-colors hover:text-red-300" style={{ color: '#ef4444' }}>
+              削除
+            </button>
+          )}
+        </div>
+      </div>
+
+      {showCropper && rawImageSrc && (
+        <div className="fixed inset-0 z-50 flex flex-col" style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}>
+          <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: '#1e3a5f' }}>
+            <h3 className="text-white font-bold">📐 画像をトリミング（16:9）</h3>
+            <button onClick={() => { setShowCropper(false); setRawImageSrc(null); }} className="text-slate-400 hover:text-white text-xl leading-none px-2">✕</button>
+          </div>
+          <div className="relative flex-1">
+            <Cropper
+              image={rawImageSrc}
+              crop={crop}
+              zoom={zoom}
+              aspect={16 / 9}
+              cropShape="rect"
+              showGrid={true}
+              onCropChange={setCrop}
+              onZoomChange={setZoom}
+              onCropComplete={onCropComplete}
+            />
+          </div>
+          <div className="px-6 py-3 flex items-center gap-4" style={{ backgroundColor: '#0a0f1e' }}>
+            <span className="text-xs text-slate-400 w-12">縮小</span>
+            <input type="range" min={1} max={3} step={0.05} value={zoom} onChange={e => setZoom(Number(e.target.value))} className="flex-1 accent-blue-500" />
+            <span className="text-xs text-slate-400 w-12 text-right">拡大</span>
+          </div>
+          <div className="flex gap-3 justify-end px-5 py-4 border-t" style={{ borderColor: '#1e3a5f', backgroundColor: '#0a0f1e' }}>
+            <button onClick={() => { setShowCropper(false); setRawImageSrc(null); }}
+              className="px-5 py-2.5 rounded-xl border text-sm font-medium transition-colors"
+              style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}>キャンセル</button>
+            <button onClick={handleCropAndUpload} disabled={uploading}
+              className="px-6 py-2.5 rounded-xl font-bold text-white text-sm transition-all hover:opacity-90 disabled:opacity-50"
+              style={{ backgroundColor: '#3b82f6' }}>
+              {uploading ? '⏳ アップロード中...' : '✓ この範囲で保存'}
+            </button>
+          </div>
         </div>
       )}
-      <div className="flex items-center gap-3">
-        <label
-          className="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-bold transition-all hover:border-blue-500 hover:text-blue-400"
-          style={{ borderColor: '#1e3a5f', color: uploading ? '#475569' : '#94a3b8', backgroundColor: '#0a0f1e' }}
-        >
-          {uploading ? '⏳ アップロード中...' : '📁 画像を選択'}
-          <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" disabled={uploading} />
-        </label>
-        {value && (
-          <button
-            type="button"
-            onClick={() => onChange('')}
-            className="text-sm transition-colors hover:text-red-300"
-            style={{ color: '#ef4444' }}
-          >
-            削除
-          </button>
-        )}
-      </div>
-    </div>
+    </>
+  );
+}
+
+// ── Markdownエディタ ──────────────────────────────────────
+function MarkdownEditor({ value, onChange }: { value: string; onChange: (md: string) => void }) {
+  return (
+    <textarea
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      rows={20}
+      className="w-full px-5 py-4 rounded-xl border outline-none focus:border-blue-500 text-slate-200 text-sm resize-y font-mono"
+      style={{ backgroundColor: '#0a0f1e', borderColor: '#1e3a5f', lineHeight: '1.7' }}
+      placeholder={'Markdownで本文を入力してください\n\n## 見出し\n\n本文テキスト'}
+    />
   );
 }
 
@@ -328,9 +402,29 @@ function PostForm({
           placeholder="記事タイトルを入力" />
       </Field>
 
-      {/* リッチテキストエディタ */}
+      {/* 本文エディタ（切り替え式） */}
       <Field label="本文 *">
-        <RichEditor value={form.body} onChange={v => set('body', v)} />
+        <div className="space-y-2">
+          <div className="flex gap-2">
+            {([['html', '✍️ リッチテキスト'], ['markdown', '📝 Markdown']] as const).map(([mode, label]) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => set('content_type', mode)}
+                className="px-4 py-2 rounded-lg text-sm font-bold transition-all border"
+                style={{
+                  backgroundColor: form.content_type === mode ? (mode === 'html' ? 'rgba(59,130,246,0.15)' : 'rgba(100,116,139,0.1)') : 'transparent',
+                  borderColor: form.content_type === mode ? '#3b82f6' : '#1e3a5f',
+                  color: form.content_type === mode ? '#60a5fa' : '#475569',
+                }}
+              >{label}</button>
+            ))}
+          </div>
+          {form.content_type === 'markdown'
+            ? <MarkdownEditor value={form.body} onChange={v => set('body', v)} />
+            : <RichEditor key="rich" value={form.body} onChange={v => set('body', v)} />
+          }
+        </div>
       </Field>
 
       {/* サムネイル */}
@@ -575,7 +669,7 @@ export function AdminPage() {
 
   if (mode === 'create' || mode === 'edit') {
     const initial = editingPost
-      ? { title: editingPost.title, body: editingPost.body, thumbnail_url: editingPost.thumbnail_url || '', youtube_url: editingPost.youtube_url || '', external_url: editingPost.external_url || '', tags: editingPost.tags || [], status: editingPost.status }
+      ? { title: editingPost.title, body: editingPost.body, thumbnail_url: editingPost.thumbnail_url || '', youtube_url: editingPost.youtube_url || '', external_url: editingPost.external_url || '', tags: editingPost.tags || [], status: editingPost.status, content_type: editingPost.content_type || 'html' as const }
       : emptyForm();
 
     const handleSave = async (form: Omit<Post, 'id' | 'created_at'>) => {
