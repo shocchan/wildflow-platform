@@ -69,22 +69,24 @@ export function HomePage() {
           >
             あなたの身体、<br />何型の動物ですか？
           </h1>
-          <p className="text-base md:text-lg mb-3" style={{ color: '#4A6550', lineHeight: 1.8 }}>
+          <p className="mb-3" style={{ color: '#4A6550', lineHeight: 1.8, fontSize: '20px' }}>
             筋力・持久力・スピード・柔軟性・調整力。<br className="hidden md:block" />
             5つの軸で測定し、22種類の動物タイプで表す身体診断。
           </p>
-          <p className="text-sm mb-10" style={{ color: '#4A6550' }}>
+          <p className="mb-10" style={{ color: '#4A6550', fontSize: '16px' }}>
             性格でなく<strong style={{ color: '#1C2A1E' }}>「身体の特性」</strong>を診断する、動物版フィジカル診断。
           </p>
           <Link
             to="/quiz"
-            className="inline-flex items-center gap-2 text-lg font-bold transition-all hover:-translate-y-0.5"
+            className="inline-flex items-center gap-2 font-bold transition-all hover:-translate-y-0.5"
             style={{
               backgroundColor: '#F59E0B',
               color: '#1C2A1E',
-              padding: '16px 36px',
+              padding: '0 40px',
               borderRadius: '100px',
               boxShadow: '0 4px 14px rgba(245,158,11,0.4)',
+              fontSize: '18px',
+              minHeight: '56px',
             }}
           >
             🐾 無料で診断する
@@ -109,7 +111,7 @@ export function HomePage() {
           <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: '#1C2A1E' }}>
             身体のMBTI、はじめました。
           </h2>
-          <p className="text-sm leading-relaxed mb-10" style={{ color: '#4A6550' }}>
+          <p className="leading-relaxed mb-10" style={{ color: '#4A6550', fontSize: '18px', lineHeight: '1.8' }}>
             MBTIが「性格」を16タイプで分類するように、<br className="hidden md:block" />
             wildflow は「身体の特性」を22タイプの動物で分類します。<br className="hidden md:block" />
             あなたは力があるのに持久力がない「サイ型」？<br className="hidden md:block" />
@@ -136,9 +138,11 @@ export function HomePage() {
             style={{
               backgroundColor: '#F59E0B',
               color: '#1C2A1E',
-              padding: '14px 32px',
+              padding: '0 40px',
               borderRadius: '100px',
               boxShadow: '0 4px 14px rgba(245,158,11,0.4)',
+              fontSize: '18px',
+              minHeight: '56px',
             }}
           >
             診断スタート →
@@ -206,9 +210,11 @@ export function HomePage() {
             style={{
               color: '#2D8F4E',
               border: '2px solid #2D8F4E',
-              padding: '14px 32px',
+              padding: '0 32px',
               borderRadius: '100px',
               backgroundColor: 'transparent',
+              fontSize: '18px',
+              minHeight: '56px',
             }}
             onMouseEnter={e => {
               const el = e.currentTarget as HTMLAnchorElement;
@@ -264,19 +270,21 @@ export function HomePage() {
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
             あなたの野生、まだ眠っていませんか？
           </h2>
-          <p className="text-sm mb-8" style={{ color: '#C8E6CA' }}>
+          <p className="mb-8" style={{ color: '#C8E6CA', fontSize: '18px', lineHeight: '1.8' }}>
             60問の本格診断で、あなたの身体の強みと弱みを動物タイプで可視化。<br />
             診断後にあなた専用の処方レッスンも提示されます。
           </p>
           <Link
             to="/quiz"
-            className="inline-flex items-center gap-2 text-lg font-bold transition-all hover:-translate-y-0.5"
+            className="inline-flex items-center gap-2 font-bold transition-all hover:-translate-y-0.5"
             style={{
               backgroundColor: '#F59E0B',
               color: '#1C2A1E',
-              padding: '16px 36px',
+              padding: '0 40px',
               borderRadius: '100px',
               boxShadow: '0 4px 14px rgba(245,158,11,0.4)',
+              fontSize: '18px',
+              minHeight: '56px',
             }}
           >
             無料で診断スタート →

@@ -30,7 +30,7 @@ PayPay ID：${lessonData.paypay_id}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
 
-ご不明な点は X（Twitter）の DM からお気軽にどうぞ。
+ご不明な点は shodorannga@gmail.com までお気軽にご連絡ください。
 
 wildflow
 https://wildflow-platform.shodorannga.workers.dev/

@@ -213,7 +213,7 @@ export function QuizPage() {
     <main className="max-w-2xl mx-auto px-4 py-12">
       <div className="text-center mb-8">
         <p className="text-sm font-medium mb-1" style={{ color: '#2D8F4E' }}>野生タイプ診断</p>
-        <h1 className="text-2xl font-black" style={{ color: '#1C2A1E' }}>あなたの野生タイプを診断する</h1>
+        <h1 className="font-black" style={{ color: '#1C2A1E', fontSize: '32px', lineHeight: '1.3' }}>あなたの野生タイプを診断する</h1>
       </div>
 
       <div className="mb-8">
@@ -230,7 +230,7 @@ export function QuizPage() {
             </button>
           )}
         </div>
-        <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: '#E2E8E4' }}>
+        <div className="rounded-full overflow-hidden" style={{ backgroundColor: '#E2E8E4', height: '8px' }}>
           <div
             className="h-full rounded-full transition-all duration-500"
             style={{ width: `${((current + 1) / questions.length) * 100}%`, backgroundColor: '#2D8F4E' }}

@@ -27,10 +27,13 @@ export function Header() {
             <Link
               key={to}
               to={to}
-              className="text-sm transition-colors"
+              className="transition-colors inline-flex items-center"
               style={{
                 color: pathname === to ? '#2D8F4E' : '#1C2A1E',
                 fontWeight: pathname === to ? 700 : 500,
+                fontSize: '16px',
+                minHeight: '44px',
+                padding: '0 8px',
               }}
             >
               {label}
@@ -58,10 +61,12 @@ export function Header() {
             <Link
               key={to}
               to={to}
-              className="text-sm py-1"
+              className="inline-flex items-center"
               style={{
                 color: pathname === to ? '#2D8F4E' : '#1C2A1E',
                 fontWeight: pathname === to ? 700 : 500,
+                fontSize: '16px',
+                minHeight: '44px',
               }}
               onClick={() => setMenuOpen(false)}
             >

@@ -44,7 +44,7 @@ export function PostCard({ post }: Props) {
             </span>
           ))}
         </div>
-        <h3 className="font-bold text-sm leading-snug line-clamp-2 mb-2" style={{ color: '#1C2A1E' }}>
+        <h3 className="font-bold leading-snug line-clamp-2 mb-2" style={{ color: '#1C2A1E', fontSize: '18px', lineHeight: '28px' }}>
           {post.title}
         </h3>
         <p className="text-xs" style={{ color: '#4A6550' }}>{date}</p>

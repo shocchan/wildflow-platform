@@ -105,7 +105,11 @@ export function LessonDetailPage() {
             </p>
           )}
           <p className="text-sm mb-6" style={{ color: '#5a7a62' }}>
-            ご不明な点は X（Twitter）の DM からお気軽にどうぞ。
+            ご不明な点は{' '}
+            <a href="mailto:shodorannga@gmail.com" style={{ color: '#2D8F4E', textDecoration: 'underline' }}>
+              shodorannga@gmail.com
+            </a>{' '}
+            までお気軽にご連絡ください。
           </p>
           <button
             onClick={() => navigate('/lessons')}
