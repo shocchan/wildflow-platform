@@ -16,7 +16,7 @@ import { getCroppedImg, type CropArea } from '../utils/cropImage';
 import type { Post } from '../types';
 
 type Mode = 'list' | 'create' | 'edit';
-type AdminTab = 'posts' | 'lessons' | 'profile';
+type AdminTab = 'posts' | 'lessons' | 'leads' | 'profile';
 
 const emptyForm = (): Omit<Post, 'id' | 'created_at'> => ({
   title: '',
@@ -706,7 +706,7 @@ export function AdminPage() {
         <button onClick={logout} className="px-4 py-2.5 rounded-xl text-sm border transition-colors hover:border-red-500 hover:text-red-400" style={{ borderColor: '#1e3a5f', color: '#64748b' }}>ログアウト</button>
       </div>
       <div className="flex gap-1 mb-8 p-1 rounded-xl" style={{ backgroundColor: '#111827' }}>
-        {([['posts', '📝 記事管理'], ['lessons', '🏃 レッスン管理'], ['profile', '👤 プロフィール']] as [AdminTab, string][]).map(([tab, label]) => (
+        {([['posts', '📝 記事管理'], ['lessons', '🏃 レッスン管理'], ['leads', '📊 診断リード'], ['profile', '👤 プロフィール']] as [AdminTab, string][]).map(([tab, label]) => (
           <button key={tab} onClick={() => setActiveTab(tab)} className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all"
             style={{ backgroundColor: activeTab === tab ? '#3b82f6' : 'transparent', color: activeTab === tab ? '#fff' : '#64748b' }}>
             {label}
@@ -721,6 +721,8 @@ export function AdminPage() {
       )}
 
       {activeTab === 'lessons' && <LessonsAdminTab onToast={showToast} />}
+
+      {activeTab === 'leads' && <QuizLeadsTab />}
 
       {activeTab === 'posts' && (<>
         <div className="flex items-center justify-between mb-4">
@@ -1131,6 +1133,99 @@ function LessonsAdminTab({ onToast }: { onToast: (msg: string) => void }) {
               </div>
             );
           })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+interface QuizLead {
+  id: string;
+  name: string;
+  email: string;
+  wild_type: string;
+  scores: Record<string, number>;
+  created_at: string;
+}
+
+function QuizLeadsTab() {
+  const [leads, setLeads] = useState<QuizLead[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase
+      .from('quiz_leads')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        setLeads((data as QuizLead[]) ?? []);
+        setLoading(false);
+      });
+  }, []);
+
+  const handleExportCsv = () => {
+    const header = 'お名前,メール,野生タイプ,診断日時';
+    const rows = leads.map(l =>
+      [l.name, l.email, l.wild_type, new Date(l.created_at).toLocaleString('ja-JP')].join(',')
+    );
+    const csv = [header, ...rows].join('\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `quiz-leads-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm" style={{ color: '#475569' }}>全 {leads.length} 件</p>
+        <button
+          onClick={handleExportCsv}
+          className="px-4 py-2 rounded-xl text-sm font-bold border transition-colors hover:border-green-500 hover:text-green-400"
+          style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}
+        >
+          📥 CSVエクスポート
+        </button>
+      </div>
+
+      {loading ? (
+        <p className="text-sm" style={{ color: '#475569' }}>読み込み中...</p>
+      ) : leads.length === 0 ? (
+        <div className="rounded-2xl border p-12 text-center" style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}>
+          <p className="text-3xl mb-3">📭</p>
+          <p className="font-bold text-white mb-1">リードがまだありません</p>
+          <p className="text-sm" style={{ color: '#475569' }}>詳細診断が回答されると、ここに表示されます。</p>
+        </div>
+      ) : (
+        <div className="rounded-2xl border overflow-hidden" style={{ borderColor: '#1e3a5f' }}>
+          <table className="w-full text-sm">
+            <thead>
+              <tr style={{ backgroundColor: '#0a0f1e' }}>
+                <th className="px-4 py-3 text-left font-bold" style={{ color: '#94a3b8' }}>お名前</th>
+                <th className="px-4 py-3 text-left font-bold" style={{ color: '#94a3b8' }}>メール</th>
+                <th className="px-4 py-3 text-left font-bold" style={{ color: '#94a3b8' }}>野生タイプ</th>
+                <th className="px-4 py-3 text-left font-bold" style={{ color: '#94a3b8' }}>診断日時</th>
+              </tr>
+            </thead>
+            <tbody>
+              {leads.map((lead, i) => (
+                <tr
+                  key={lead.id}
+                  style={{ backgroundColor: i % 2 === 0 ? '#111827' : '#0d1424', borderTop: '1px solid #1e3a5f' }}
+                >
+                  <td className="px-4 py-3 text-white">{lead.name}</td>
+                  <td className="px-4 py-3" style={{ color: '#94a3b8' }}>{lead.email}</td>
+                  <td className="px-4 py-3 font-bold" style={{ color: '#2D8F4E' }}>{lead.wild_type}</td>
+                  <td className="px-4 py-3 text-xs" style={{ color: '#475569' }}>
+                    {new Date(lead.created_at).toLocaleString('ja-JP')}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

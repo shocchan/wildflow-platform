@@ -76,22 +76,39 @@ export function HomePage() {
           <p className="mb-10" style={{ color: '#4A6550', fontSize: '16px' }}>
             性格でなく<strong style={{ color: '#1C2A1E' }}>「身体の特性」</strong>を診断する、動物版フィジカル診断。
           </p>
-          <Link
-            to="/quiz"
-            className="inline-flex items-center gap-2 font-bold transition-all hover:-translate-y-0.5"
-            style={{
-              backgroundColor: '#F59E0B',
-              color: '#1C2A1E',
-              padding: '0 40px',
-              borderRadius: '100px',
-              boxShadow: '0 4px 14px rgba(245,158,11,0.4)',
-              fontSize: '18px',
-              minHeight: '56px',
-            }}
-          >
-            🐾 無料で診断する
-          </Link>
-          <p className="mt-3 text-xs" style={{ color: '#4A6550' }}>60問 / 5軸測定 / 22タイプ判定</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              to="/quiz/quick"
+              className="inline-flex items-center justify-center gap-2 font-bold transition-all hover:-translate-y-0.5"
+              style={{
+                backgroundColor: '#F59E0B',
+                color: '#1C2A1E',
+                padding: '0 36px',
+                borderRadius: '100px',
+                boxShadow: '0 4px 14px rgba(245,158,11,0.4)',
+                fontSize: '18px',
+                minHeight: '56px',
+              }}
+            >
+              🐾 10問で簡単診断（無料）
+            </Link>
+            <Link
+              to="/quiz"
+              className="inline-flex items-center justify-center gap-2 font-bold transition-all hover:-translate-y-0.5"
+              style={{
+                backgroundColor: 'transparent',
+                color: '#2D8F4E',
+                padding: '0 28px',
+                borderRadius: '100px',
+                border: '2px solid #2D8F4E',
+                fontSize: '16px',
+                minHeight: '56px',
+              }}
+            >
+              📊 60問で詳しく診断
+            </Link>
+          </div>
+          <p className="mt-3 text-xs" style={{ color: '#4A6550' }}>詳細診断は結果をメールでお送りします</p>
           <div
             className="mt-12 flex justify-center cursor-pointer animate-bounce"
             style={{ color: '#4A6550' }}
@@ -133,7 +150,7 @@ export function HomePage() {
           </div>
 
           <Link
-            to="/quiz"
+            to="/quiz/quick"
             className="inline-flex items-center gap-2 font-bold transition-all hover:-translate-y-0.5"
             style={{
               backgroundColor: '#F59E0B',
@@ -145,7 +162,7 @@ export function HomePage() {
               minHeight: '56px',
             }}
           >
-            診断スタート →
+            🐾 10問で簡単診断 →
           </Link>
         </div>
       </section>
@@ -205,7 +222,7 @@ export function HomePage() {
             レア中のレア <span className="font-bold" style={{ color: '#F59E0B' }}>🐉 ドラゴン型</span> が出ることも。
           </p>
           <Link
-            to="/quiz"
+            to="/quiz/quick"
             className="inline-flex items-center gap-2 font-bold transition-all"
             style={{
               color: '#2D8F4E',
@@ -275,7 +292,7 @@ export function HomePage() {
             診断後にあなた専用の処方レッスンも提示されます。
           </p>
           <Link
-            to="/quiz"
+            to="/quiz/quick"
             className="inline-flex items-center gap-2 font-bold transition-all hover:-translate-y-0.5"
             style={{
               backgroundColor: '#F59E0B',
@@ -287,9 +304,9 @@ export function HomePage() {
               minHeight: '56px',
             }}
           >
-            無料で診断スタート →
+            🐾 10問で簡単診断（無料）
           </Link>
-          <p className="mt-3 text-xs" style={{ color: '#A8D5A2' }}>60問 / 無料 / 会員登録不要</p>
+          <p className="mt-3 text-xs" style={{ color: '#A8D5A2' }}>10問 / 約1分 / 会員登録不要</p>
         </div>
       </section>
     </main>

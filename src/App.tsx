@@ -55,6 +55,8 @@ const AdminPage        = lazy(() => import('./pages/AdminPage').then(m => ({ def
 const LessonsPage      = lazy(() => import('./pages/LessonsPage').then(m => ({ default: m.LessonsPage })));
 const LessonDetailPage = lazy(() => import('./pages/LessonDetailPage').then(m => ({ default: m.LessonDetailPage })));
 const NotFoundPage     = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
+const QuickQuiz        = lazy(() => import('./pages/QuickQuiz').then(m => ({ default: m.QuickQuiz })));
+const QuickQuizResult  = lazy(() => import('./pages/QuickQuizResult').then(m => ({ default: m.QuickQuizResult })));
 
 const PageLoader = () => {
   const isQuiz = window.location.pathname === '/quiz';
@@ -79,6 +81,8 @@ const AnimatedRoutes = () => {
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:id" element={<BlogDetailPage />} />
             <Route path="/quiz" element={<QuizPage />} />
+            <Route path="/quiz/quick" element={<QuickQuiz />} />
+            <Route path="/quiz/quick/result" element={<QuickQuizResult />} />
             <Route path="/lessons" element={<LessonsPage />} />
             <Route path="/lessons/:id" element={<LessonDetailPage />} />
             <Route path="/profile" element={<ProfilePage />} />

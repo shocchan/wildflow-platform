@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 const navLinks = [
   { to: '/', label: 'ホーム' },
   { to: '/blog', label: 'ブログ' },
-  { to: '/quiz', label: '野生診断' },
+  { to: '/quiz/quick', label: '野生診断' },
   { to: '/lessons', label: 'レッスン' },
   { to: '/profile', label: 'プロフィール' },
 ];

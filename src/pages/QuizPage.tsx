@@ -17,7 +17,7 @@ const ABILITY_LABELS: Record<string, string> = {
 
 const ABILITY_ORDER = ['strength', 'endurance', 'speed', 'flexibility', 'coordination'] as const;
 
-type Step = 'quiz' | 'result';
+type Step = 'gate' | 'quiz' | 'result';
 
 function AbilityBar({ label, score, isHigh, isLow }: { label: string; score: number; isHigh: boolean; isLow: boolean }) {
   const color = isHigh ? '#2D8F4E' : isLow ? '#EF4444' : '#4A6550';
@@ -145,7 +145,10 @@ function ResultView({ result, scores, onReset }: { result: WildType; scores: Abi
 }
 
 export function QuizPage() {
-  const [step, setStep] = useState<Step>('quiz');
+  const [step, setStep] = useState<Step>('gate');
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [gateError, setGateError] = useState('');
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [selected, setSelected] = useState<number | null>(null);
@@ -182,6 +185,32 @@ export function QuizPage() {
             scores: abilityScores,
           }]);
         } catch (_) { /* non-blocking */ }
+        try {
+          await supabase.from('quiz_leads').insert([{
+            name: userName,
+            email: userEmail,
+            wild_type: wildType.name,
+            scores: abilityScores,
+          }]);
+        } catch (_) { /* non-blocking */ }
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          const anonKey = (supabase as unknown as { supabaseKey: string }).supabaseKey;
+          await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-quiz-result-email`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session?.access_token ?? anonKey}`,
+            },
+            body: JSON.stringify({
+              name: userName,
+              email: userEmail,
+              wildType: wildType.name,
+              scores: abilityScores,
+              lesson: wildType.lesson,
+            }),
+          });
+        } catch (_) { /* non-blocking */ }
       }
     }, 300);
   };
@@ -194,7 +223,7 @@ export function QuizPage() {
   };
 
   const reset = () => {
-    setStep('quiz');
+    setStep('gate');
     setCurrent(0);
     setAnswers({});
     setSelected(null);
@@ -202,6 +231,94 @@ export function QuizPage() {
     setResult(null);
     setScores(null);
   };
+
+  if (step === 'gate') {
+    const handleGateSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!userName.trim() || !userEmail.trim()) {
+        setGateError('お名前とメールアドレスを入力してください');
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userEmail)) {
+        setGateError('正しいメールアドレスを入力してください');
+        return;
+      }
+      setGateError('');
+      setStep('quiz');
+    };
+
+    return (
+      <main className="max-w-lg mx-auto px-4 py-12">
+        <div className="text-center mb-8">
+          <p className="text-sm font-medium mb-1" style={{ color: '#2D8F4E' }}>詳細診断 — 約5分</p>
+          <h1 className="font-black mb-3" style={{ color: '#1C2A1E', fontSize: '28px', lineHeight: '1.3' }}>
+            60問で詳しく診断する
+          </h1>
+          <p className="text-sm leading-relaxed" style={{ color: '#4A6550' }}>
+            60問に答えると、22タイプの中からあなたの野生タイプを<br />
+            詳しく診断します。結果はメールでお送りします。
+          </p>
+        </div>
+
+        <form
+          onSubmit={handleGateSubmit}
+          className="p-6 rounded-2xl border"
+          style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}
+        >
+          <div className="mb-4">
+            <label className="block text-sm font-bold mb-1" style={{ color: '#1C2A1E' }}>
+              お名前 <span style={{ color: '#EF4444' }}>*</span>
+            </label>
+            <input
+              type="text"
+              value={userName}
+              onChange={e => setUserName(e.target.value)}
+              placeholder="山田 太郎"
+              className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-colors"
+              style={{ borderColor: '#E2E8E4', color: '#1C2A1E' }}
+              onFocus={e => (e.currentTarget.style.borderColor = '#2D8F4E')}
+              onBlur={e => (e.currentTarget.style.borderColor = '#E2E8E4')}
+            />
+          </div>
+          <div className="mb-5">
+            <label className="block text-sm font-bold mb-1" style={{ color: '#1C2A1E' }}>
+              メールアドレス <span style={{ color: '#EF4444' }}>*</span>
+            </label>
+            <input
+              type="email"
+              value={userEmail}
+              onChange={e => setUserEmail(e.target.value)}
+              placeholder="example@email.com"
+              className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-colors"
+              style={{ borderColor: '#E2E8E4', color: '#1C2A1E' }}
+              onFocus={e => (e.currentTarget.style.borderColor = '#2D8F4E')}
+              onBlur={e => (e.currentTarget.style.borderColor = '#E2E8E4')}
+            />
+          </div>
+          {gateError && (
+            <p className="text-sm mb-4" style={{ color: '#EF4444' }}>{gateError}</p>
+          )}
+          <button
+            type="submit"
+            className="w-full py-3 rounded-full font-bold text-white transition-opacity hover:opacity-90"
+            style={{ backgroundColor: '#2D8F4E' }}
+          >
+            診断をはじめる →
+          </button>
+          <p className="text-xs text-center mt-3" style={{ color: '#A8D5A2' }}>
+            入力いただいた情報は診断結果の送付にのみ使用します。
+          </p>
+        </form>
+
+        <p className="text-center text-sm mt-6" style={{ color: '#4A6550' }}>
+          まず1分で試したい方は{' '}
+          <a href="/quiz/quick" style={{ color: '#2D8F4E', fontWeight: 700 }}>
+            10問の簡易診断 →
+          </a>
+        </p>
+      </main>
+    );
+  }
 
   if (step === 'result' && result && scores) {
     return <ResultView result={result} scores={scores} onReset={reset} />;
