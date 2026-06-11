@@ -667,7 +667,34 @@ function ExperiencePhotosForm({ onToast }: { onToast: (msg: string) => void }) {
       });
   }, []);
 
-  // ファイル選択後の処理（input[type=file]のonChange）
+  // 画像読み込み時に初期クロップ領域を計算（ドラッグしなくてもアップロードできるように）
+  useEffect(() => {
+    if (!rawImageSrc) return;
+    const img = new window.Image();
+    img.onload = () => {
+      const aspect = 16 / 9;
+      const nw = img.naturalWidth;
+      const nh = img.naturalHeight;
+      let w: number, h: number, x: number, y: number;
+      if (nw / nh > aspect) {
+        // 横長：高さに合わせて中央クロップ
+        h = nh;
+        w = Math.round(h * aspect);
+        x = Math.round((nw - w) / 2);
+        y = 0;
+      } else {
+        // 縦長：幅に合わせて中央クロップ
+        w = nw;
+        h = Math.round(w / aspect);
+        x = 0;
+        y = Math.round((nh - h) / 2);
+      }
+      setCroppedAreaPixels({ x, y, width: w, height: h });
+    };
+    img.src = rawImageSrc;
+  }, [rawImageSrc]);
+
+  // ファイル選択後の処理
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -679,11 +706,9 @@ function ExperiencePhotosForm({ onToast }: { onToast: (msg: string) => void }) {
       setCropTargetIdx(idx);
       setCrop({ x: 0, y: 0 });
       setZoom(1);
-      setCroppedAreaPixels(null);
       setShowCropper(true);
     };
     reader.readAsDataURL(file);
-    // 同じファイルを再選択できるようにリセット
     e.target.value = '';
   };
 
@@ -692,12 +717,18 @@ function ExperiencePhotosForm({ onToast }: { onToast: (msg: string) => void }) {
   }, []);
 
   const handleCropAndUpload = async () => {
-    if (!rawImageSrc || !croppedAreaPixels || cropTargetIdx === null) return;
+    if (!rawImageSrc || cropTargetIdx === null) return;
+    // croppedAreaPixels が null の場合（初期状態）は全体をクロップ
+    if (!croppedAreaPixels) {
+      onToast('⚠️ 画像をドラッグしてトリミング位置を決めてください');
+      return;
+    }
     const idx = cropTargetIdx;
     setUploadingIdx(idx);
     setShowCropper(false);
     try {
-      const blob = await getCroppedImg(rawImageSrc, croppedAreaPixels);
+      // 16:9 で 1280×720 に出力
+      const blob = await getCroppedImg(rawImageSrc, croppedAreaPixels, { width: 1280, height: 720 });
       const filename = `experience_${idx}_${Date.now()}.jpg`;
       const { error } = await supabase.storage
         .from('photos')
