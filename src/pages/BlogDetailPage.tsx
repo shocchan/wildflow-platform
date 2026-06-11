@@ -33,8 +33,8 @@ export function BlogDetailPage() {
   if (!post) return (
     <div className="max-w-3xl mx-auto px-4 py-20 text-center">
       <p className="text-6xl mb-4">🌊</p>
-      <p className="text-white text-xl font-bold mb-2">記事が見つかりません</p>
-      <Link to="/blog" className="text-blue-400 hover:underline">← ブログ一覧に戻る</Link>
+      <p className="text-xl font-bold mb-2" style={{ color: '#1C2A1E' }}>記事が見つかりません</p>
+      <Link to="/blog" className="hover:underline" style={{ color: '#2D8F4E' }}>← ブログ一覧に戻る</Link>
     </div>
   );
 
@@ -45,20 +45,24 @@ export function BlogDetailPage() {
 
   return (
     <main className="max-w-3xl mx-auto px-4 py-12">
-      <Link to="/blog" className="text-sm mb-6 inline-block transition-colors hover:text-blue-300" style={{ color: '#3b82f6' }}>
+      <Link
+        to="/blog"
+        className="text-sm mb-6 inline-flex items-center gap-1 transition-colors hover:opacity-70"
+        style={{ color: '#2D8F4E', minHeight: '44px' }}
+      >
         ← ブログ一覧
       </Link>
 
       <div className="flex flex-wrap gap-1 mb-3">
         {post.tags?.map(tag => (
-          <span key={tag} className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: '#1e3a5f', color: '#7dd3fc' }}>
+          <span key={tag} className="text-sm px-2 py-0.5 rounded-full" style={{ backgroundColor: '#EDF7EE', color: '#2D8F4E' }}>
             #{tag}
           </span>
         ))}
       </div>
 
-      <h1 className="text-2xl md:text-3xl font-black text-white leading-tight mb-3">{post.title}</h1>
-      <p className="text-sm mb-8" style={{ color: '#475569' }}>{date}</p>
+      <h1 className="text-2xl md:text-3xl font-black leading-tight mb-3" style={{ color: '#1C2A1E' }}>{post.title}</h1>
+      <p className="text-sm mb-8" style={{ color: '#6B7280' }}>{date}</p>
 
       {post.thumbnail_url && (
         <img src={post.thumbnail_url} alt={post.title} className="w-full rounded-xl mb-8 object-cover" />
@@ -88,21 +92,26 @@ export function BlogDetailPage() {
       )}
 
       {post.external_url && (
-        <div className="mt-10 p-4 rounded-xl border" style={{ borderColor: '#1e3a5f', backgroundColor: '#111827' }}>
-          <p className="text-sm mb-2" style={{ color: '#94a3b8' }}>関連リンク</p>
+        <div className="mt-10 p-4 rounded-xl border" style={{ borderColor: '#E2E8E4', backgroundColor: '#EDF7EE' }}>
+          <p className="text-sm mb-2 font-bold" style={{ color: '#4A6550' }}>関連リンク</p>
           <a
             href={post.external_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-400 hover:underline break-all text-sm"
+            className="hover:underline break-all text-sm"
+            style={{ color: '#2D8F4E' }}
           >
             {post.external_url}
           </a>
         </div>
       )}
 
-      <div className="mt-12 pt-8 border-t" style={{ borderColor: '#1e3a5f' }}>
-        <Link to="/blog" className="text-sm transition-colors hover:text-blue-300" style={{ color: '#3b82f6' }}>
+      <div className="mt-12 pt-8 border-t" style={{ borderColor: '#E2E8E4' }}>
+        <Link
+          to="/blog"
+          className="text-sm transition-colors hover:opacity-70 inline-flex items-center"
+          style={{ color: '#2D8F4E', minHeight: '44px' }}
+        >
           ← ブログ一覧に戻る
         </Link>
       </div>

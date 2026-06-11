@@ -150,8 +150,8 @@ export function LessonDetailPage() {
             <p className="mb-0.5">👤 インストラクター：{lesson.instructor}</p>
             {lesson.instructor === 'しょっちゃん' && (
               <div className="ml-5 mt-1">
-                <p className="text-xs" style={{ color: '#5a7a62' }}>Animal Flow Level 1認定インストラクター・小紅書フォロワー5,000+</p>
-                <a href="/profile" className="text-xs underline" style={{ color: '#2D8F4E' }}>
+                <p className="text-sm" style={{ color: '#5a7a62' }}>Animal Flow Level 1認定インストラクター・小紅書フォロワー5,000+</p>
+                <a href="/profile" className="text-sm underline" style={{ color: '#2D8F4E' }}>
                   インストラクター紹介を見る →
                 </a>
               </div>

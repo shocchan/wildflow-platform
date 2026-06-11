@@ -25,7 +25,7 @@ export function BlogPage() {
         <div className="flex flex-wrap gap-2 mb-8">
           <button
             onClick={() => setSelectedTag(null)}
-            className="text-xs px-3 py-1 rounded-full border transition-colors"
+            className="text-sm px-3 py-1.5 rounded-full border transition-colors"
             style={{
               borderColor: selectedTag === null ? '#2D8F4E' : '#E2E8E4',
               color: selectedTag === null ? '#2D8F4E' : '#4A6550',
@@ -38,7 +38,7 @@ export function BlogPage() {
             <button
               key={tag}
               onClick={() => setSelectedTag(tag)}
-              className="text-xs px-3 py-1 rounded-full border transition-colors"
+              className="text-sm px-3 py-1.5 rounded-full border transition-colors"
               style={{
                 borderColor: selectedTag === tag ? '#2D8F4E' : '#E2E8E4',
                 color: selectedTag === tag ? '#2D8F4E' : '#4A6550',
@@ -90,7 +90,7 @@ export function BlogPage() {
             >
               <p className="text-2xl">🔜</p>
               <p className="text-sm font-bold" style={{ color: '#4A6550' }}>近日公開予定</p>
-              <p className="text-xs" style={{ color: '#6B8F72' }}>新しい記事を準備中です</p>
+              <p className="text-sm" style={{ color: '#6B7280' }}>新しい記事を準備中です</p>
             </div>
           ))}
         </div>

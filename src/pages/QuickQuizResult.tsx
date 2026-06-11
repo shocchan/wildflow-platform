@@ -11,10 +11,10 @@ function AbilityBar({ label, score, isLow }: { label: string; score: number; isL
   const color = isLow ? '#F59E0B' : '#2D8F4E';
   return (
     <div className="mb-3">
-      <div className="flex justify-between text-xs mb-1">
+      <div className="flex justify-between text-sm mb-1">
         <span style={{ color }}>
           {label}
-          {isLow && <span className="ml-1 text-xs">▲ 伸びしろ</span>}
+          {isLow && <span className="ml-1 text-sm">▲ 伸びしろ</span>}
         </span>
         <span style={{ color }}>{score}</span>
       </div>
@@ -75,7 +75,7 @@ export function QuickQuizResult() {
         className="p-6 rounded-2xl border mb-6"
         style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}
       >
-        <p className="text-xs font-bold mb-4" style={{ color: '#4A6550' }}>── 5軸アビリティスコア ──</p>
+        <p className="text-sm font-bold mb-4" style={{ color: '#4A6550' }}>── 5軸アビリティスコア ──</p>
         {ABILITY_ORDER.map(ab => (
           <AbilityBar
             key={ab}

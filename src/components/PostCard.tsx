@@ -37,17 +37,17 @@ export function PostCard({ post }: Props) {
           {post.tags?.map(tag => (
             <span
               key={tag}
-              className="text-xs px-2 py-0.5 rounded-full"
+              className="text-sm px-2 py-0.5 rounded-full"
               style={{ backgroundColor: '#EDF7EE', color: '#2D8F4E' }}
             >
               #{tag}
             </span>
           ))}
         </div>
-        <h3 className="font-bold leading-snug line-clamp-2 mb-2" style={{ color: '#1C2A1E', fontSize: '18px', lineHeight: '28px' }}>
+        <h3 className="font-bold leading-snug line-clamp-2 mb-2" style={{ color: '#1C2A1E', fontSize: '20px', lineHeight: '30px' }}>
           {post.title}
         </h3>
-        <p className="text-xs" style={{ color: '#4A6550' }}>{date}</p>
+        <p className="text-sm" style={{ color: '#4A6550' }}>{date}</p>
       </div>
     </Link>
   );

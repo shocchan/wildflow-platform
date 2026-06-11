@@ -108,7 +108,7 @@ export function HomePage() {
               📊 60問で詳しく診断
             </Link>
           </div>
-          <p className="mt-3 text-xs" style={{ color: '#4A6550' }}>詳細診断は結果をメールでお送りします</p>
+          <p className="mt-3 text-sm" style={{ color: '#4A6550' }}>詳細診断は結果をメールでお送りします</p>
           <div
             className="mt-12 flex justify-center cursor-pointer animate-bounce"
             style={{ color: '#4A6550' }}
@@ -144,7 +144,7 @@ export function HomePage() {
               >
                 <p className="text-2xl mb-1">{ax.icon}</p>
                 <p className="text-xs font-bold mb-1" style={{ color: '#1C2A1E' }}>{ax.label}</p>
-                <p className="text-xs" style={{ color: '#4A6550' }}>{ax.desc}</p>
+                <p className="text-sm" style={{ color: '#4A6550' }}>{ax.desc}</p>
               </div>
             ))}
           </div>
@@ -230,7 +230,7 @@ export function HomePage() {
                 }}
               >
                 <span className="text-2xl">{t.emoji}</span>
-                <span className="text-xs font-semibold" style={{ color: '#1C2A1E' }}>{t.name}</span>
+                <span className="text-sm font-semibold" style={{ color: '#1C2A1E' }}>{t.name}</span>
               </div>
             ))}
           </div>
@@ -247,7 +247,7 @@ export function HomePage() {
                 }}
               >
                 <span className="text-2xl">{t.emoji}</span>
-                <span className="text-xs font-semibold" style={{ color: '#1C2A1E' }}>{t.name}</span>
+                <span className="text-sm font-semibold" style={{ color: '#1C2A1E' }}>{t.name}</span>
               </div>
             ))}
           </div>
@@ -340,7 +340,7 @@ export function HomePage() {
           >
             🐾 10問で簡単診断（無料）
           </Link>
-          <p className="mt-3 text-xs" style={{ color: '#A8D5A2' }}>10問 / 約1分 / 会員登録不要</p>
+          <p className="mt-3 text-sm" style={{ color: '#A8D5A2' }}>10問 / 約1分 / 会員登録不要</p>
         </div>
       </section>
     </main>

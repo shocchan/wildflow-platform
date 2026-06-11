@@ -198,7 +198,7 @@ export function QuizPage() {
           >
             診断をはじめる →
           </button>
-          <p className="text-xs text-center mt-3" style={{ color: '#A8D5A2' }}>
+          <p className="text-sm text-center mt-3" style={{ color: '#A8D5A2' }}>
             入力いただいた情報は診断結果の送付にのみ使用します。
           </p>
         </form>
@@ -238,11 +238,11 @@ export function QuizPage() {
             className="p-5 rounded-2xl mb-6 text-left"
             style={{ backgroundColor: '#EDF7EE', borderLeft: '4px solid #2D8F4E' }}
           >
-            <p className="text-xs font-bold mb-2" style={{ color: '#2D8F4E' }}>診断結果のヒント</p>
+            <p className="text-sm font-bold mb-2" style={{ color: '#2D8F4E' }}>診断結果のヒント</p>
             <p className="text-sm" style={{ color: '#1C2A1E' }}>
               あなたは <strong>{doneData.lowestAbilityLabel}が伸びしろ</strong> のタイプです。
             </p>
-            <p className="text-xs mt-2" style={{ color: '#4A6550' }}>
+            <p className="text-sm mt-2" style={{ color: '#4A6550' }}>
               詳しい野生タイプと5軸スコアはメールでご確認ください 📧
             </p>
           </div>
@@ -333,13 +333,13 @@ export function QuizPage() {
       </div>
 
       <div className="mb-8">
-        <div className="flex justify-between items-center text-xs mb-2" style={{ color: '#4A6550' }}>
+        <div className="flex justify-between items-center text-sm mb-2" style={{ color: '#4A6550' }}>
           <span>質問 {current + 1} / {questions.length}</span>
           {current > 0 && (
             <button
               onClick={handlePrev}
               disabled={selected !== null}
-              className="text-xs transition-colors disabled:opacity-30 flex items-center gap-1"
+              className="text-sm transition-colors disabled:opacity-30 flex items-center gap-1"
               style={{ color: '#4A6550' }}
             >
               ← 前の質問へ

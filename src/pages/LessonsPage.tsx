@@ -91,17 +91,17 @@ export function LessonsPage() {
                 }}
               >
                 <div className="text-2xl mb-1">{info.emoji}</div>
-                <div className="text-xs font-bold mb-1" style={{ color: '#1C2A1E' }}>{info.ability}</div>
-                <div className="text-xs" style={{ color: '#5a7a62' }}>{info.move}</div>
+                <div className="text-sm font-bold mb-1" style={{ color: '#1C2A1E' }}>{info.ability}</div>
+                <div className="text-sm" style={{ color: '#5a7a62' }}>{info.move}</div>
                 {isActive && (
-                  <div className="text-xs mt-1 font-bold" style={{ color: info.color }}>✓ 絞込中</div>
+                  <div className="text-sm mt-1 font-bold" style={{ color: info.color }}>✓ 絞込中</div>
                 )}
               </button>
             );
           })}
         </div>
         {activeFilter && (
-          <p className="text-xs mt-3" style={{ color: '#5a7a62' }}>
+          <p className="text-sm mt-3" style={{ color: '#5a7a62' }}>
             {LESSON_TYPE_MAP[activeFilter].ability}のレッスンを表示中 —{' '}
             <button
               onClick={() => setActiveFilter(null)}
