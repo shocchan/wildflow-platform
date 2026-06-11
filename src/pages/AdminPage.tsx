@@ -828,6 +828,127 @@ function ExperiencePhotosForm({ onToast }: { onToast: (msg: string) => void }) {
   );
 }
 
+// ── 受講者の声管理フォーム ────────────────────────────────
+interface Testimonial {
+  name: string;
+  animal_type: string;
+  comment: string;
+}
+
+const emptyTestimonial = (): Testimonial => ({ name: '', animal_type: '', comment: '' });
+
+function TestimonialsForm({ onToast }: { onToast: (msg: string) => void }) {
+  const [items, setItems] = useState<Testimonial[]>([]);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'experience_testimonials')
+      .single()
+      .then(({ data, error }) => {
+        if (!error && data?.value?.testimonials?.length) {
+          setItems(data.value.testimonials);
+        } else {
+          setItems([emptyTestimonial(), emptyTestimonial(), emptyTestimonial()]);
+        }
+      });
+  }, []);
+
+  const set = (idx: number, key: keyof Testimonial, val: string) => {
+    setItems(prev => prev.map((item, i) => i === idx ? { ...item, [key]: val } : item));
+  };
+
+  const addItem = () => setItems(prev => [...prev, emptyTestimonial()]);
+
+  const removeItem = (idx: number) => setItems(prev => prev.filter((_, i) => i !== idx));
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await supabase
+        .from('site_settings')
+        .upsert({ key: 'experience_testimonials', value: { testimonials: items }, updated_at: new Date().toISOString() });
+      onToast('✅ 受講者の声を保存しました');
+    } catch { onToast('❌ 保存に失敗しました'); }
+    finally { setSaving(false); }
+  };
+
+  return (
+    <div className="mt-10 pt-8 border-t" style={{ borderColor: '#1e3a5f' }}>
+      <h3 className="text-white font-bold text-lg mb-2">💬 受講者の声管理</h3>
+      <p className="text-xs mb-6" style={{ color: '#64748b' }}>
+        /lessons/experience と /lessons に表示される受講者の声を管理します
+      </p>
+      <div className="space-y-4 mb-6">
+        {items.map((item, idx) => (
+          <div key={idx} className="rounded-xl border p-4 relative" style={{ borderColor: '#1e3a5f', backgroundColor: '#0a0f1e' }}>
+            <button
+              type="button"
+              onClick={() => removeItem(idx)}
+              className="absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors hover:bg-red-900"
+              style={{ color: '#ef4444' }}
+            >✕</button>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+              <div>
+                <label className="block text-xs font-bold mb-1" style={{ color: '#94a3b8' }}>お名前</label>
+                <input
+                  value={item.name}
+                  onChange={e => set(idx, 'name', e.target.value)}
+                  placeholder="田中さん（30代・女性）"
+                  className="w-full px-3 py-2 rounded-lg border outline-none focus:border-blue-500 text-white text-sm"
+                  style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold mb-1" style={{ color: '#94a3b8' }}>動物タイプ（任意）</label>
+                <input
+                  value={item.animal_type}
+                  onChange={e => set(idx, 'animal_type', e.target.value)}
+                  placeholder="例：カワウソ型"
+                  className="w-full px-3 py-2 rounded-lg border outline-none focus:border-blue-500 text-white text-sm"
+                  style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-bold mb-1" style={{ color: '#94a3b8' }}>コメント</label>
+              <textarea
+                value={item.comment}
+                onChange={e => set(idx, 'comment', e.target.value)}
+                rows={3}
+                placeholder="レッスンの感想を入力..."
+                className="w-full px-3 py-2 rounded-lg border outline-none focus:border-blue-500 text-white text-sm resize-none"
+                style={{ backgroundColor: '#111827', borderColor: '#1e3a5f', lineHeight: '1.6' }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="flex gap-3">
+        <button
+          type="button"
+          onClick={addItem}
+          className="px-5 py-2.5 rounded-xl border text-sm font-bold transition-all hover:border-blue-500 hover:text-blue-400"
+          style={{ borderColor: '#1e3a5f', color: '#94a3b8', backgroundColor: '#0a0f1e' }}
+        >
+          ＋ 声を追加
+        </button>
+        <button
+          type="button"
+          disabled={saving}
+          onClick={handleSave}
+          className="px-8 py-2.5 rounded-xl font-bold text-white transition-all hover:opacity-90 disabled:opacity-50"
+          style={{ backgroundColor: '#3b82f6' }}
+        >
+          {saving ? '保存中...' : '✓ 保存する'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── メインコンポーネント ───────────────────────────────────
 export function AdminPage() {
   const { isAuthenticated, loading: authLoading, login, logout } = useAuth();
@@ -902,6 +1023,7 @@ export function AdminPage() {
         <div className="rounded-2xl border p-6 md:p-8" style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}>
           <ProfileForm onToast={showToast} />
           <ExperiencePhotosForm onToast={showToast} />
+          <TestimonialsForm onToast={showToast} />
         </div>
       )}
 

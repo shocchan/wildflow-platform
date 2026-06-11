@@ -1,8 +1,15 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../services/supabaseClient';
 
+interface Testimonial {
+  name: string;
+  animal_type: string;
+  comment: string;
+}
+
 export function LessonExperiencePage() {
   const [photos, setPhotos] = useState<string[]>(['', '', '', '', '', '']);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
 
   useEffect(() => {
     supabase
@@ -11,9 +18,15 @@ export function LessonExperiencePage() {
       .eq('key', 'experience_photos')
       .single()
       .then(({ data }) => {
-        if (data?.value?.photos) {
-          setPhotos(data.value.photos);
-        }
+        if (data?.value?.photos) setPhotos(data.value.photos);
+      });
+    supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'experience_testimonials')
+      .single()
+      .then(({ data }) => {
+        if (data?.value?.testimonials) setTestimonials(data.value.testimonials);
       });
   }, []);
 
@@ -115,18 +128,30 @@ export function LessonExperiencePage() {
       </section>
 
       {/* 受講者の声 */}
-      <section className="py-16">
-        <h2 className="text-2xl font-bold text-center mb-8" style={{ color: '#1C2A1E' }}>受講者の声</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="rounded-xl p-6 border" style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}>
-              <p className="text-sm text-center" style={{ color: '#9CA3AF' }}>
-                💬 受講者の声を追加予定
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
+      {testimonials.some(t => t.comment) && (
+        <section className="py-16">
+          <h2 className="text-2xl font-bold text-center mb-8" style={{ color: '#1C2A1E' }}>受講者の声</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {testimonials.filter(t => t.comment).map((t, i) => (
+              <div key={i} className="rounded-xl p-6 border" style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}>
+                <p className="text-2xl mb-3">💬</p>
+                <p className="text-sm leading-relaxed mb-4" style={{ color: '#1C2A1E' }}>「{t.comment}」</p>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style={{ backgroundColor: '#EDF7EE', color: '#2D8F4E' }}>
+                    {t.name.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold" style={{ color: '#1C2A1E' }}>{t.name}</p>
+                    {t.animal_type && (
+                      <p className="text-xs" style={{ color: '#4A6550' }}>🐾 {t.animal_type}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* よくある質問 */}
       <section className="mb-14">
