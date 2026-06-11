@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { fetchProfileSettings, type ProfileSettings } from '../services/settings';
 
 const DEFAULTS: ProfileSettings = {
@@ -8,7 +9,7 @@ const DEFAULTS: ProfileSettings = {
   mission:
     '「野生の身体を、すべての人へ。」\n\n現代社会では、人間本来の野性的な身体感覚が失われつつあります。わたしは自らの身体実験を通じて、誰もが自分の野生タイプを知り、それに合った生き方・動き方を選択できる世界をつくりたいと思っています。',
   story:
-    '日本語教師として中国人学習者と向き合う日々の中で、「身体の使い方」が言語習得にも、人生の質にも深く影響することに気づきました。\n\n自身の身体を実験台に、食事・運動・睡眠・マインドセットを徹底的に試し、その知見をこのメディア「wildflow」で発信しています。\n\n青いタオルを首に巻いた姿がトレードマーク。野生×知性がコンセプトです。',
+    '2022年、上海。妻に連れられて行った"動物の動きを模した運動教室"で、\nインストラクターの一言が頭の中で何かをつないだ。\n\n帰り道に妻に言った。「自分、これの資格を取りたい」。\nインストラクター資格2人分・24万円、即決だった。\n\n日本語教師として中国人学習者と向き合う日々の中で、「身体の使い方」が言語習得にも、人生の質にも深く影響することに気づきました。\n\n自身の身体を実験台に、食事・運動・睡眠・マインドセットを徹底的に試し、その知見をこのメディア「wildflow」で発信しています。\n\n青いタオルを首に巻いた姿がトレードマーク。野生×知性がコンセプトです。',
   twitter_url: 'https://twitter.com/',
   xhs_url: 'https://xhslink.com/m/4cEpE8uM5oz',
   lemon8_url: 'https://s.lemon8-app.com/s/GgbxwycvTj',
@@ -57,6 +58,13 @@ export function ProfilePage() {
 
         <Section title="📖 ストーリー">
           <p className="leading-relaxed whitespace-pre-line" style={{ color: '#4A6550' }}>{profile.story}</p>
+          <Link
+            to="/blog/8835329d-05f2-41f2-a1f3-798bb422dd5c"
+            className="inline-block mt-4 font-bold hover:underline"
+            style={{ color: '#2D8F4E' }}
+          >
+            → そのエピソードをブログで読む
+          </Link>
         </Section>
 
         <Section title="🎯 活動">
@@ -124,9 +132,12 @@ export function ProfilePage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="p-6 rounded-2xl border" style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}>
-      <h2 className="text-lg font-bold mb-4" style={{ color: '#1C2A1E' }}>{title}</h2>
+    <div
+      className="rounded-2xl p-6"
+      style={{ backgroundColor: '#FFFFFF', border: '1px solid #D8ECD9' }}
+    >
+      <h2 className="text-lg font-bold mb-3" style={{ color: '#1C2A1E' }}>{title}</h2>
       {children}
     </div>
   );
-}
+                }
