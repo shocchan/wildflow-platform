@@ -40,7 +40,7 @@ export function LessonsPage() {
       <p className="text-sm mb-4" style={{ color: '#5a7a62' }}>Animal Flowの5つのアビリティを鍛えるレッスンを開催しています。</p>
 
       {/* 体験イメージリンク */}
-      <a href="/lessons/experience" className="inline-block text-sm underline mb-8" style={{ color: '#2D8F4E' }}>
+      <a href="/lessons/experience" className="inline-flex items-center text-sm underline mb-8" style={{ color: '#2D8F4E', minHeight: '44px', padding: '10px 0' }}>
         👀 レッスンってどんな感じ？体験イメージを見る
       </a>
 
@@ -74,7 +74,7 @@ export function LessonsPage() {
 
       {/* 5つのアビリティ（フィルター兼用） */}
       <section className="mb-12">
-        <h2 className="text-lg font-bold mb-4" style={{ color: '#1C2A1E' }}>5つのアビリティ</h2>
+        <h2 className="text-2xl font-bold mb-4" style={{ color: '#1C2A1E' }}>5つのアビリティ</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
           {(Object.entries(LESSON_TYPE_MAP) as [LessonType, typeof LESSON_TYPE_MAP[LessonType]][]).map(([type, info]) => {
             const isActive = activeFilter === type;
@@ -116,7 +116,7 @@ export function LessonsPage() {
 
       {/* レッスン一覧 */}
       <section>
-        <h2 className="text-lg font-bold mb-4" style={{ color: '#1C2A1E' }}>開催予定レッスン</h2>
+        <h2 className="text-2xl font-bold mb-4" style={{ color: '#1C2A1E' }}>開催予定レッスン</h2>
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3].map(i => (
@@ -170,7 +170,7 @@ export function LessonsPage() {
                             💴 ¥{lesson.price.toLocaleString()}
                           </span>
                         </div>
-                        <p className="text-xs" style={{ color: '#9ca3af' }}>
+                        <p className="text-sm" style={{ color: '#6B7280' }}>
                           💳 支払い方法：PayPay / WeChat Pay
                         </p>
                       </div>
@@ -198,6 +198,20 @@ export function LessonsPage() {
             })}
           </div>
         )}
+      </section>
+
+      {/* 受講者の声 */}
+      <section className="py-16">
+        <h2 className="text-2xl font-bold text-center mb-8" style={{ color: '#1C2A1E' }}>受講者の声</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="rounded-xl p-6 border" style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}>
+              <p className="text-sm text-center" style={{ color: '#9CA3AF' }}>
+                💬 受講者の声を追加予定
+              </p>
+            </div>
+          ))}
+        </div>
       </section>
     </main>
   );

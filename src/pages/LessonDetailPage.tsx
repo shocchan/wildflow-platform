@@ -181,6 +181,15 @@ export function LessonDetailPage() {
       ) : (
         <div className="rounded-2xl border p-6" style={{ borderColor: '#E2E8E4', backgroundColor: '#fff' }}>
           <h2 className="text-lg font-bold mb-5" style={{ color: '#1C2A1E' }}>申込フォーム</h2>
+          <div className="rounded-xl p-4 mb-6 text-sm" style={{ backgroundColor: '#EDF7EE' }}>
+            <p className="font-bold mb-2">📋 申し込み前にご確認ください</p>
+            <ul className="space-y-1" style={{ color: '#4A6550' }}>
+              <li>✓ 定員：{lesson.capacity}名（先着順）</li>
+              <li>✓ 初心者・未経験者大歓迎</li>
+              <li>✓ キャンセル：開催3日前まで全額返金</li>
+              <li>✓ 動きやすい服装・室内シューズをご持参ください</li>
+            </ul>
+          </div>
           {pageState === 'error' && (
             <div className="mb-4 px-4 py-3 rounded-xl text-sm" style={{ backgroundColor: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca' }}>
               {errorMsg}
@@ -244,7 +253,7 @@ export function LessonDetailPage() {
               {pageState === 'submitting' ? '送信中...' : '申し込む'}
             </button>
           </form>
-          <p className="text-xs mt-3 text-center" style={{ color: '#9ca3af' }}>
+          <p className="text-sm mt-3 text-center" style={{ color: '#6B7280' }}>
             申込後、PayPay / WeChat Pay のお支払い案内メールをお送りします。
           </p>
         </div>

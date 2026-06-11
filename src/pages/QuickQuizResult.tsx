@@ -56,8 +56,8 @@ export function QuickQuizResult() {
   return (
     <main className="max-w-2xl mx-auto px-4 py-12">
       <div className="text-center mb-8">
-        <p className="text-sm font-medium mb-1" style={{ color: '#2D8F4E' }}>簡易診断 結果</p>
-        <h1 className="font-black mb-2" style={{ color: '#1C2A1E', fontSize: '28px', lineHeight: '1.3' }}>
+        <p className="text-sm font-medium mb-1" style={{ color: '#1A6B38' }}>簡易診断 結果</p>
+        <h1 className="font-black mb-2" style={{ color: '#1C2A1E', fontSize: '36px', lineHeight: '1.3' }}>
           あなたが最も伸ばせるアビリティは
         </h1>
         <div
@@ -91,7 +91,10 @@ export function QuickQuizResult() {
         className="p-6 rounded-2xl border mb-6"
         style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}
       >
-        <p className="text-sm font-bold mb-3" style={{ color: '#1C2A1E' }}>
+        <h2 className="text-lg font-bold mb-3" style={{ color: '#1C2A1E' }}>
+          このアビリティが伸びしろの動物タイプ
+        </h2>
+        <p className="text-sm mb-3" style={{ color: '#4A6550' }}>
           「{lowestLabel}」が伸びしろの動物タイプはこれら：
         </p>
         <div className="flex flex-wrap gap-2 mb-4">
@@ -115,14 +118,14 @@ export function QuickQuizResult() {
         className="p-5 rounded-2xl mb-6"
         style={{ backgroundColor: '#EDF7EE', borderLeft: '4px solid #2D8F4E' }}
       >
-        <p className="text-xs font-bold mb-1" style={{ color: '#2D8F4E' }}>🎯 おすすめレッスン</p>
+        <h2 className="text-base font-bold mb-1" style={{ color: '#1A6B38' }}>🎯 おすすめレッスン</h2>
         <p className="text-sm font-bold" style={{ color: '#1C2A1E' }}>{lesson}</p>
         <a
           href="/lessons"
           className="inline-flex items-center gap-1 mt-3 text-sm font-bold transition-opacity hover:opacity-70"
-          style={{ color: '#2D8F4E' }}
+          style={{ color: '#2D8F4E', minHeight: '44px' }}
         >
-          レッスンを予約する →
+          レッスン詳細を見る →
         </a>
       </div>
 

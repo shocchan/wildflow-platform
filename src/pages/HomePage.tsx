@@ -167,6 +167,40 @@ export function HomePage() {
         </div>
       </section>
 
+      {/* ── How it Works ── */}
+      <section className="py-16 px-4" style={{ backgroundColor: '#EDF7EE' }}>
+        <div className="max-w-4xl mx-auto">
+          <p className="text-sm font-bold tracking-widest uppercase mb-3 text-center" style={{ color: '#1A6B38' }}>HOW IT WORKS</p>
+          <h2 className="text-2xl font-bold text-center mb-12" style={{ color: '#1C2A1E' }}>野生を解放する3ステップ</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="text-6xl font-black opacity-20 mb-2" style={{ color: '#F59E0B' }}>01</div>
+              <div className="text-3xl mb-3">🐾</div>
+              <h3 className="font-bold text-lg mb-2" style={{ color: '#1C2A1E' }}>診断する</h3>
+              <p className="text-sm leading-relaxed" style={{ color: '#4A6550' }}>
+                10問の簡単診断で、あなたの身体の伸びしろアビリティを発見
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="text-6xl font-black opacity-20 mb-2" style={{ color: '#F59E0B' }}>02</div>
+              <div className="text-3xl mb-3">📊</div>
+              <h3 className="font-bold text-lg mb-2" style={{ color: '#1C2A1E' }}>自分を知る</h3>
+              <p className="text-sm leading-relaxed" style={{ color: '#4A6550' }}>
+                5軸のバランスを知り、22タイプの野生動物の中から自分を発見
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="text-6xl font-black opacity-20 mb-2" style={{ color: '#F59E0B' }}>03</div>
+              <div className="text-3xl mb-3">🏃</div>
+              <h3 className="font-bold text-lg mb-2" style={{ color: '#1C2A1E' }}>野生を解放する</h3>
+              <p className="text-sm leading-relaxed" style={{ color: '#4A6550' }}>
+                伸びしろに特化した1時間のAnimal Flowレッスンで身体を変える
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── 22 Types Grid ── */}
       <section className="py-16 px-4" style={{ backgroundColor: '#EDF7EE' }}>
         <div className="max-w-3xl mx-auto text-center">
@@ -174,7 +208,7 @@ export function HomePage() {
           <h2 className="text-2xl font-bold mb-2" style={{ color: '#1C2A1E' }}>あなたはどの動物？</h2>
           <p className="text-sm mb-10" style={{ color: '#4A6550' }}>22種類の動物タイプの中から、あなたの身体特性が判定されます。</p>
 
-          <div className="grid grid-cols-4 sm:grid-cols-5 gap-3 mb-3">
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-3">
             {TYPE_GRID_MAIN.map((t, i) => (
               <div
                 key={i}
@@ -255,7 +289,7 @@ export function HomePage() {
           <div className="max-w-5xl mx-auto">
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-2xl font-bold" style={{ color: '#1C2A1E' }}>最新記事</h2>
-              <Link to="/blog" className="text-sm transition-colors hover:opacity-70" style={{ color: '#2D8F4E' }}>
+              <Link to="/blog" className="text-sm transition-colors hover:opacity-70 inline-flex items-center" style={{ color: '#2D8F4E', minHeight: '44px', padding: '10px 0' }}>
                 すべて見る →
               </Link>
             </div>

@@ -144,7 +144,7 @@ export function QuizPage() {
       <main className="max-w-lg mx-auto px-4 py-12">
         <div className="text-center mb-8">
           <p className="text-sm font-medium mb-1" style={{ color: '#2D8F4E' }}>詳細診断 — 約5分</p>
-          <h1 className="font-black mb-3" style={{ color: '#1C2A1E', fontSize: '28px', lineHeight: '1.3' }}>
+          <h1 className="font-black mb-3" style={{ color: '#1C2A1E', fontSize: '36px', lineHeight: '1.3' }}>
             60問で詳しく診断する
           </h1>
           <p className="text-sm leading-relaxed" style={{ color: '#4A6550' }}>

@@ -1,9 +1,27 @@
+import { useEffect, useState } from 'react';
+import { supabase } from '../services/supabaseClient';
+
 export function LessonExperiencePage() {
+  const [photos, setPhotos] = useState<string[]>(['', '', '', '', '', '']);
+
+  useEffect(() => {
+    supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'experience_photos')
+      .single()
+      .then(({ data }) => {
+        if (data?.value?.photos) {
+          setPhotos(data.value.photos);
+        }
+      });
+  }, []);
+
   return (
     <main className="max-w-3xl mx-auto px-4 py-12">
       {/* Hero */}
       <div className="text-center mb-16">
-        <p className="text-sm font-medium mb-2" style={{ color: '#2D8F4E' }}>レッスン体験イメージ</p>
+        <p className="text-sm font-medium mb-2" style={{ color: '#1A6B38' }}>レッスン体験イメージ</p>
         <h1
           className="font-black mb-6 leading-tight"
           style={{ color: '#1C2A1E', fontSize: 'clamp(24px, 5vw, 40px)' }}
@@ -14,15 +32,15 @@ export function LessonExperiencePage() {
         <a
           href="/lessons"
           className="inline-flex items-center gap-2 px-8 py-3 rounded-full font-bold text-white transition-opacity hover:opacity-90"
-          style={{ backgroundColor: '#2D8F4E' }}
+          style={{ backgroundColor: '#2D8F4E', minHeight: '44px' }}
         >
-          レッスンを予約する →
+          レッスン詳細を見る →
         </a>
       </div>
 
       {/* こんな方におすすめ */}
       <section className="mb-14">
-        <h2 className="text-xl font-bold mb-5" style={{ color: '#1C2A1E' }}>こんな方におすすめ</h2>
+        <h2 className="text-2xl font-bold mb-5" style={{ color: '#1C2A1E' }}>こんな方におすすめ</h2>
         <div className="p-6 rounded-2xl border" style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}>
           <ul className="space-y-3">
             {[
@@ -32,7 +50,7 @@ export function LessonExperiencePage() {
               '自分の身体をもっと知りたい',
               'Animal Flowに興味があるけど未経験',
             ].map((item, i) => (
-              <li key={i} className="flex items-center gap-3 text-sm" style={{ color: '#1C2A1E' }}>
+              <li key={i} className="flex items-center gap-3 text-sm leading-relaxed" style={{ color: '#1C2A1E' }}>
                 <span style={{ color: '#2D8F4E' }}>🐾</span>
                 {item}
               </li>
@@ -43,7 +61,7 @@ export function LessonExperiencePage() {
 
       {/* 60分の流れ */}
       <section className="mb-14">
-        <h2 className="text-xl font-bold mb-5" style={{ color: '#1C2A1E' }}>60分の流れ</h2>
+        <h2 className="text-2xl font-bold mb-5" style={{ color: '#1C2A1E' }}>60分の流れ</h2>
         <div className="space-y-3">
           {[
             { time: '00–10分', title: 'Prep', desc: '手首・関節の準備。身体に動く準備を整えます。', emoji: '🤲' },
@@ -60,11 +78,51 @@ export function LessonExperiencePage() {
               <div className="text-2xl flex-shrink-0">{block.emoji}</div>
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs font-bold" style={{ color: '#2D8F4E' }}>{block.time}</span>
+                  <span className="text-sm font-bold" style={{ color: '#1A6B38' }}>{block.time}</span>
                   <span className="text-sm font-bold" style={{ color: '#1C2A1E' }}>{block.title}</span>
                 </div>
-                <p className="text-sm" style={{ color: '#5a7a62' }}>{block.desc}</p>
+                <p className="text-sm leading-relaxed" style={{ color: '#5a7a62' }}>{block.desc}</p>
               </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* レッスンの様子（写真ギャラリー） */}
+      <section className="mb-14">
+        <h2 className="text-2xl font-bold mb-5" style={{ color: '#1C2A1E' }}>レッスンの様子</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {photos.map((url, i) => (
+            <div key={i} className="aspect-video rounded-xl overflow-hidden">
+              {url ? (
+                <img
+                  src={url}
+                  alt={`レッスン風景${i + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div
+                  className="w-full h-full flex flex-col items-center justify-center gap-2"
+                  style={{ backgroundColor: '#EDF7EE' }}
+                >
+                  <span className="text-3xl">📷</span>
+                  <span className="text-sm" style={{ color: '#9CA3AF' }}>レッスン写真</span>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 受講者の声 */}
+      <section className="py-16">
+        <h2 className="text-2xl font-bold text-center mb-8" style={{ color: '#1C2A1E' }}>受講者の声</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="rounded-xl p-6 border" style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}>
+              <p className="text-sm text-center" style={{ color: '#9CA3AF' }}>
+                💬 受講者の声を追加予定
+              </p>
             </div>
           ))}
         </div>
@@ -72,7 +130,7 @@ export function LessonExperiencePage() {
 
       {/* よくある質問 */}
       <section className="mb-14">
-        <h2 className="text-xl font-bold mb-5" style={{ color: '#1C2A1E' }}>よくある質問</h2>
+        <h2 className="text-2xl font-bold mb-5" style={{ color: '#1C2A1E' }}>よくある質問</h2>
         <div className="space-y-4">
           {[
             {
@@ -102,27 +160,7 @@ export function LessonExperiencePage() {
               style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}
             >
               <p className="text-sm font-bold mb-2" style={{ color: '#1C2A1E' }}>Q. {item.q}</p>
-              <p className="text-sm" style={{ color: '#5a7a62' }}>A. {item.a}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 写真ギャラリー（プレースホルダー） */}
-      <section className="mb-14">
-        <h2 className="text-xl font-bold mb-5" style={{ color: '#1C2A1E' }}>レッスンの様子</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {[1, 2, 3, 4, 5, 6].map(i => (
-            <div
-              key={i}
-              className="aspect-square rounded-xl flex items-center justify-center"
-              style={{ backgroundColor: '#EDF7EE' }}
-            >
-              <div className="text-center">
-                <span className="text-3xl block mb-1">📷</span>
-                <span className="text-xs" style={{ color: '#9ca3af' }}>写真{i}</span>
-              </div>
-              {/* 後から <img src={photoUrls[i]} className="w-full h-full object-cover rounded-xl" /> に差し替え */}
+              <p className="text-sm leading-relaxed" style={{ color: '#5a7a62' }}>A. {item.a}</p>
             </div>
           ))}
         </div>
@@ -133,26 +171,26 @@ export function LessonExperiencePage() {
         className="p-8 rounded-2xl text-center"
         style={{ backgroundColor: '#EDF7EE' }}
       >
-        <h2 className="text-xl font-bold mb-3" style={{ color: '#1C2A1E' }}>
+        <h2 className="text-2xl font-bold mb-3" style={{ color: '#1C2A1E' }}>
           まずは診断で自分の身体を知ろう
         </h2>
-        <p className="text-sm mb-6" style={{ color: '#4A6550' }}>
+        <p className="text-sm mb-6 leading-relaxed" style={{ color: '#4A6550' }}>
           どのアビリティを伸ばすべきかを知ることから始まります。
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <a
             href="/quiz/quick"
             className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-bold border-2 transition-opacity hover:opacity-80"
-            style={{ borderColor: '#2D8F4E', color: '#2D8F4E', backgroundColor: 'transparent' }}
+            style={{ borderColor: '#2D8F4E', color: '#2D8F4E', backgroundColor: 'transparent', minHeight: '44px' }}
           >
             10問で簡単診断 →
           </a>
           <a
             href="/lessons"
             className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-bold text-white transition-opacity hover:opacity-90"
-            style={{ backgroundColor: '#2D8F4E' }}
+            style={{ backgroundColor: '#2D8F4E', minHeight: '44px' }}
           >
-            レッスンを予約する →
+            レッスン詳細を見る →
           </a>
         </div>
       </div>
