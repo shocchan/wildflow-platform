@@ -649,7 +649,6 @@ function ExperiencePhotosForm({ onToast }: { onToast: (msg: string) => void }) {
   const [photos, setPhotos] = useState<string[]>(['', '', '', '', '', '']);
   const [saving, setSaving] = useState(false);
   const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
-  const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [rawImageSrc, setRawImageSrc] = useState<string | null>(null);
   const [cropTargetIdx, setCropTargetIdx] = useState<number | null>(null);
   const [showCropper, setShowCropper] = useState(false);
@@ -664,24 +663,27 @@ function ExperiencePhotosForm({ onToast }: { onToast: (msg: string) => void }) {
       .eq('key', 'experience_photos')
       .single()
       .then(({ data }) => {
-        if (data?.value?.photos) {
-          setPhotos(data.value.photos);
-        }
+        if (data?.value?.photos) setPhotos(data.value.photos);
       });
   }, []);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
+  // ファイル選択後の処理（input[type=file]のonChange）
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => {
-      setRawImageSrc(reader.result as string);
+    reader.onload = (ev) => {
+      const src = ev.target?.result as string;
+      if (!src) return;
+      setRawImageSrc(src);
       setCropTargetIdx(idx);
       setCrop({ x: 0, y: 0 });
       setZoom(1);
+      setCroppedAreaPixels(null);
       setShowCropper(true);
     };
     reader.readAsDataURL(file);
+    // 同じファイルを再選択できるようにリセット
     e.target.value = '';
   };
 
@@ -691,21 +693,27 @@ function ExperiencePhotosForm({ onToast }: { onToast: (msg: string) => void }) {
 
   const handleCropAndUpload = async () => {
     if (!rawImageSrc || !croppedAreaPixels || cropTargetIdx === null) return;
-    setUploadingIdx(cropTargetIdx);
+    const idx = cropTargetIdx;
+    setUploadingIdx(idx);
+    setShowCropper(false);
     try {
       const blob = await getCroppedImg(rawImageSrc, croppedAreaPixels);
-      const filename = `experience_${cropTargetIdx}_${Date.now()}.jpg`;
-      const { error } = await supabase.storage.from('photos').upload(filename, blob, { upsert: true, contentType: 'image/jpeg' });
+      const filename = `experience_${idx}_${Date.now()}.jpg`;
+      const { error } = await supabase.storage
+        .from('photos')
+        .upload(filename, blob, { upsert: true, contentType: 'image/jpeg' });
       if (error) throw error;
       const { data } = supabase.storage.from('photos').getPublicUrl(filename);
       const newPhotos = [...photos];
-      newPhotos[cropTargetIdx] = `${data.publicUrl}?t=${Date.now()}`;
+      newPhotos[idx] = `${data.publicUrl}?t=${Date.now()}`;
       setPhotos(newPhotos);
-      setShowCropper(false);
       setRawImageSrc(null);
       setCropTargetIdx(null);
-      onToast('✅ 写真をアップロードしました');
-    } catch { onToast('❌ アップロードに失敗しました'); }
+      onToast('✅ アップロード完了！「写真を保存する」を押して確定してください');
+    } catch (err) {
+      console.error('Upload error:', err);
+      onToast('❌ アップロードに失敗しました（photosバケットが存在するか確認してください）');
+    }
     finally { setUploadingIdx(null); }
   };
 
@@ -721,7 +729,7 @@ function ExperiencePhotosForm({ onToast }: { onToast: (msg: string) => void }) {
       await supabase
         .from('site_settings')
         .upsert({ key: 'experience_photos', value: { photos }, updated_at: new Date().toISOString() });
-      onToast('✅ 写真を保存しました');
+      onToast('✅ 写真URLを保存しました');
     } catch { onToast('❌ 保存に失敗しました'); }
     finally { setSaving(false); }
   };
@@ -730,51 +738,61 @@ function ExperiencePhotosForm({ onToast }: { onToast: (msg: string) => void }) {
     <>
     <div className="mt-10 pt-8 border-t" style={{ borderColor: '#1e3a5f' }}>
       <h3 className="text-white font-bold text-lg mb-2">📷 体験写真管理</h3>
-      <p className="text-xs mb-6" style={{ color: '#64748b' }}>
-        /lessons/experience に表示する写真を管理します（最大6枚・16:9）
+      <p className="text-xs mb-1" style={{ color: '#64748b' }}>
+        /lessons/experience に表示する写真（最大6枚・16:9）
+      </p>
+      <p className="text-xs mb-6" style={{ color: '#475569' }}>
+        ※ Supabaseに <code className="bg-slate-800 px-1 rounded">photos</code> バケット（Public）が必要です
       </p>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
         {photos.map((url, idx) => (
           <div key={idx} className="rounded-xl overflow-hidden border" style={{ borderColor: '#1e3a5f', backgroundColor: '#0a0f1e' }}>
+            {/* プレビュー */}
             <div className="aspect-video relative flex items-center justify-center" style={{ backgroundColor: '#111827' }}>
               {url ? (
                 <>
-                  <img src={url} alt={`写真${idx + 1}`} className="w-full h-full object-cover" onError={e => (e.currentTarget.style.display = 'none')} />
+                  <img src={url} alt={`写真${idx + 1}`} className="w-full h-full object-cover" />
                   <button
+                    type="button"
                     onClick={() => handleDelete(idx)}
-                    className="absolute top-1 right-1 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                    style={{ backgroundColor: 'rgba(239,68,68,0.85)' }}
+                    className="absolute top-1 right-1 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold text-white"
+                    style={{ backgroundColor: 'rgba(239,68,68,0.9)' }}
                   >✕</button>
                 </>
               ) : (
-                <div className="text-center">
+                <div className="text-center pointer-events-none">
                   <span className="text-2xl block mb-1">📷</span>
                   <span className="text-xs" style={{ color: '#475569' }}>スロット {idx + 1}</span>
                 </div>
               )}
               {uploadingIdx === idx && (
-                <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
-                  <span className="text-white text-sm">⏳ アップロード中...</span>
+                <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.7)' }}>
+                  <span className="text-white text-sm font-bold">⏳ 処理中...</span>
                 </div>
               )}
             </div>
+            {/* ─── label でファイルinputを直接トリガー（最も確実な方法）─── */}
             <div className="p-2">
-              <input
-                ref={el => { fileInputRefs.current[idx] = el; }}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={e => handleFileSelect(e, idx)}
-              />
-              <button
-                type="button"
-                disabled={uploadingIdx !== null}
-                onClick={() => fileInputRefs.current[idx]?.click()}
-                className="w-full px-3 py-1.5 rounded-lg border text-xs font-bold transition-all hover:border-blue-500 hover:text-blue-400 disabled:opacity-50"
-                style={{ borderColor: '#1e3a5f', color: '#94a3b8', backgroundColor: '#0a0f1e' }}
+              <label
+                className="w-full px-3 py-2 rounded-lg border text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1"
+                style={{
+                  borderColor: '#1e3a5f',
+                  color: uploadingIdx !== null ? '#475569' : '#94a3b8',
+                  backgroundColor: '#0a0f1e',
+                  pointerEvents: uploadingIdx !== null ? 'none' : 'auto',
+                }}
+                onMouseEnter={e => { if (uploadingIdx === null) (e.currentTarget as HTMLLabelElement).style.borderColor = '#3b82f6'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLLabelElement).style.borderColor = '#1e3a5f'; }}
               >
                 📁 {url ? '差し替え' : 'アップロード'}
-              </button>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={uploadingIdx !== null}
+                  onChange={e => handleFileChange(e, idx)}
+                />
+              </label>
             </div>
           </div>
         ))}
@@ -790,13 +808,18 @@ function ExperiencePhotosForm({ onToast }: { onToast: (msg: string) => void }) {
       </button>
     </div>
 
+    {/* クロッパーオーバーレイ */}
     {showCropper && rawImageSrc && (
-      <div className="fixed inset-0 z-50 flex flex-col" style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}>
-        <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: '#1e3a5f' }}>
+      <div className="fixed inset-0 flex flex-col" style={{ zIndex: 9999, backgroundColor: 'rgba(0,0,0,0.92)' }}>
+        <div className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0" style={{ borderColor: '#1e3a5f', backgroundColor: '#0a0f1e' }}>
           <h3 className="text-white font-bold">📐 写真をトリミング（16:9）</h3>
-          <button onClick={() => { setShowCropper(false); setRawImageSrc(null); setCropTargetIdx(null); }} className="text-slate-400 hover:text-white text-xl leading-none px-2">✕</button>
+          <button
+            type="button"
+            onClick={() => { setShowCropper(false); setRawImageSrc(null); setCropTargetIdx(null); }}
+            className="text-slate-400 hover:text-white text-2xl leading-none w-10 h-10 flex items-center justify-center"
+          >✕</button>
         </div>
-        <div className="relative flex-1">
+        <div className="relative flex-1" style={{ minHeight: 0 }}>
           <Cropper
             image={rawImageSrc}
             crop={crop}
@@ -807,19 +830,33 @@ function ExperiencePhotosForm({ onToast }: { onToast: (msg: string) => void }) {
             onCropComplete={onCropComplete}
           />
         </div>
-        <div className="px-6 py-3 flex items-center gap-4" style={{ backgroundColor: '#0a0f1e' }}>
-          <span className="text-xs text-slate-400 w-12">縮小</span>
-          <input type="range" min={1} max={3} step={0.05} value={zoom} onChange={e => setZoom(Number(e.target.value))} className="flex-1 accent-blue-500" />
-          <span className="text-xs text-slate-400 w-12 text-right">拡大</span>
+        <div className="px-6 py-3 flex items-center gap-4 flex-shrink-0" style={{ backgroundColor: '#0a0f1e' }}>
+          <span className="text-xs text-slate-400 w-12 text-right">縮小</span>
+          <input
+            type="range"
+            min={1}
+            max={3}
+            step={0.05}
+            value={zoom}
+            onChange={e => setZoom(Number(e.target.value))}
+            className="flex-1 accent-blue-500"
+          />
+          <span className="text-xs text-slate-400 w-12">拡大</span>
         </div>
-        <div className="flex gap-3 justify-end px-5 py-4 border-t" style={{ borderColor: '#1e3a5f', backgroundColor: '#0a0f1e' }}>
-          <button onClick={() => { setShowCropper(false); setRawImageSrc(null); setCropTargetIdx(null); }}
-            className="px-5 py-2.5 rounded-xl border text-sm font-medium transition-colors"
-            style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}>キャンセル</button>
-          <button onClick={handleCropAndUpload} disabled={uploadingIdx !== null}
-            className="px-6 py-2.5 rounded-xl font-bold text-white text-sm transition-all hover:opacity-90 disabled:opacity-50"
-            style={{ backgroundColor: '#3b82f6' }}>
-            {uploadingIdx !== null ? '⏳ アップロード中...' : '✓ この範囲で保存'}
+        <div className="flex gap-3 justify-end px-5 py-4 border-t flex-shrink-0" style={{ borderColor: '#1e3a5f', backgroundColor: '#0a0f1e' }}>
+          <button
+            type="button"
+            onClick={() => { setShowCropper(false); setRawImageSrc(null); setCropTargetIdx(null); }}
+            className="px-5 py-2.5 rounded-xl border text-sm font-medium"
+            style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}
+          >キャンセル</button>
+          <button
+            type="button"
+            onClick={handleCropAndUpload}
+            className="px-6 py-2.5 rounded-xl font-bold text-white text-sm transition-all hover:opacity-90"
+            style={{ backgroundColor: '#3b82f6' }}
+          >
+            ✓ この範囲でアップロード
           </button>
         </div>
       </div>
