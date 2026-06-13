@@ -8,15 +8,16 @@ import Cropper from 'react-easy-crop';
 import { fetchAllPostsAdmin, createPost, updatePost, deletePost } from '../services/posts';
 import { fetchProfileSettings, saveProfileSettings, defaultProfileSettings, type ProfileSettings } from '../services/settings';
 import { fetchAllLessonsAdmin, createLesson, updateLesson, deleteLesson, fetchEntriesForLesson, updateEntryPaymentStatus } from '../services/lessons';
+import { fetchAllRecoveryPartnersAdmin, createRecoveryPartner, updateRecoveryPartner, deleteRecoveryPartner } from '../services/recoveryPartners';
 import { LESSON_TYPE_MAP } from '../types/lesson';
 import type { Lesson, LessonEntry, LessonType, LessonStatus } from '../types/lesson';
 import { supabase } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import { getCroppedImg, type CropArea } from '../utils/cropImage';
-import type { Post } from '../types';
+import type { Post, RecoveryPartner } from '../types';
 
 type Mode = 'list' | 'create' | 'edit';
-type AdminTab = 'posts' | 'lessons' | 'leads' | 'profile';
+type AdminTab = 'posts' | 'lessons' | 'leads' | 'recovery' | 'profile';
 
 const emptyForm = (): Omit<Post, 'id' | 'created_at'> => ({
   title: '',
@@ -55,10 +56,13 @@ function ToolbarBtn({
 
 // ── リッチテキストエディタ ─────────────────────────────────
 function RichEditor({ value, onChange }: { value: string; onChange: (html: string) => void }) {
+  const imgInputRef = useRef<HTMLInputElement>(null);
+  const [imgUploading, setImgUploading] = useState(false);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Image,
+      Image.configure({ HTMLAttributes: { class: 'max-w-full h-auto rounded-lg my-2' } }),
       Link.configure({ openOnClick: false }),
       Placeholder.configure({ placeholder: '本文を入力してください…' }),
     ],
@@ -76,6 +80,26 @@ function RichEditor({ value, onChange }: { value: string; onChange: (html: strin
     if (!url) return;
     editor?.chain().focus().setLink({ href: url }).run();
   };
+
+  const handleImageFile = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file || !editor) return;
+    if (file.size > 10 * 1024 * 1024) { alert('ファイルサイズは10MB以下にしてください'); return; }
+    setImgUploading(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const filename = `body/${Date.now()}.${ext}`;
+      const { data, error } = await supabase.storage.from('thumbnails').upload(filename, file, { upsert: false });
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from('thumbnails').getPublicUrl(data.path);
+      editor.chain().focus().setImage({ src: urlData.publicUrl }).run();
+    } catch (err) {
+      alert('画像のアップロードに失敗しました: ' + (err instanceof Error ? err.message : '不明なエラー'));
+    } finally {
+      setImgUploading(false);
+    }
+  }, [editor]);
 
   if (!editor) return null;
 
@@ -102,6 +126,11 @@ function RichEditor({ value, onChange }: { value: string; onChange: (html: strin
         <ToolbarBtn onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive('blockquote')} title="引用">❝</ToolbarBtn>
         <ToolbarBtn onClick={setLink} active={editor.isActive('link')} title="リンク">🔗</ToolbarBtn>
         <ToolbarBtn onClick={() => editor.chain().focus().setHorizontalRule().run()} title="水平線">—</ToolbarBtn>
+        <div className="w-px h-5 mx-1" style={{ backgroundColor: '#1e3a5f' }} />
+        <ToolbarBtn onClick={() => imgInputRef.current?.click()} title="画像を挿入">
+          {imgUploading ? <span className="inline-block w-3.5 h-3.5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" /> : '🖼'}
+        </ToolbarBtn>
+        <input ref={imgInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageFile} />
       </div>
       {/* エディタ本体 */}
       <EditorContent editor={editor} />
@@ -1079,7 +1108,7 @@ export function AdminPage() {
         <button onClick={logout} className="px-4 py-2.5 rounded-xl text-sm border transition-colors hover:border-red-500 hover:text-red-400" style={{ borderColor: '#1e3a5f', color: '#64748b' }}>ログアウト</button>
       </div>
       <div className="flex gap-1 mb-8 p-1 rounded-xl" style={{ backgroundColor: '#111827' }}>
-        {([['posts', '📝 記事管理'], ['lessons', '🏃 レッスン管理'], ['leads', '📊 診断リード'], ['profile', '👤 プロフィール']] as [AdminTab, string][]).map(([tab, label]) => (
+        {([['posts', '📝 記事管理'], ['lessons', '🏃 レッスン管理'], ['leads', '📊 診断リード'], ['recovery', '🌿 回復パートナー'], ['profile', '👤 プロフィール']] as [AdminTab, string][]).map(([tab, label]) => (
           <button key={tab} onClick={() => setActiveTab(tab)} className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all"
             style={{ backgroundColor: activeTab === tab ? '#3b82f6' : 'transparent', color: activeTab === tab ? '#fff' : '#64748b' }}>
             {label}
@@ -1098,6 +1127,8 @@ export function AdminPage() {
       {activeTab === 'lessons' && <LessonsAdminTab onToast={showToast} />}
 
       {activeTab === 'leads' && <QuizLeadsTab />}
+
+      {activeTab === 'recovery' && <RecoveryPartnersTab onToast={showToast} />}
 
       {activeTab === 'posts' && (<>
         <div className="flex items-center justify-between mb-4">
@@ -1508,6 +1539,441 @@ function LessonsAdminTab({ onToast }: { onToast: (msg: string) => void }) {
               </div>
             );
           })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── 回復パートナー管理タブ ────────────────────────────────
+
+const ABILITY_OPTIONS = [
+  { value: '', label: '（なし）' },
+  { value: 'flexibility', label: '柔軟性' },
+  { value: 'strength', label: '筋力' },
+  { value: 'endurance', label: '持久力' },
+  { value: 'speed', label: 'スピード' },
+  { value: 'coordination', label: '協調性' },
+];
+
+const CATEGORY_OPTIONS = [
+  { value: 'yoga', label: 'ヨガ' },
+  { value: 'seikotsuin', label: '整骨院' },
+  { value: 'other', label: 'その他' },
+];
+
+const emptyPartnerForm = (): Omit<RecoveryPartner, 'id'> => ({
+  name: '',
+  category: 'yoga',
+  ability_tag: null,
+  image_url: '',
+  station_info: '',
+  address: '',
+  description: '',
+  booking_url: '',
+  display_order: 1,
+  is_published: false,
+});
+
+function RecoveryPartnersTab({ onToast }: { onToast: (msg: string) => void }) {
+  const [partners, setPartners] = useState<RecoveryPartner[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<RecoveryPartner | null>(null);
+  const [form, setForm] = useState<Omit<RecoveryPartner, 'id'>>(emptyPartnerForm());
+  const [uploading, setUploading] = useState(false);
+  const [rawImageSrc, setRawImageSrc] = useState<string | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<CropArea | null>(null);
+
+  const load = () => {
+    setLoading(true);
+    fetchAllRecoveryPartnersAdmin().then(setPartners).finally(() => setLoading(false));
+  };
+  useEffect(() => { load(); }, []);
+
+  const openCreate = () => {
+    setEditing(null);
+    setForm(emptyPartnerForm());
+    setShowForm(true);
+  };
+
+  const openEdit = (p: RecoveryPartner) => {
+    setEditing(p);
+    setForm({
+      name: p.name,
+      category: p.category,
+      ability_tag: p.ability_tag,
+      image_url: p.image_url,
+      station_info: p.station_info,
+      address: p.address,
+      description: p.description,
+      booking_url: p.booking_url,
+      display_order: p.display_order,
+      is_published: p.is_published,
+    });
+    setShowForm(true);
+  };
+
+  const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
+    setForm(f => ({ ...f, [k]: v }));
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { alert('ファイルサイズは5MB以下にしてください'); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setRawImageSrc(reader.result as string);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+      setShowCropper(true);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const onCropComplete = useCallback((_: unknown, pixels: CropArea) => {
+    setCroppedAreaPixels(pixels);
+  }, []);
+
+  const handleCropAndUpload = async () => {
+    if (!rawImageSrc || !croppedAreaPixels) return;
+    setUploading(true);
+    try {
+      const blob = await getCroppedImg(rawImageSrc, croppedAreaPixels, { width: 1280, height: 720 });
+      const filename = `${Date.now()}.jpg`;
+      const { error } = await supabase.storage
+        .from('recovery-images')
+        .upload(filename, blob, { upsert: false, contentType: 'image/jpeg' });
+      if (error) throw error;
+      const { data } = supabase.storage.from('recovery-images').getPublicUrl(filename);
+      set('image_url', data.publicUrl);
+      setShowCropper(false);
+      setRawImageSrc(null);
+      onToast('✅ 画像をアップロードしました');
+    } catch (err) {
+      onToast(`❌ アップロードに失敗しました: ${err instanceof Error ? err.message : '不明なエラー'}`);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editing) {
+        await updateRecoveryPartner(editing.id, form);
+        onToast('✅ 更新しました');
+      } else {
+        await createRecoveryPartner(form);
+        onToast('✅ 作成しました');
+      }
+      setShowForm(false);
+      load();
+    } catch {
+      onToast('❌ 保存に失敗しました');
+    }
+  };
+
+  const handleDelete = async (p: RecoveryPartner) => {
+    if (!confirm(`「${p.name}」を削除しますか？`)) return;
+    try {
+      await deleteRecoveryPartner(p.id);
+      onToast('🗑 削除しました');
+      load();
+    } catch {
+      onToast('❌ 削除に失敗しました');
+    }
+  };
+
+  const handleTogglePublish = async (p: RecoveryPartner) => {
+    try {
+      await updateRecoveryPartner(p.id, { is_published: !p.is_published });
+      onToast(`✅ ${!p.is_published ? '公開' : '非公開'}にしました`);
+      load();
+    } catch {
+      onToast('❌ 更新に失敗しました');
+    }
+  };
+
+  const inputStyle = { backgroundColor: '#0a0f1e', borderColor: '#1e3a5f', color: '#e2e8f0' };
+
+  if (showForm) {
+    return (
+      <div>
+        <button
+          onClick={() => setShowForm(false)}
+          className="flex items-center gap-1 text-sm mb-6 transition-colors hover:text-blue-300"
+          style={{ color: '#3b82f6' }}
+        >
+          ← 一覧に戻る
+        </button>
+        <h2 className="text-lg font-bold text-white mb-5">
+          {editing ? 'パートナーを編集' : '新規パートナー追加'}
+        </h2>
+        <form
+          onSubmit={handleSave}
+          className="rounded-2xl border p-6 space-y-5"
+          style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* 施設名 */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium mb-1" style={{ color: '#94a3b8' }}>施設・教室名 <span style={{ color: '#ef4444' }}>*</span></label>
+              <input required value={form.name} onChange={e => set('name', e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl border outline-none text-sm focus:border-blue-500"
+                style={inputStyle} placeholder="例：サンプルヨガスタジオ" />
+            </div>
+
+            {/* カテゴリ */}
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: '#94a3b8' }}>カテゴリ <span style={{ color: '#ef4444' }}>*</span></label>
+              <select required value={form.category} onChange={e => set('category', e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl border outline-none text-sm"
+                style={inputStyle}>
+                {CATEGORY_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
+
+            {/* アビリティタグ */}
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: '#94a3b8' }}>アビリティタグ（任意）</label>
+              <select
+                value={form.ability_tag ?? ''}
+                onChange={e => set('ability_tag', e.target.value || null)}
+                className="w-full px-4 py-2.5 rounded-xl border outline-none text-sm"
+                style={inputStyle}
+              >
+                {ABILITY_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
+
+            {/* 最寄り駅 */}
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: '#94a3b8' }}>最寄り駅 <span style={{ color: '#ef4444' }}>*</span></label>
+              <input required value={form.station_info} onChange={e => set('station_info', e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl border outline-none text-sm focus:border-blue-500"
+                style={inputStyle} placeholder="例：川口駅 徒歩5分" />
+            </div>
+
+            {/* 住所 */}
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: '#94a3b8' }}>住所 <span style={{ color: '#ef4444' }}>*</span></label>
+              <input required value={form.address} onChange={e => set('address', e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl border outline-none text-sm focus:border-blue-500"
+                style={inputStyle} placeholder="例：埼玉県川口市〇〇" />
+            </div>
+
+            {/* 予約URL */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium mb-1" style={{ color: '#94a3b8' }}>予約・詳細URL <span style={{ color: '#ef4444' }}>*</span></label>
+              <input required value={form.booking_url} onChange={e => set('booking_url', e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl border outline-none text-sm focus:border-blue-500"
+                style={inputStyle} placeholder="https://..." />
+            </div>
+
+            {/* 紹介文 */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium mb-1" style={{ color: '#94a3b8' }}>紹介文 <span style={{ color: '#ef4444' }}>*</span></label>
+              <textarea required rows={4} value={form.description} onChange={e => set('description', e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl border outline-none text-sm resize-none focus:border-blue-500"
+                style={{ ...inputStyle, lineHeight: '1.7' }}
+                placeholder="施設の紹介文を入力してください" />
+            </div>
+
+            {/* 表示順 */}
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: '#94a3b8' }}>表示順</label>
+              <input type="number" min={1} value={form.display_order}
+                onChange={e => set('display_order', Number(e.target.value))}
+                className="w-full px-4 py-2.5 rounded-xl border outline-none text-sm"
+                style={inputStyle} />
+            </div>
+
+            {/* 公開フラグ */}
+            <div className="flex items-center gap-3 pt-6">
+              <button
+                type="button"
+                onClick={() => set('is_published', !form.is_published)}
+                className="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200"
+                style={{ backgroundColor: form.is_published ? '#2D8F4E' : '#475569' }}
+              >
+                <span
+                  className="inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ease-in-out"
+                  style={{ transform: form.is_published ? 'translateX(20px)' : 'translateX(0)' }}
+                />
+              </button>
+              <span className="text-sm font-medium" style={{ color: form.is_published ? '#2D8F4E' : '#64748b' }}>
+                {form.is_published ? '🌐 公開' : '🔒 非公開'}
+              </span>
+            </div>
+          </div>
+
+          {/* 画像アップロード */}
+          <div>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#94a3b8' }}>外観・写真（16:9）</label>
+            {form.image_url && (
+              <img src={form.image_url} alt="preview"
+                className="w-full max-w-sm rounded-xl object-cover aspect-video border mb-3"
+                style={{ borderColor: '#1e3a5f' }} />
+            )}
+            <div className="flex items-center gap-3">
+              <label
+                className="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-bold transition-all hover:border-blue-500 hover:text-blue-400"
+                style={{ borderColor: '#1e3a5f', color: uploading ? '#475569' : '#94a3b8', backgroundColor: '#0a0f1e' }}
+              >
+                {uploading ? '⏳ アップロード中...' : '📁 画像を選択'}
+                <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" disabled={uploading} />
+              </label>
+              {form.image_url && (
+                <button type="button" onClick={() => set('image_url', '')}
+                  className="text-sm transition-colors hover:text-red-300" style={{ color: '#ef4444' }}>削除</button>
+              )}
+            </div>
+            <p className="text-xs mt-2" style={{ color: '#475569' }}>
+              ※ Supabaseに <code className="bg-slate-800 px-1 rounded">recovery-images</code> バケット（Public）が必要です
+            </p>
+          </div>
+
+          <div className="flex gap-3 pt-2 border-t" style={{ borderColor: '#1e3a5f' }}>
+            <button type="submit"
+              className="px-8 py-3 rounded-xl font-bold text-white transition-all hover:opacity-90"
+              style={{ backgroundColor: '#3b82f6' }}>
+              {editing ? '✓ 更新する' : '✓ 作成する'}
+            </button>
+            <button type="button" onClick={() => setShowForm(false)}
+              className="px-6 py-3 rounded-xl font-bold border transition-all hover:bg-white/5"
+              style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}>
+              キャンセル
+            </button>
+          </div>
+        </form>
+
+        {/* クロッパーオーバーレイ */}
+        {showCropper && rawImageSrc && (
+          <div className="fixed inset-0 z-50 flex flex-col" style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}>
+            <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: '#1e3a5f' }}>
+              <h3 className="text-white font-bold">📐 画像をトリミング（16:9）</h3>
+              <button onClick={() => { setShowCropper(false); setRawImageSrc(null); }}
+                className="text-slate-400 hover:text-white text-xl leading-none px-2">✕</button>
+            </div>
+            <div className="relative flex-1">
+              <Cropper
+                image={rawImageSrc}
+                crop={crop}
+                zoom={zoom}
+                aspect={16 / 9}
+                cropShape="rect"
+                showGrid
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+              />
+            </div>
+            <div className="px-6 py-3 flex items-center gap-4" style={{ backgroundColor: '#0a0f1e' }}>
+              <span className="text-xs text-slate-400 w-12">縮小</span>
+              <input type="range" min={1} max={3} step={0.05} value={zoom}
+                onChange={e => setZoom(Number(e.target.value))} className="flex-1 accent-blue-500" />
+              <span className="text-xs text-slate-400 w-12 text-right">拡大</span>
+            </div>
+            <div className="flex gap-3 justify-end px-5 py-4 border-t"
+              style={{ borderColor: '#1e3a5f', backgroundColor: '#0a0f1e' }}>
+              <button onClick={() => { setShowCropper(false); setRawImageSrc(null); }}
+                className="px-5 py-2.5 rounded-xl border text-sm font-medium"
+                style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}>キャンセル</button>
+              <button onClick={handleCropAndUpload} disabled={uploading}
+                className="px-6 py-2.5 rounded-xl font-bold text-white text-sm transition-all hover:opacity-90 disabled:opacity-50"
+                style={{ backgroundColor: '#3b82f6' }}>
+                {uploading ? '⏳ アップロード中...' : '✓ この範囲で保存'}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-5">
+        <p className="text-sm" style={{ color: '#475569' }}>全 {partners.length} 件</p>
+        <button onClick={openCreate}
+          className="px-5 py-2.5 rounded-xl font-bold text-white text-sm"
+          style={{ backgroundColor: '#3b82f6' }}>
+          + 新規追加
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="space-y-3">
+          {[1, 2, 3].map(i => <div key={i} className="h-20 rounded-xl animate-pulse" style={{ backgroundColor: '#1e3a5f' }} />)}
+        </div>
+      ) : partners.length === 0 ? (
+        <div className="text-center py-20 rounded-2xl border" style={{ borderColor: '#1e3a5f', color: '#64748b' }}>
+          <p className="text-4xl mb-3">🌿</p>
+          <p className="font-bold text-white mb-1">まだパートナーがありません</p>
+          <button onClick={openCreate} className="mt-3 text-sm underline" style={{ color: '#3b82f6' }}>
+            最初のパートナーを追加する
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {partners.map(p => (
+            <div key={p.id}
+              className="flex items-center gap-4 p-4 rounded-xl border transition-colors hover:border-blue-900"
+              style={{ backgroundColor: '#111827', borderColor: '#1e3a5f' }}>
+              {/* サムネイル */}
+              <div className="w-20 h-14 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center text-2xl"
+                style={{ backgroundColor: '#1a3a5c' }}>
+                {p.image_url
+                  ? <img src={p.image_url} alt="" className="w-full h-full object-cover" />
+                  : '🌿'}
+              </div>
+              {/* 情報 */}
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-white text-sm truncate">{p.name}</p>
+                <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>
+                  {p.station_info} · {p.address}
+                </p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs px-2 py-0.5 rounded-full"
+                    style={{
+                      backgroundColor: p.is_published ? 'rgba(45,143,78,0.15)' : 'rgba(100,116,139,0.15)',
+                      color: p.is_published ? '#2D8F4E' : '#64748b',
+                    }}>
+                    {p.is_published ? '🌐 公開' : '🔒 非公開'}
+                  </span>
+                  <span className="text-xs" style={{ color: '#475569' }}>
+                    順序：{p.display_order}
+                  </span>
+                  {p.ability_tag && (
+                    <span className="text-xs px-2 py-0.5 rounded-full"
+                      style={{ backgroundColor: 'rgba(245,158,11,0.15)', color: '#F59E0B' }}>
+                      🌱 {p.ability_tag}
+                    </span>
+                  )}
+                </div>
+              </div>
+              {/* アクション */}
+              <div className="flex gap-2 flex-shrink-0">
+                <button
+                  onClick={() => handleTogglePublish(p)}
+                  className="px-3 py-1.5 rounded-lg text-xs border transition-colors hover:border-green-500 hover:text-green-400"
+                  style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}>
+                  {p.is_published ? '非公開に' : '公開'}
+                </button>
+                <button onClick={() => openEdit(p)}
+                  className="px-3 py-1.5 rounded-lg text-xs border transition-colors hover:border-blue-500 hover:text-blue-400"
+                  style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}>編集</button>
+                <button onClick={() => handleDelete(p)}
+                  className="px-3 py-1.5 rounded-lg text-xs border transition-colors hover:border-red-500 hover:text-red-400"
+                  style={{ borderColor: '#1e3a5f', color: '#94a3b8' }}>削除</button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
