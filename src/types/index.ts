@@ -29,3 +29,17 @@ export interface AnimalProfile {
   advice: string;
   color: string;
 }
+
+export interface RecoveryPartner {
+  id: string;
+  name: string;
+  category: string;
+  ability_tag: string | null;
+  image_url: string;
+  station_info: string;
+  address: string;
+  description: string;
+  booking_url: string;
+  display_order: number;
+  is_published: boolean;
+}

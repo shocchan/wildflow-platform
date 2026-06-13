@@ -71,7 +71,7 @@ export function LessonPackagePage() {
 
   if (loading) {
     return (
-      <main className="max-w-2xl mx-auto px-4 py-10">
+      <main className="max-w-2xl md:max-w-4xl mx-auto px-4 md:px-8 lg:px-12 py-10">
         <div className="h-8 w-48 rounded animate-pulse mb-4" style={{ backgroundColor: '#E2E8E4' }} />
         <div className="h-64 rounded-xl animate-pulse" style={{ backgroundColor: '#E2E8E4' }} />
       </main>
@@ -80,7 +80,7 @@ export function LessonPackagePage() {
 
   if (!pkg) {
     return (
-      <main className="max-w-2xl mx-auto px-4 py-10 text-center">
+      <main className="max-w-2xl md:max-w-4xl mx-auto px-4 md:px-8 lg:px-12 py-10 text-center">
         <p className="text-4xl mb-3">🍃</p>
         <p className="font-bold" style={{ color: '#1C2A1E' }}>パッケージが見つかりませんでした</p>
         <a href="/lessons" className="mt-4 text-sm underline inline-block" style={{ color: '#2D8F4E' }}>
@@ -92,7 +92,7 @@ export function LessonPackagePage() {
 
   if (pageState === 'done') {
     return (
-      <main className="max-w-2xl mx-auto px-4 py-10 text-center">
+      <main className="max-w-2xl md:max-w-4xl mx-auto px-4 md:px-8 lg:px-12 py-10 text-center">
         <div className="rounded-2xl border p-10" style={{ borderColor: '#E2E8E4', backgroundColor: '#fff' }}>
           <p className="text-5xl mb-4">✅</p>
           <h2 className="text-xl font-black mb-3" style={{ color: '#1C2A1E' }}>申し込みが完了しました！</h2>
@@ -121,7 +121,7 @@ export function LessonPackagePage() {
   const discount = Math.round((1 - pkg.package_price / pkg.original_price) * 100);
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-10">
+    <main className="max-w-2xl md:max-w-4xl mx-auto px-4 md:px-8 lg:px-12 py-10">
       <a href="/lessons" className="text-sm mb-6 flex items-center gap-1 transition-colors" style={{ color: '#2D8F4E' }}>
         ← レッスン一覧に戻る
       </a>

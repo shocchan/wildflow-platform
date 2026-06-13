@@ -31,7 +31,7 @@ export function LessonExperiencePage() {
   }, []);
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-12">
+    <main className="max-w-3xl md:max-w-5xl mx-auto px-4 md:px-8 lg:px-12 py-12">
       {/* Hero */}
       <div className="text-center mb-16">
         <p className="text-sm font-medium mb-2" style={{ color: '#1A6B38' }}>レッスン体験イメージ</p>
@@ -69,6 +69,40 @@ export function LessonExperiencePage() {
               </li>
             ))}
           </ul>
+        </div>
+      </section>
+
+      {/* Before / After */}
+      <section className="mb-14">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="rounded-2xl p-6" style={{ backgroundColor: '#F3F4F6' }}>
+            <p className="text-sm font-bold uppercase tracking-widest mb-4" style={{ color: '#6B7280' }}>BEFORE</p>
+            <ul className="space-y-3">
+              {[
+                'ジムが3ヶ月で挫折',
+                '肩こり・腰痛が慢性的',
+                '運動が楽しいと思えない',
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm leading-relaxed" style={{ color: '#4B5563' }}>
+                  <span>😓</span>{item}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="rounded-2xl p-6" style={{ backgroundColor: '#e8f5e9' }}>
+            <p className="text-sm font-bold uppercase tracking-widest mb-4" style={{ color: '#2D8F4E' }}>AFTER</p>
+            <ul className="space-y-3">
+              {[
+                '体が自然に動く感覚',
+                '3回で肩・腰が楽に',
+                '「続いている」を初体験',
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm leading-relaxed" style={{ color: '#1C2A1E' }}>
+                  <span>🐾</span>{item}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
 

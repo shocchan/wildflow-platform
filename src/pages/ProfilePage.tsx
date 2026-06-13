@@ -30,7 +30,7 @@ export function ProfilePage() {
   ];
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-16" style={{ backgroundColor: '#F8F7F2' }}>
+    <main className="max-w-3xl md:max-w-4xl mx-auto px-4 md:px-8 lg:px-12 py-16" style={{ backgroundColor: '#F8F7F2' }}>
       <div className="text-center mb-12">
         {profile.photo_url ? (
           <img

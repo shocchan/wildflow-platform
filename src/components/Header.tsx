@@ -6,6 +6,7 @@ const navLinks = [
   { to: '/blog', label: 'ブログ' },
   { to: '/quiz/quick', label: '野生診断' },
   { to: '/lessons', label: 'レッスン' },
+  { to: '/recovery', label: 'リカバリー' },
   { to: '/profile', label: 'プロフィール' },
 ];
 

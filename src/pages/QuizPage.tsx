@@ -141,7 +141,7 @@ export function QuizPage() {
     };
 
     return (
-      <main className="max-w-lg mx-auto px-4 py-12">
+      <main className="max-w-lg md:max-w-2xl mx-auto px-4 md:px-8 lg:px-12 py-12">
         <div className="text-center mb-8">
           <p className="text-sm font-medium mb-1" style={{ color: '#2D8F4E' }}>詳細診断 — 約5分</p>
           <h1 className="font-black mb-3" style={{ color: '#1C2A1E', fontSize: '36px', lineHeight: '1.3' }}>
@@ -223,7 +223,7 @@ export function QuizPage() {
     };
 
     return (
-      <main className="max-w-lg mx-auto px-4 py-16 text-center">
+      <main className="max-w-lg md:max-w-2xl mx-auto px-4 md:px-8 lg:px-12 py-16 text-center">
         <p className="text-5xl mb-6">📬</p>
         <p className="text-sm font-bold tracking-widest uppercase mb-3" style={{ color: '#2D8F4E' }}>
           診断完了
@@ -326,7 +326,7 @@ export function QuizPage() {
   const q = questions[current];
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-12">
+    <main className="max-w-2xl md:max-w-4xl mx-auto px-4 md:px-8 lg:px-12 py-12">
       <div className="text-center mb-8">
         <p className="text-sm font-medium mb-1" style={{ color: '#2D8F4E' }}>野生タイプ診断</p>
         <h1 className="font-black" style={{ color: '#1C2A1E', fontSize: '32px', lineHeight: '1.3' }}>あなたの野生タイプを診断する</h1>

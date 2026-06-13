@@ -51,14 +51,26 @@ export function LessonsPage() {
     : lessons;
 
   return (
-    <main className="max-w-4xl mx-auto px-4 py-10">
+    <main className="max-w-4xl md:max-w-6xl mx-auto px-4 md:px-8 lg:px-12 py-10">
       <h1 className="text-3xl font-black mb-2" style={{ color: '#1C2A1E' }}>レッスン</h1>
-      <p className="text-sm mb-4" style={{ color: '#5a7a62' }}>Animal Flowの5つのアビリティを鍛えるレッスンを開催しています。</p>
+      <p className="text-sm md:text-base mb-4" style={{ color: '#5a7a62' }}>「ジムは続かない」「体が硬い」「なんとなく動きたい」——<br />そんなあなたのための、床を使った動物の動きのレッスンです。</p>
 
       {/* 体験イメージリンク */}
       <a href="/lessons/experience" className="inline-flex items-center text-sm underline mb-8" style={{ color: '#2D8F4E', minHeight: '44px', padding: '10px 0' }}>
         👀 レッスンってどんな感じ？体験イメージを見る
       </a>
+
+      {/* はじめての方へ */}
+      <div
+        className="rounded-2xl border p-5 mb-6"
+        style={{ backgroundColor: '#f0faf4', borderColor: '#6fcf97' }}
+      >
+        <p className="font-bold mb-1" style={{ color: '#1C2A1E' }}>🐾 はじめての方へ</p>
+        <p className="text-sm mb-2" style={{ color: '#3a7a4a' }}>まずは単発レッスンで体験してみてください。</p>
+        <a href="#lessons-list" className="text-sm font-medium underline" style={{ color: '#2D8F4E' }}>
+          開催予定レッスンを見る ↓
+        </a>
+      </div>
 
       {/* フルパックバナー */}
       <div
@@ -75,7 +87,7 @@ export function LessonsPage() {
             20% OFF
           </span>
         </div>
-        <p className="text-sm mb-4" style={{ color: '#5a7a62' }}>
+        <p className="text-sm md:text-base mb-4" style={{ color: '#5a7a62' }}>
           5つ全てのアビリティを解放する完全プログラム。<br />
           通常¥15,000 → <strong className="text-lg" style={{ color: '#D97706' }}>¥12,000</strong>
         </p>
@@ -89,7 +101,10 @@ export function LessonsPage() {
       </div>
 
       {/* 5つのアビリティ（フィルター兼用） */}
-      <section className="mb-12">
+      <section id="lessons-list" className="mb-12">
+        <p className="text-sm mb-3" style={{ color: '#9CA3AF' }}>
+          Animal Flowとは？ → 床と重力を使って動物の動きを再現する、全身連動型のトレーニングです。
+        </p>
         <h2 className="text-2xl font-bold mb-4" style={{ color: '#1C2A1E' }}>5つのアビリティ</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
           {(Object.entries(LESSON_TYPE_MAP) as [LessonType, typeof LESSON_TYPE_MAP[LessonType]][]).map(([type, info]) => {
@@ -224,7 +239,7 @@ export function LessonsPage() {
             {testimonials.filter(t => t.comment).map((t, i) => (
               <div key={i} className="rounded-xl p-6 border" style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}>
                 <p className="text-2xl mb-3">💬</p>
-                <p className="text-sm leading-relaxed mb-4" style={{ color: '#1C2A1E' }}>「{t.comment}」</p>
+                <p className="text-sm md:text-base leading-relaxed mb-4" style={{ color: '#1C2A1E' }}>「{t.comment}」</p>
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style={{ backgroundColor: '#EDF7EE', color: '#2D8F4E' }}>
                     {t.name.charAt(0)}

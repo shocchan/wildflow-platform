@@ -20,7 +20,7 @@ export function BlogDetailPage() {
   }, [id]);
 
   if (loading) return (
-    <div className="max-w-3xl mx-auto px-4 py-12 space-y-4">
+    <div className="max-w-3xl md:max-w-4xl mx-auto px-4 md:px-8 lg:px-12 py-12 space-y-4">
       <div className="skeleton h-8 w-3/4" />
       <div className="skeleton h-4 w-1/4" />
       <div className="skeleton aspect-video rounded-xl" />
@@ -31,7 +31,7 @@ export function BlogDetailPage() {
   );
 
   if (!post) return (
-    <div className="max-w-3xl mx-auto px-4 py-20 text-center">
+    <div className="max-w-3xl md:max-w-4xl mx-auto px-4 md:px-8 lg:px-12 py-20 text-center">
       <p className="text-6xl mb-4">🌊</p>
       <p className="text-xl font-bold mb-2" style={{ color: '#1C2A1E' }}>記事が見つかりません</p>
       <Link to="/blog" className="hover:underline" style={{ color: '#2D8F4E' }}>← ブログ一覧に戻る</Link>
@@ -44,7 +44,7 @@ export function BlogDetailPage() {
   const ytId = post.youtube_url ? youtubeId(post.youtube_url) : null;
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-12">
+    <main className="max-w-3xl md:max-w-4xl mx-auto px-4 md:px-8 lg:px-12 py-12">
       <Link
         to="/blog"
         className="text-sm mb-6 inline-flex items-center gap-1 transition-colors hover:opacity-70"

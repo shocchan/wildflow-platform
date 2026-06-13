@@ -16,7 +16,7 @@ export function BlogPage() {
   const filtered = selectedTag ? posts.filter(p => p.tags?.includes(selectedTag)) : posts;
 
   return (
-    <main className="max-w-5xl mx-auto px-4 py-12">
+    <main className="max-w-5xl md:max-w-6xl mx-auto px-4 md:px-8 lg:px-12 py-12">
       <h1 className="font-black mb-2" style={{ color: '#1C2A1E', fontSize: '32px' }}>ブログ</h1>
       <p className="mb-8" style={{ color: '#4A6550', fontSize: '18px', lineHeight: '1.8' }}>野生の知恵と身体づくりのヒントを届けます</p>
 
@@ -82,17 +82,6 @@ export function BlogPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {filtered.map(post => <PostCard key={post.id} post={post} />)}
-          {!selectedTag && filtered.length < 3 && Array.from({ length: 3 - filtered.length }).map((_, i) => (
-            <div
-              key={`coming-${i}`}
-              className="rounded-xl p-6 text-center flex flex-col items-center justify-center gap-2 min-h-[180px]"
-              style={{ border: '1px dashed #E2E8E4', opacity: 0.6 }}
-            >
-              <p className="text-2xl">🔜</p>
-              <p className="text-sm font-bold" style={{ color: '#4A6550' }}>近日公開予定</p>
-              <p className="text-sm" style={{ color: '#6B7280' }}>新しい記事を準備中です</p>
-            </div>
-          ))}
         </div>
       )}
     </main>

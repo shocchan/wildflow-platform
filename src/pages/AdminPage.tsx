@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import Image from '@tiptap/extension-image';
+import { ResizableImage } from '../extensions/ResizableImage';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import Cropper from 'react-easy-crop';
@@ -62,7 +62,7 @@ function RichEditor({ value, onChange }: { value: string; onChange: (html: strin
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Image.configure({ HTMLAttributes: { class: 'max-w-full h-auto rounded-lg my-2' } }),
+      ResizableImage,
       Link.configure({ openOnClick: false }),
       Placeholder.configure({ placeholder: '本文を入力してください…' }),
     ],
@@ -93,7 +93,7 @@ function RichEditor({ value, onChange }: { value: string; onChange: (html: strin
       const { data, error } = await supabase.storage.from('thumbnails').upload(filename, file, { upsert: false });
       if (error) throw error;
       const { data: urlData } = supabase.storage.from('thumbnails').getPublicUrl(data.path);
-      editor.chain().focus().setImage({ src: urlData.publicUrl }).run();
+      editor.commands.insertContent({ type: 'image', attrs: { src: urlData.publicUrl, width: 400 } });
     } catch (err) {
       alert('画像のアップロードに失敗しました: ' + (err instanceof Error ? err.message : '不明なエラー'));
     } finally {

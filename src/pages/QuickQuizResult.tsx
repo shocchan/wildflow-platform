@@ -5,7 +5,7 @@ import { ABILITY_LABELS, ABILITY_TO_ANIMALS, ABILITY_LESSON } from '../utils/cal
 
 const ABILITY_ORDER = ['strength', 'endurance', 'speed', 'flexibility', 'coordination'] as const;
 
-const SITE_URL = 'https://wildflow-platform.shodorannga.workers.dev';
+const SITE_URL = 'https://wild-flow.com';
 
 function AbilityBar({ label, score, isLow }: { label: string; score: number; isLow: boolean }) {
   const color = isLow ? '#F59E0B' : '#2D8F4E';
@@ -54,7 +54,7 @@ export function QuickQuizResult() {
   };
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-12">
+    <main className="max-w-2xl md:max-w-4xl mx-auto px-4 md:px-8 lg:px-12 py-12">
       <div className="text-center mb-8">
         <p className="text-sm font-medium mb-1" style={{ color: '#1A6B38' }}>簡易診断 結果</p>
         <h1 className="font-black mb-2" style={{ color: '#1C2A1E', fontSize: '36px', lineHeight: '1.3' }}>
@@ -127,6 +127,19 @@ export function QuickQuizResult() {
         >
           レッスン詳細を見る →
         </a>
+        {lowestAbility === 'flexibility' && (
+          <p className="mt-3 text-sm" style={{ color: '#4A6550' }}>
+            🌿{' '}
+            <a
+              href="/recovery"
+              className="font-bold underline transition-opacity hover:opacity-70"
+              style={{ color: '#2D8F4E' }}
+            >
+              /recovery のヨガ教室
+            </a>
+            もチェックしてみてください。
+          </p>
+        )}
       </div>
 
       {/* 詳細診断CTA */}

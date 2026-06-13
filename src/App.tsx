@@ -59,6 +59,11 @@ const QuickQuiz             = lazy(() => import('./pages/QuickQuiz').then(m => (
 const QuickQuizResult       = lazy(() => import('./pages/QuickQuizResult').then(m => ({ default: m.QuickQuizResult })));
 const LessonExperiencePage  = lazy(() => import('./pages/LessonExperiencePage').then(m => ({ default: m.LessonExperiencePage })));
 const LessonPackagePage     = lazy(() => import('./pages/LessonPackagePage').then(m => ({ default: m.LessonPackagePage })));
+const LegalPage             = lazy(() => import('./pages/LegalPage').then(m => ({ default: m.LegalPage })));
+const PrivacyPage           = lazy(() => import('./pages/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
+const FaqPage               = lazy(() => import('./pages/FaqPage').then(m => ({ default: m.FaqPage })));
+const ContactPage           = lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })));
+const RecoveryPage          = lazy(() => import('./pages/RecoveryPage').then(m => ({ default: m.RecoveryPage })));
 
 const PageLoader = () => {
   const isQuiz = window.location.pathname === '/quiz';
@@ -90,6 +95,11 @@ const AnimatedRoutes = () => {
             <Route path="/lessons/package" element={<LessonPackagePage />} />
             <Route path="/lessons/:id" element={<LessonDetailPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/legal" element={<LegalPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/faq" element={<FaqPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/recovery" element={<RecoveryPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

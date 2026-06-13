@@ -2,7 +2,21 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PostCard } from '../components/PostCard';
 import { fetchLatestPosts } from '../services/posts';
+import { fetchProfileSettings } from '../services/settings';
 import type { Post } from '../types';
+
+function InstructorAvatar() {
+  const [photoUrl, setPhotoUrl] = useState('');
+  useEffect(() => {
+    fetchProfileSettings().then(p => { if (p.photo_url) setPhotoUrl(p.photo_url); }).catch(() => {});
+  }, []);
+  if (photoUrl) return <img src={photoUrl} alt="しょっちゃん" className="w-full h-full object-cover" />;
+  return (
+    <div className="w-full h-full flex items-center justify-center text-2xl" style={{ backgroundColor: '#EDF7EE' }}>
+      🌊
+    </div>
+  );
+}
 
 const TYPE_GRID_MAIN = [
   { emoji: '🦏', name: 'サイ' },
@@ -53,10 +67,10 @@ export function HomePage() {
     <main>
       {/* ── Hero ── */}
       <section
-        className="relative overflow-hidden py-20 px-4 text-center"
+        className="relative overflow-hidden py-20 px-4 md:px-8 lg:px-12 text-center"
         style={{ background: 'linear-gradient(135deg, #D4EDD8 0%, #F8F7F2 100%)', minHeight: '85vh', display: 'flex', alignItems: 'center' }}
       >
-        <div className="relative max-w-3xl mx-auto w-full">
+        <div className="relative max-w-3xl md:max-w-4xl mx-auto w-full">
           <p
             className="text-xs font-bold uppercase mb-4"
             style={{ color: '#2D8F4E', letterSpacing: '0.2em', fontFamily: 'Sora, sans-serif' }}
@@ -76,36 +90,28 @@ export function HomePage() {
           <p className="mb-10" style={{ color: '#4A6550', fontSize: '16px' }}>
             性格でなく<strong style={{ color: '#1C2A1E' }}>「身体の特性」</strong>を診断する、動物版フィジカル診断。
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col items-center gap-3">
             <Link
               to="/quiz/quick"
               className="inline-flex items-center justify-center gap-2 font-bold transition-all hover:-translate-y-0.5"
               style={{
-                backgroundColor: '#F59E0B',
+                backgroundColor: '#f5a623',
                 color: '#1C2A1E',
-                padding: '0 36px',
+                padding: '0 40px',
                 borderRadius: '100px',
-                boxShadow: '0 4px 14px rgba(245,158,11,0.4)',
+                boxShadow: '0 4px 14px rgba(245,166,35,0.4)',
                 fontSize: '18px',
                 minHeight: '56px',
               }}
             >
-              🐾 10問で簡単診断（無料）
+              🐾 10問で無料診断する（約1分）
             </Link>
             <Link
               to="/quiz"
-              className="inline-flex items-center justify-center gap-2 font-bold transition-all hover:-translate-y-0.5"
-              style={{
-                backgroundColor: 'transparent',
-                color: '#2D8F4E',
-                padding: '0 28px',
-                borderRadius: '100px',
-                border: '2px solid #2D8F4E',
-                fontSize: '16px',
-                minHeight: '56px',
-              }}
+              className="text-sm transition-all hover:opacity-70"
+              style={{ color: '#4A6550' }}
             >
-              📊 60問で詳しく診断
+              📊 60問で詳しく診断する →
             </Link>
           </div>
           <p className="mt-3 text-sm" style={{ color: '#4A6550' }}>詳細診断は結果をメールでお送りします</p>
@@ -122,8 +128,8 @@ export function HomePage() {
       </section>
 
       {/* ── What is this? ── */}
-      <section ref={quizSectionRef} className="py-16 px-4" style={{ backgroundColor: '#F8F7F2' }}>
-        <div className="max-w-3xl mx-auto text-center">
+      <section ref={quizSectionRef} className="py-16 px-4 md:px-8 lg:px-12" style={{ backgroundColor: '#F8F7F2' }}>
+        <div className="max-w-3xl md:max-w-4xl mx-auto text-center">
           <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: '#2D8F4E' }}>WHAT IS WILDFLOW?</p>
           <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: '#1C2A1E' }}>
             身体のMBTI、はじめました。
@@ -167,17 +173,31 @@ export function HomePage() {
         </div>
       </section>
 
+      {/* ── Instructor Mini Card ── */}
+      <section className="py-8 px-4 md:px-8 lg:px-12" style={{ backgroundColor: '#F8F7F2' }}>
+        <div className="max-w-md mx-auto bg-white rounded-2xl shadow-sm border px-6 py-5 flex items-center gap-5" style={{ borderColor: '#E2E8E4' }}>
+          <div className="flex-shrink-0 w-16 h-16 rounded-full overflow-hidden border-2" style={{ borderColor: '#2D8F4E' }}>
+            <InstructorAvatar />
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase mb-0.5" style={{ color: '#2D8F4E', letterSpacing: '0.1em' }}>インストラクター</p>
+            <p className="font-black text-lg leading-tight mb-1" style={{ color: '#1C2A1E' }}>しょっちゃん</p>
+            <p className="text-sm leading-relaxed" style={{ color: '#4A6550' }}>上海で出会ったAnimal Flowに24万円を即決。日本語教師×野生身体研究家</p>
+          </div>
+        </div>
+      </section>
+
       {/* ── How it Works ── */}
-      <section className="py-16 px-4" style={{ backgroundColor: '#EDF7EE' }}>
-        <div className="max-w-4xl mx-auto">
+      <section className="py-16 px-4 md:px-8 lg:px-12" style={{ backgroundColor: '#EDF7EE' }}>
+        <div className="max-w-4xl md:max-w-6xl mx-auto">
           <p className="text-sm font-bold tracking-widest uppercase mb-3 text-center" style={{ color: '#1A6B38' }}>HOW IT WORKS</p>
-          <h2 className="text-2xl font-bold text-center mb-12" style={{ color: '#1C2A1E' }}>野生を解放する3ステップ</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-12" style={{ color: '#1C2A1E' }}>野生を解放する3ステップ</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="text-6xl font-black opacity-20 mb-2" style={{ color: '#F59E0B' }}>01</div>
               <div className="text-3xl mb-3">🐾</div>
               <h3 className="font-bold text-lg mb-2" style={{ color: '#1C2A1E' }}>診断する</h3>
-              <p className="text-sm leading-relaxed" style={{ color: '#4A6550' }}>
+              <p className="text-sm md:text-base leading-relaxed" style={{ color: '#4A6550' }}>
                 10問の簡単診断で、あなたの身体の伸びしろアビリティを発見
               </p>
             </div>
@@ -185,7 +205,7 @@ export function HomePage() {
               <div className="text-6xl font-black opacity-20 mb-2" style={{ color: '#F59E0B' }}>02</div>
               <div className="text-3xl mb-3">📊</div>
               <h3 className="font-bold text-lg mb-2" style={{ color: '#1C2A1E' }}>自分を知る</h3>
-              <p className="text-sm leading-relaxed" style={{ color: '#4A6550' }}>
+              <p className="text-sm md:text-base leading-relaxed" style={{ color: '#4A6550' }}>
                 5軸のバランスを知り、22タイプの野生動物の中から自分を発見
               </p>
             </div>
@@ -193,7 +213,7 @@ export function HomePage() {
               <div className="text-6xl font-black opacity-20 mb-2" style={{ color: '#F59E0B' }}>03</div>
               <div className="text-3xl mb-3">🏃</div>
               <h3 className="font-bold text-lg mb-2" style={{ color: '#1C2A1E' }}>野生を解放する</h3>
-              <p className="text-sm leading-relaxed" style={{ color: '#4A6550' }}>
+              <p className="text-sm md:text-base leading-relaxed" style={{ color: '#4A6550' }}>
                 伸びしろに特化した1時間のAnimal Flowレッスンで身体を変える
               </p>
             </div>
@@ -201,12 +221,40 @@ export function HomePage() {
         </div>
       </section>
 
+      {/* ── Shanghai Story Banner ── */}
+      <section className="py-14 px-4 md:px-8 lg:px-12" style={{ backgroundColor: '#1a3a2a' }}>
+        <div className="max-w-3xl md:max-w-4xl mx-auto text-center">
+          <p className="text-sm font-bold uppercase tracking-widest mb-4" style={{ color: '#6fcf97', letterSpacing: '0.15em' }}>WHY WILDFLOW</p>
+          <h2 className="text-xl md:text-2xl font-black mb-5 leading-tight" style={{ color: '#FFFFFF' }}>
+            上海で出会った「動物の動き」が、<br className="hidden md:block" />24万円を即決させた。
+          </h2>
+          <p className="mb-8 leading-relaxed" style={{ color: '#C8E6CA', fontSize: '16px', lineHeight: '1.9' }}>
+            妻に連れられて行った謎の運動教室。インストラクターの一言が頭の中で何かをつないだ。<br className="hidden md:block" />
+            「これを日本に持ち帰らなければ」と、理屈なく感じた瞬間があった。
+          </p>
+          <Link
+            to="/blog"
+            className="inline-flex items-center gap-2 font-bold transition-all hover:-translate-y-0.5"
+            style={{
+              backgroundColor: '#f5a623',
+              color: '#1C2A1E',
+              padding: '0 32px',
+              borderRadius: '100px',
+              fontSize: '16px',
+              minHeight: '50px',
+            }}
+          >
+            しょっちゃんのストーリーを読む →
+          </Link>
+        </div>
+      </section>
+
       {/* ── 22 Types Grid ── */}
-      <section className="py-16 px-4" style={{ backgroundColor: '#EDF7EE' }}>
-        <div className="max-w-3xl mx-auto text-center">
+      <section className="py-16 px-4 md:px-8 lg:px-12" style={{ backgroundColor: '#EDF7EE' }}>
+        <div className="max-w-3xl md:max-w-5xl mx-auto text-center">
           <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: '#2D8F4E' }}>22 TYPES</p>
-          <h2 className="text-2xl font-bold mb-2" style={{ color: '#1C2A1E' }}>あなたはどの動物？</h2>
-          <p className="text-sm mb-10" style={{ color: '#4A6550' }}>22種類の動物タイプの中から、あなたの身体特性が判定されます。</p>
+          <h2 className="text-2xl md:text-3xl font-bold mb-2" style={{ color: '#1C2A1E' }}>あなたはどの動物？</h2>
+          <p className="text-sm md:text-base mb-10" style={{ color: '#4A6550' }}>22種類の動物タイプの中から、あなたの身体特性が判定されます。</p>
 
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-3">
             {TYPE_GRID_MAIN.map((t, i) => (
@@ -285,8 +333,8 @@ export function HomePage() {
 
       {/* ── Latest Posts ── */}
       {(loading || posts.length > 0) && (
-        <section className="px-4 py-16" style={{ backgroundColor: '#FDF8EF' }}>
-          <div className="max-w-5xl mx-auto">
+        <section className="px-4 md:px-8 lg:px-12 py-16" style={{ backgroundColor: '#FDF8EF' }}>
+          <div className="max-w-5xl md:max-w-6xl mx-auto">
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-2xl font-bold" style={{ color: '#1C2A1E' }}>最新記事</h2>
               <Link to="/blog" className="text-sm transition-colors hover:opacity-70 inline-flex items-center" style={{ color: '#2D8F4E', minHeight: '44px', padding: '10px 0' }}>
@@ -315,8 +363,8 @@ export function HomePage() {
       )}
 
       {/* ── Bottom CTA ── */}
-      <section className="py-20 px-4" style={{ backgroundColor: '#2D8F4E' }}>
-        <div className="max-w-xl mx-auto text-center">
+      <section className="py-20 px-4 md:px-8 lg:px-12" style={{ backgroundColor: '#2D8F4E' }}>
+        <div className="max-w-xl md:max-w-2xl mx-auto text-center">
           <p className="text-4xl mb-4">🐾</p>
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
             あなたの野生、まだ眠っていませんか？

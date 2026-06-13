@@ -47,7 +47,7 @@ export function QuickQuiz() {
   const progress = ((current + 1) / quickQuestions.length) * 100;
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-12">
+    <main className="max-w-2xl md:max-w-4xl mx-auto px-4 md:px-8 lg:px-12 py-12">
       <div className="text-center mb-8">
         <p className="text-sm font-medium mb-1" style={{ color: '#2D8F4E' }}>簡易診断 — 約1分</p>
         <h1 className="font-black" style={{ color: '#1C2A1E', fontSize: '28px', lineHeight: '1.3' }}>
