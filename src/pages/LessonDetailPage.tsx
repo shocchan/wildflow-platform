@@ -106,8 +106,8 @@ export function LessonDetailPage() {
           )}
           <p className="text-sm mb-6" style={{ color: '#5a7a62' }}>
             ご不明な点は{' '}
-            <a href="mailto:shodorannga@gmail.com" style={{ color: '#2D8F4E', textDecoration: 'underline' }}>
-              shodorannga@gmail.com
+            <a href="mailto:info@kawabado.com" style={{ color: '#2D8F4E', textDecoration: 'underline' }}>
+              info@kawabado.com
             </a>{' '}
             までお気軽にご連絡ください。
           </p>
@@ -151,7 +151,7 @@ export function LessonDetailPage() {
             {lesson.instructor === 'しょっちゃん' && (
               <div className="ml-5 mt-1">
                 <p className="text-sm" style={{ color: '#5a7a62' }}>Animal Flow Level 1認定インストラクター・小紅書フォロワー5,000+</p>
-                <a href="/profile" className="text-sm underline" style={{ color: '#2D8F4E' }}>
+                <a href="/profile" target="_blank" rel="noopener noreferrer" className="text-sm underline" style={{ color: '#2D8F4E' }}>
                   インストラクター紹介を見る →
                 </a>
               </div>

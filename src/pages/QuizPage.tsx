@@ -261,8 +261,8 @@ export function QuizPage() {
           </p>
           <p className="text-sm mt-3" style={{ color: '#4A6550' }}>
             ご不明な点は{' '}
-            <a href="mailto:shodorannga@gmail.com" style={{ color: '#2D8F4E', fontWeight: 700 }}>
-              shodorannga@gmail.com
+            <a href="mailto:info@kawabado.com" style={{ color: '#2D8F4E', fontWeight: 700 }}>
+              info@kawabado.com
             </a>{' '}
             までご連絡ください。
           </p>
