@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>wild-flow.com 1万ビュー分析レポート（2026/6/12〜7/6）</title>
+<style>
+body{font-family:"Hiragino Sans","Noto Sans JP",sans-serif;margin:0;background:#F8F7F2;color:#1C2A1E;line-height:1.7}
+.wrap{max-width:860px;margin:0 auto;padding:32px 20px 60px}
+h1{font-size:26px;margin:.2em 0} h2{font-size:19px;border-left:5px solid #2D8F4E;padding-left:10px;margin-top:44px}
+.sub{color:#5a7a62;font-size:13px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:24px 0}
+.card{background:#fff;border:1px solid #E2E8E4;border-radius:14px;padding:16px}
+.card .v{font-size:26px;font-weight:900} .card .l{font-size:12px;color:#5a7a62}
+.card.warn .v{color:#D97706} .card.bad .v{color:#e11d48} .card.good .v{color:#2D8F4E}
+.panel{background:#fff;border:1px solid #E2E8E4;border-radius:14px;padding:20px;margin:14px 0;overflow-x:auto}
+.callout{border-radius:12px;padding:14px 18px;margin:14px 0;font-size:14px}
+.callout.red{background:#fef2f2;border:1px solid #fecaca} .callout.green{background:#EDF7EE;border:1px solid #bbe5c4} .callout.amber{background:#fffbeb;border:1px solid #fde68a}
+table{border-collapse:collapse;width:100%;font-size:14px} td,th{padding:7px 10px;border-bottom:1px solid #eef2ee;text-align:left} .num{text-align:right;font-variant-numeric:tabular-nums}
+.pbar{height:12px;background:#2D8F4E;border-radius:3px}
+.legend{font-size:12px;color:#555} .dot{display:inline-block;width:10px;height:10px;border-radius:5px;margin-right:4px}
+.score{font-size:38px;font-weight:900;color:#D97706}
+code{background:#eef2ee;padding:1px 5px;border-radius:4px;font-size:12px}
+</style></head><body><div class="wrap">
+<h1>🐾 wild-flow.com 1万ビュー分析レポート</h1>
+<p class="sub">対象期間: 2026年6月12日〜7月6日（25日間） ｜ データソース: Cloudflare Zone Analytics + Web Analytics(RUM) ｜ 作成: 2026-07-06</p>
+
+<div class="callout red"><b>⚠️ 最重要の結論：「1万ビュー」の約9割はbot・クローラーです。</b><br>
+Cloudflareのゾーン計測では期間中 <b>16,984ページビュー</b> ですが、実際のブラウザ上で計測されるWeb Analytics（RUM）の実訪問ページロードは <b>約260件（1日あたり約10件）</b> でした。国別でもオランダ・米国・フランスなどデータセンター経由が上位で、日本からのリクエストは全体の10.7%にすぎません。</div>
+
+<div class="cards">
+<div class="card"><div class="v">16,984</div><div class="l">ゾーン計測ページビュー（bot込み）</div></div>
+<div class="card bad"><div class="v">約260</div><div class="l">実ブラウザのページロード（RUM）</div></div>
+<div class="card warn"><div class="v">10.7%</div><div class="l">日本からのリクエスト比率</div></div>
+<div class="card good"><div class="v">JP 81%</div><div class="l">実訪問の国別（RUM: JP210/US50）</div></div>
+</div>
+
+<h2>1. 日別ページビュー推移（ゾーン計測）</h2>
+<div class="panel">
+<svg viewBox="0 0 660 240" width="100%" xmlns="http://www.w3.org/2000/svg">
+<text x="38" y="216" font-size="10" fill="#888" text-anchor="end">0</text><line x1="44" y1="212" x2="650" y2="212" stroke="#eee"/><text x="38" y="150" font-size="10" fill="#888" text-anchor="end">1,000</text><line x1="44" y1="146" x2="650" y2="146" stroke="#eee"/><text x="38" y="84" font-size="10" fill="#888" text-anchor="end">2,000</text><line x1="44" y1="80" x2="650" y2="80" stroke="#eee"/><text x="38" y="18" font-size="10" fill="#888" text-anchor="end">3,000</text><line x1="44" y1="14" x2="650" y2="14" stroke="#eee"/>
+<polyline points="44.0,185.0 70.3,122.6 96.7,91.9 123.0,25.3 149.4,168.0 175.7,189.8 202.1,195.2 228.4,172.3 254.8,192.5 281.1,186.6 307.5,178.9 333.8,173.1 360.2,195.6 386.5,185.9 412.9,172.7 439.2,180.5 465.6,173.4 491.9,200.0 518.3,197.7 544.6,166.6 571.0,189.5 597.3,62.4 623.7,194.2 650.0,167.3" fill="none" stroke="#2D8F4E" stroke-width="2.5"/>
+<polyline points="44.0,207.9 70.3,202.0 96.7,205.8 123.0,203.9 149.4,200.8 175.7,208.8 202.1,207.8 228.4,208.0 254.8,207.9 281.1,209.2 307.5,208.5 333.8,207.9 360.2,209.6 386.5,208.3 412.9,207.4 439.2,209.4 465.6,208.6 491.9,209.7 518.3,209.8 544.6,208.4 571.0,210.0 597.3,208.1 623.7,209.6 650.0,209.0" fill="none" stroke="#F59E0B" stroke-width="2" stroke-dasharray="4 3"/>
+<text x="44" y="232" font-size="10" fill="#888" text-anchor="middle">6/12</text><text x="123" y="232" font-size="10" fill="#888" text-anchor="middle">6/15</text><text x="228" y="232" font-size="10" fill="#888" text-anchor="middle">6/19</text><text x="334" y="232" font-size="10" fill="#888" text-anchor="middle">6/23</text><text x="439" y="232" font-size="10" fill="#888" text-anchor="middle">6/27</text><text x="545" y="232" font-size="10" fill="#888" text-anchor="middle">7/1</text><text x="597" y="232" font-size="10" fill="#888" text-anchor="middle">7/3</text><text x="650" y="232" font-size="10" fill="#888" text-anchor="middle">7/5</text>
+</svg>
+<p class="legend"><span class="dot" style="background:#2D8F4E"></span>ページビュー　<span class="dot" style="background:#F59E0B"></span>ユニーク訪問者（日別）</p>
+<p class="sub">スパイクの正体：<b>6/13〜15</b>（1,354→2,829PV）と<b>7/3</b>（2,267PV）はクローラー/スキャナーの集中アクセス。7/3は「TLM-Audit-Scanner/1.0」1つで1,272リクエストを記録し、<code>/.env</code> や <code>/.git/config</code> といった脆弱性探索パスを叩いていました（静的サイトのため実害なし）。ユニーク訪問者（黄色破線）はスパイクに反応しておらず、人間のアクセスが増えたわけではないことが分かります。</p>
+</div>
+
+<h2>2. トラフィックソース（Referrer）— 実訪問ベース</h2>
+<div class="panel" style="display:flex;gap:24px;flex-wrap:wrap;align-items:center">
+<svg viewBox="0 0 220 220" width="200" xmlns="http://www.w3.org/2000/svg"><path d="M110,110 L110.0,15.0 A95,95 0 1 1 87.3,202.2 Z" fill="#2D8F4E"/><path d="M110,110 L87.3,202.2 A95,95 0 0 1 110.0,15.0 Z" fill="#F59E0B"/><circle cx="110" cy="110" r="52.25000000000001" fill="#fff"/></svg>
+<div>
+<p class="legend"><span class="dot" style="background:#2D8F4E"></span>サイト内遷移 140（54%）<br><span class="dot" style="background:#F59E0B"></span>直接アクセス（URL直打ち・ブックマーク・アプリ内リンク）120（46%）</p>
+<p class="sub"><b>XHS / WeChat / Google / X からの流入は計測上ほぼゼロ。</b><br>
+Yahoo検索・Google検索・WeChat経由はアカウント全体でわずかに観測されましたが、wild-flow.comサイト単体の集計では検出限界以下でした。<br>
+※ Cloudflare無料プランの制約でゾーンHTTP側のリファラー集計は取得不可のため、RUM（実ブラウザ計測）のみで判定。<br>
+※ XHSやWeChatのアプリ内ブラウザはリファラーを付けないことが多く、「直接アクセス」に含まれている可能性があります。</p>
+</div>
+</div>
+
+<h2>3. 地域別アクセス</h2>
+<div class="panel">
+<p><b>ゾーン計測（リクエスト数・bot込み / 総数22,289）</b></p>
+<svg viewBox="0 0 620 305" width="100%" xmlns="http://www.w3.org/2000/svg"><text x="118" y="15" font-size="11" fill="#444" text-anchor="end">🇳🇱 オランダ</text><rect x="124" y="4" width="380" height="14" rx="3" fill="#94a3b8"/><text x="508" y="15" font-size="11" fill="#666">4,781</text><text x="118" y="45" font-size="11" fill="#444" text-anchor="end">🇺🇸 米国</text><rect x="124" y="34" width="293" height="14" rx="3" fill="#94a3b8"/><text x="421" y="45" font-size="11" fill="#666">3,692</text><text x="118" y="75" font-size="11" fill="#444" text-anchor="end">🇫🇷 フランス</text><rect x="124" y="64" width="219" height="14" rx="3" fill="#94a3b8"/><text x="347" y="75" font-size="11" fill="#666">2,756</text><text x="118" y="105" font-size="11" fill="#444" text-anchor="end" font-weight="700">🇯🇵 日本</text><rect x="124" y="94" width="190" height="14" rx="3" fill="#2D8F4E"/><text x="318" y="105" font-size="11" fill="#666">2,392</text><text x="118" y="135" font-size="11" fill="#444" text-anchor="end">🇸🇬 シンガポール</text><rect x="124" y="124" width="181" height="14" rx="3" fill="#94a3b8"/><text x="309" y="135" font-size="11" fill="#666">2,277</text><text x="118" y="165" font-size="11" fill="#444" text-anchor="end">🇧🇷 ブラジル</text><rect x="124" y="154" width="106" height="14" rx="3" fill="#94a3b8"/><text x="234" y="165" font-size="11" fill="#666">1,329</text><text x="118" y="195" font-size="11" fill="#444" text-anchor="end">🇧🇬 ブルガリア</text><rect x="124" y="184" width="64" height="14" rx="3" fill="#94a3b8"/><text x="192" y="195" font-size="11" fill="#666">805</text><text x="118" y="225" font-size="11" fill="#444" text-anchor="end">🇮🇳 インド</text><rect x="124" y="214" width="47" height="14" rx="3" fill="#94a3b8"/><text x="175" y="225" font-size="11" fill="#666">586</text><text x="118" y="255" font-size="11" fill="#444" text-anchor="end">🇨🇦 カナダ</text><rect x="124" y="244" width="45" height="14" rx="3" fill="#94a3b8"/><text x="173" y="255" font-size="11" fill="#666">572</text><text x="118" y="285" font-size="11" fill="#444" text-anchor="end" font-weight="700">🇨🇳 中国</text><rect x="124" y="274" width="9" height="14" rx="3" fill="#e11d48"/><text x="137" y="285" font-size="11" fill="#666">116</text></svg>
+<p class="sub">上位のオランダ・米国・フランス・シンガポールはデータセンター/クローラー発。<b>実訪問（RUM）では日本210件（81%）・米国50件（19%）</b>で、人間の読者はほぼ日本からです。中国からのリクエストは116件（0.5%）で、中国人市場向けの流入は現状ありません。</p>
+</div>
+
+<h2>4. 実際に読まれているページ Top（RUM）</h2>
+<div class="panel"><table>
+<tr><th>ページ</th><th class="num">ページロード</th><th></th></tr>
+<tr><td>/（トップ）</td><td class="num">100</td><td><div class="pbar" style="width:200px"></div></td></tr><tr><td>/lessons/…（海の日アニマルフロー体験）</td><td class="num">40</td><td><div class="pbar" style="width:80px"></div></td></tr><tr><td>/blog</td><td class="num">30</td><td><div class="pbar" style="width:60px"></div></td></tr><tr><td>/admin（自分の管理画面）</td><td class="num">30</td><td><div class="pbar" style="width:60px"></div></td></tr><tr><td>/recovery</td><td class="num">30</td><td><div class="pbar" style="width:60px"></div></td></tr><tr><td>/lessons</td><td class="num">10</td><td><div class="pbar" style="width:20px"></div></td></tr><tr><td>/quiz/quick（10問診断）</td><td class="num">10</td><td><div class="pbar" style="width:20px"></div></td></tr><tr><td>/blog/…（記事）</td><td class="num">10</td><td><div class="pbar" style="width:20px"></div></td></tr>
+</table>
+<p class="sub">※ /admin はしょっちゃん自身の管理画面アクセス。実質的な読者導線は「トップ → レッスン詳細 / ブログ / リカバリー」。</p></div>
+
+<h2>5. SEOステータス診断</h2>
+<div class="panel">
+<p>簡易SEOスコア: <span class="score">42</span><span style="color:#888"> / 100</span></p>
+<table>
+<tr><th>項目</th><th>状態</th><th>詳細</th></tr>
+<tr><td>robots.txt</td><td>❌→✅ 修正済み</td><td>存在せずSPAのHTMLが返っていた。public/robots.txt を新規作成（/admin をDisallow、Sitemap行付き）</td></tr>
+<tr><td>sitemap.xml</td><td>⚠️→✅ 修正済み</td><td>存在するが全URLが旧ドメイン <code>wildflow.jp</code> を指していた → <code>wild-flow.com</code> に修正。ただし収録4URLのみでレッスン・ブログ記事が未収録</td></tr>
+<tr><td>OGP / JSON-LD</td><td>⚠️→✅ 修正済み</td><td>og:url・og:image・JSON-LDのurlが <code>wildflow.jp</code> のまま → 修正。<b>ただし og:image の実体 ogp.png が存在しない</b>（SNSシェア時に画像が出ない）</td></tr>
+<tr><td>ページ別メタタグ</td><td>❌ 未対応</td><td>react-helmet-async 等が未導入。全ページが同一のtitle/description（SPAのため）。ブログ記事のSEO評価がつかない最大要因</td></tr>
+<tr><td>プリレンダリング</td><td>❌ 未対応</td><td>CSR（クライアントレンダリング）のみ。Googlebotは来訪済み（UAで確認）だがコンテンツのインデックス精度は低い</td></tr>
+<tr><td>Google Search Console</td><td>✅ 登録済みの模様</td><td>DNSにgoogle-site-verification TXTレコードが2件あり</td></tr>
+</table>
+</div>
+
+<h2>6. 結論と今後の施策</h2>
+<div class="callout amber"><b>「SEO無対策でなぜ1万ビューまで成長したのか」への答え：成長していません。</b> 1万ビューの実体はクローラーとスキャナーであり、実際の読者は1日あたり約10ページロード・ほぼ全員が日本からの直接アクセス（＝しょっちゃんが手動で共有したリンクやリピーター）です。これは悲観材料ではなく「計測を正しくした上でゼロから伸ばすフェーズ」という現在地の確認です。</div>
+<div class="callout green"><b>優先施策（効果順）</b><br>
+1. <b>流入導線を作る</b> — 現状、外部からの入口が存在しない。レッスン集客はkawabado.com・X・note・ストアカ等からwild-flow.comの診断/レッスンページへリンクを張るのが即効性最大（XHSはCEO手動運用ルールに従う）<br>
+2. <b>診断コンテンツをフックにする</b> — 実訪問でも/quiz系が読まれている。「野生タイプ診断」はシェアされやすい形（結果のOGP画像化など）にすると直接流入が増える<br>
+3. <b>ページ別メタタグ導入</b>（react-helmet-async）＋ <b>ブログ記事をsitemapに自動収録</b> — 検索流入の土台。ブログを書き続けるならここが前提<br>
+4. <b>ogp.png を作成して配置</b> — SNSシェア時の見た目改善（コスト10分）<br>
+5. Search Consoleでsitemap送信・インデックス状況の確認</div>
+
+<p class="sub">データ取得方法: Cloudflare GraphQL Analytics API（httpRequests1dGroups / httpRequestsAdaptiveGroups / rumPageloadEventsAdaptiveGroups）。RUMの数値はサンプリング補正後の推定値。Zone ID: 924db320…e8f9</p>
+</div></body></html>
