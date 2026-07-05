@@ -74,37 +74,36 @@ export function QuizPage() {
         });
         setStep('done');
 
+        // 以下は結果表示を妨げない（non-blocking）が、失敗は必ずコンソールに残す
         try {
-          await supabase.from('quiz_results').insert([{
+          const { error } = await supabase.from('quiz_results').insert([{
             animal_type: wildType.id,
             scores: abilityScores,
           }]);
-        } catch (_) { /* non-blocking */ }
+          if (error) console.error('[quiz] quiz_results insert failed:', error.message);
+        } catch (e) { console.error('[quiz] quiz_results insert failed:', e); }
         try {
-          await supabase.from('quiz_leads').insert([{
+          const { error } = await supabase.from('quiz_leads').insert([{
             name: userName,
             email: userEmail,
             wild_type: wildType.name,
             scores: abilityScores,
           }]);
-        } catch (_) { /* non-blocking */ }
+          if (error) console.error('[quiz] quiz_leads insert failed:', error.message);
+        } catch (e) { console.error('[quiz] quiz_leads insert failed:', e); }
         try {
-          const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
-          await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/clever-action`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${anonKey}`,
-            },
-            body: JSON.stringify({
+          const { data, error } = await supabase.functions.invoke('send-quiz-result-email', {
+            body: {
               name: userName,
               email: userEmail,
               wildType: wildType.name,
               scores: abilityScores,
               lesson: wildType.lesson,
-            }),
+            },
           });
-        } catch (_) { /* non-blocking */ }
+          if (error) console.error('[quiz] result email failed:', error);
+          else if (data && data.success === false) console.error('[quiz] result email rejected:', data);
+        } catch (e) { console.error('[quiz] result email failed:', e); }
       }
     }, 300);
   };
