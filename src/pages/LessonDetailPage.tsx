@@ -56,15 +56,17 @@ export function LessonDetailPage() {
         payment_status: 'unpaid',
       });
 
-      // Edge Function でメール送信
-      await supabase.functions.invoke('send-lesson-payment-email', {
+      // Edge Function でメール送信（invoke は throw しないので error を明示チェック）
+      const { error: mailError } = await supabase.functions.invoke('send-lesson-payment-email', {
         body: { entryData: entry, lessonData: lesson },
       });
+      if (mailError) console.error('[lesson-entry] payment email failed:', mailError);
 
       setPageState('done');
     } catch (err) {
-      console.error(err);
-      setErrorMsg('申し込みに失敗しました。時間をおいて再度お試しください。');
+      console.error('[lesson-entry] submit failed:', err);
+      const detail = err instanceof Error ? err.message : String(err);
+      setErrorMsg(`申し込みに失敗しました。時間をおいて再度お試しください。（詳細: ${detail}）`);
       setPageState('error');
     }
   };

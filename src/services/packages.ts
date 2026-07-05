@@ -39,12 +39,12 @@ export async function createPackageEntry(entry: {
   email: string;
   phone: string | null;
   message: string | null;
-}): Promise<PackageEntry> {
-  const { data, error } = await supabase
+}): Promise<{ package_id: string; name: string; email: string; phone: string | null; message: string | null; payment_status: string }> {
+  // 匿名ユーザーには SELECT 権限を与えていないため、insert 後の読み返しはしない
+  const row = { ...entry, payment_status: 'unpaid' };
+  const { error } = await supabase
     .from('package_entries')
-    .insert([{ ...entry, payment_status: 'unpaid' }])
-    .select()
-    .single();
+    .insert([row]);
   if (error) throw error;
-  return data;
+  return row;
 }

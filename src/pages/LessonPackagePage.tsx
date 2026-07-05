@@ -44,7 +44,7 @@ export function LessonPackagePage() {
         message: message || null,
       });
 
-      await supabase.functions.invoke('send-lesson-payment-email', {
+      const { error: mailError } = await supabase.functions.invoke('send-lesson-payment-email', {
         body: {
           entryData: entry,
           lessonData: {
@@ -60,11 +60,13 @@ export function LessonPackagePage() {
           },
         },
       });
+      if (mailError) console.error('[package-entry] payment email failed:', mailError);
 
       setPageState('done');
     } catch (err) {
-      console.error(err);
-      setErrorMsg('申し込みに失敗しました。時間をおいて再度お試しください。');
+      console.error('[package-entry] submit failed:', err);
+      const detail = err instanceof Error ? err.message : String(err);
+      setErrorMsg(`申し込みに失敗しました。時間をおいて再度お試しください。（詳細: ${detail}）`);
       setPageState('error');
     }
   };

@@ -71,14 +71,14 @@ export async function fetchEntryCounts(lessonIds: string[]): Promise<Record<stri
   return counts;
 }
 
-export async function createEntry(entry: Omit<LessonEntry, 'id' | 'created_at'>): Promise<LessonEntry> {
-  const { data, error } = await supabase
+// 匿名ユーザーには SELECT 権限を与えていないため、insert 後の読み返しはしない
+// （読み返すと RLS で失敗する。メール送信に必要なのは入力値だけ）
+export async function createEntry(entry: Omit<LessonEntry, 'id' | 'created_at'>): Promise<Omit<LessonEntry, 'id' | 'created_at'>> {
+  const { error } = await supabase
     .from('lesson_entries')
-    .insert(entry)
-    .select()
-    .single();
+    .insert(entry);
   if (error) throw error;
-  return data;
+  return entry;
 }
 
 export async function updateEntryPaymentStatus(id: string, payment_status: LessonEntry['payment_status']): Promise<void> {
