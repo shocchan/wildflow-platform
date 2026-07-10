@@ -6,6 +6,8 @@ const navLinks = [
   { to: '/blog', label: 'ブログ' },
   { to: '/quiz/quick', label: '野生診断' },
   { to: '/lessons', label: 'レッスン' },
+  // 静的HTML（public/animalflow.html）なので SPA ルーティングを通さず通常遷移させる
+  { to: '/animalflow.html', label: 'Animal Flow', external: true },
   { to: '/recovery', label: 'リカバリー' },
   { to: '/profile', label: 'プロフィール' },
 ];
@@ -24,22 +26,24 @@ export function Header() {
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-6">
-          {navLinks.map(({ to, label }) => (
-            <Link
-              key={to}
-              to={to}
-              className="transition-colors inline-flex items-center"
-              style={{
-                color: pathname === to ? '#2D8F4E' : '#1C2A1E',
-                fontWeight: pathname === to ? 700 : 500,
-                fontSize: '16px',
-                minHeight: '44px',
-                padding: '0 8px',
-              }}
-            >
-              {label}
-            </Link>
-          ))}
+          {navLinks.map(({ to, label, external }) => {
+            const style = {
+              color: pathname === to ? '#2D8F4E' : '#1C2A1E',
+              fontWeight: pathname === to ? 700 : 500,
+              fontSize: '16px',
+              minHeight: '44px',
+              padding: '0 8px',
+            } as const;
+            return external ? (
+              <a key={to} href={to} className="transition-colors inline-flex items-center" style={style}>
+                {label}
+              </a>
+            ) : (
+              <Link key={to} to={to} className="transition-colors inline-flex items-center" style={style}>
+                {label}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Mobile hamburger */}
@@ -58,22 +62,23 @@ export function Header() {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="md:hidden border-t bg-white px-4 py-3 flex flex-col gap-3" style={{ borderColor: '#E2E8E4' }}>
-          {navLinks.map(({ to, label }) => (
-            <Link
-              key={to}
-              to={to}
-              className="inline-flex items-center"
-              style={{
-                color: pathname === to ? '#2D8F4E' : '#1C2A1E',
-                fontWeight: pathname === to ? 700 : 500,
-                fontSize: '16px',
-                minHeight: '44px',
-              }}
-              onClick={() => setMenuOpen(false)}
-            >
-              {label}
-            </Link>
-          ))}
+          {navLinks.map(({ to, label, external }) => {
+            const style = {
+              color: pathname === to ? '#2D8F4E' : '#1C2A1E',
+              fontWeight: pathname === to ? 700 : 500,
+              fontSize: '16px',
+              minHeight: '44px',
+            } as const;
+            return external ? (
+              <a key={to} href={to} className="inline-flex items-center" style={style} onClick={() => setMenuOpen(false)}>
+                {label}
+              </a>
+            ) : (
+              <Link key={to} to={to} className="inline-flex items-center" style={style} onClick={() => setMenuOpen(false)}>
+                {label}
+              </Link>
+            );
+          })}
         </div>
       )}
     </header>
