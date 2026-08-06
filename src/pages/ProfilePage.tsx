@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchProfileSettings, type ProfileSettings } from '../services/settings';
+import { track } from '../services/analytics';
 
 const DEFAULTS: ProfileSettings = {
   name: 'しょっちゃん',
@@ -93,6 +94,7 @@ export function ProfilePage() {
             {profile.twitter_url && (
               <a
                 href={profile.twitter_url}
+                onClick={() => track('click_sns_profile', { sns: 'x' })}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 font-bold text-sm text-white transition-all hover:opacity-80"
@@ -104,6 +106,7 @@ export function ProfilePage() {
             {profile.xhs_url && (
               <a
                 href={profile.xhs_url}
+                onClick={() => track('click_sns_profile', { sns: 'xhs' })}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 font-bold text-sm text-white transition-all hover:opacity-80"
@@ -115,6 +118,7 @@ export function ProfilePage() {
             {profile.lemon8_url && (
               <a
                 href={profile.lemon8_url}
+                onClick={() => track('click_sns_profile', { sns: 'lemon8' })}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 font-bold text-sm transition-all hover:opacity-80"

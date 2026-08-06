@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { quickQuestions } from '../data/quickQuizQuestions';
 import { calcQuickResult } from '../utils/calcQuickType';
+import { track } from '../services/analytics';
 
 const LABELS = ['全く違う', 'あまり違う', '少しそう', 'とてもそう'];
 
@@ -15,6 +16,8 @@ export function QuickQuiz() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [current]);
+
+  useEffect(() => { track('start_wild_type_diagnosis', { quiz_type: 'quick' }); }, []);
 
   const handleSelect = (value: number) => {
     if (isTransitioning) return;

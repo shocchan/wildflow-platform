@@ -5,3 +5,8 @@ export const SITE_CONFIG = {
   representativeName: '安田翔',
   siteUrl: 'https://wild-flow.com',
 } as const;
+
+// GA4のMeasurement ID。空文字の間は計測は完全に無効。
+// しょっちゃんがGA4プロパティを作成したら 'G-XXXXXXXXXX' を設定する。
+// (本番ドメイン wild-flow.com でのみ送信される。staging/localhostは常に無効 → analytics.ts)
+export const GA4_MEASUREMENT_ID = '';

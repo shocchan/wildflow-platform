@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { track } from '../services/analytics';
 import { supabase } from '../services/supabaseClient';
 import { questions } from '../data/quizQuestions';
 import { calcAbilityScores, determineWildType } from '../utils/calcWildType';
@@ -72,6 +73,7 @@ export function QuizPage() {
           wildTypeName: wildType.name,
           lowestAbilityLabel: ABILITY_LABELS[lowestAbility],
         });
+        track('complete_wild_type_diagnosis', { quiz_type: 'full' });
         setStep('done');
 
         // 以下は結果表示を妨げない（non-blocking）が、失敗は必ずコンソールに残す
@@ -136,7 +138,8 @@ export function QuizPage() {
         return;
       }
       setGateError('');
-      setStep('quiz');
+      track('start_wild_type_diagnosis', { quiz_type: 'full' });
+    setStep('quiz');
     };
 
     return (

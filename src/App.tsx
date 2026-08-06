@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { lazy, Suspense, Component, type ReactNode, type ErrorInfo } from 'react';
+import { lazy, Suspense, Component, useEffect, type ReactNode, type ErrorInfo } from 'react';
+import { trackPageView } from './services/analytics';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { ScrollToTop } from './components/ScrollToTop';
@@ -64,6 +65,7 @@ const PrivacyPage           = lazy(() => import('./pages/PrivacyPage').then(m =>
 const FaqPage               = lazy(() => import('./pages/FaqPage').then(m => ({ default: m.FaqPage })));
 const ContactPage           = lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })));
 const RecoveryPage          = lazy(() => import('./pages/RecoveryPage').then(m => ({ default: m.RecoveryPage })));
+const FactoryPage           = lazy(() => import('./pages/factory/FactoryPage').then(m => ({ default: m.FactoryPage })));
 
 const PageLoader = () => {
   const isQuiz = window.location.pathname === '/quiz';
@@ -79,6 +81,8 @@ const PageLoader = () => {
 
 const AnimatedRoutes = () => {
   const location = useLocation();
+  // SPAのルート遷移ごとにpage_viewを送信(本番ドメイン+GA4 ID設定時のみ有効)
+  useEffect(() => { trackPageView(location.pathname); }, [location.pathname]);
   return (
     <ErrorBoundary>
       <Suspense fallback={<PageLoader />}>
@@ -101,6 +105,7 @@ const AnimatedRoutes = () => {
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/recovery" element={<RecoveryPage />} />
             <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/factory" element={<FactoryPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </div>

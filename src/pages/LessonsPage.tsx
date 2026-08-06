@@ -4,6 +4,7 @@ import { fetchPublishedLessons, fetchEntryCounts } from '../services/lessons';
 import { LESSON_TYPE_MAP } from '../types/lesson';
 import type { Lesson, LessonType } from '../types/lesson';
 import { supabase } from '../services/supabaseClient';
+import { track } from '../services/analytics';
 
 interface Testimonial {
   name: string;
@@ -21,6 +22,7 @@ function formatTime(t: string) {
 }
 
 export function LessonsPage() {
+  useEffect(() => { track('view_lesson', { page: 'list' }); }, []);
   const navigate = useNavigate();
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [counts, setCounts] = useState<Record<string, number>>({});

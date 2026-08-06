@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { fetchPostById } from '../services/posts';
+import { track } from '../services/analytics';
 import type { Post } from '../types';
 
 function youtubeId(url: string): string | null {
@@ -16,7 +17,10 @@ export function BlogDetailPage() {
 
   useEffect(() => {
     if (!id) return;
-    fetchPostById(id).then(setPost).finally(() => setLoading(false));
+    fetchPostById(id).then(p => {
+      setPost(p);
+      if (p) track('view_content', { content_type: 'blog', content_id: id });
+    }).finally(() => setLoading(false));
   }, [id]);
 
   if (loading) return (

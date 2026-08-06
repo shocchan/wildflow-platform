@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { PostCard } from '../components/PostCard';
 import { fetchLatestPosts } from '../services/posts';
 import { fetchProfileSettings } from '../services/settings';
+import { track } from '../services/analytics';
 import type { Post } from '../types';
 
 function InstructorAvatar() {
@@ -93,6 +94,7 @@ export function HomePage() {
           <div className="flex flex-col items-center gap-3">
             <Link
               to="/quiz/quick"
+              onClick={() => track('click_primary_cta', { cta: 'hero_quick_quiz' })}
               className="inline-flex items-center justify-center gap-2 font-bold transition-all hover:-translate-y-0.5"
               style={{
                 backgroundColor: '#f5a623',
@@ -108,6 +110,7 @@ export function HomePage() {
             </Link>
             <Link
               to="/quiz"
+              onClick={() => track('click_primary_cta', { cta: 'hero_full_quiz' })}
               className="text-sm transition-all hover:opacity-70"
               style={{ color: '#4A6550' }}
             >
@@ -157,6 +160,7 @@ export function HomePage() {
 
           <Link
             to="/quiz/quick"
+            onClick={() => track('click_primary_cta', { cta: 'about_quick_quiz' })}
             className="inline-flex items-center gap-2 font-bold transition-all hover:-translate-y-0.5"
             style={{
               backgroundColor: '#F59E0B',
@@ -305,6 +309,7 @@ export function HomePage() {
           </p>
           <Link
             to="/quiz/quick"
+            onClick={() => track('click_primary_cta', { cta: 'types_quick_quiz' })}
             className="inline-flex items-center gap-2 font-bold transition-all"
             style={{
               color: '#2D8F4E',
@@ -375,6 +380,7 @@ export function HomePage() {
           </p>
           <Link
             to="/quiz/quick"
+            onClick={() => track('click_primary_cta', { cta: 'bottom_quick_quiz' })}
             className="inline-flex items-center gap-2 font-bold transition-all hover:-translate-y-0.5"
             style={{
               backgroundColor: '#F59E0B',

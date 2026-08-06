@@ -4,6 +4,7 @@ import { fetchLessonById, fetchEntryCounts, createEntry } from '../services/less
 import { LESSON_TYPE_MAP } from '../types/lesson';
 import type { Lesson } from '../types/lesson';
 import { supabase } from '../services/supabaseClient';
+import { track } from '../services/analytics';
 
 function formatDate(dateStr: string) {
   const d = new Date(dateStr + 'T00:00:00');
@@ -17,6 +18,7 @@ function formatTime(t: string) {
 type PageState = 'detail' | 'submitting' | 'done' | 'error';
 
 export function LessonDetailPage() {
+  useEffect(() => { track('view_lesson', { page: 'detail' }); }, []);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [lesson, setLesson] = useState<Lesson | null>(null);

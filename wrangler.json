@@ -1,8 +1,32 @@
 {
   "name": "wildflow-platform",
   "compatibility_date": "2026-06-09",
+  "main": "worker/index.ts",
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "single-page-application"
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "vars": {
+    "SUPABASE_URL": "https://sfpgajxqmcymzetjwypz.supabase.co",
+    "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmcGdhanhxbWN5bXpldGp3eXB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1NTA2NjksImV4cCI6MjA5NjEyNjY2OX0.ZV8AUwKj5openYNbvSuvJxHeDuUuxLBZSVlg1xYpB1A"
+  },
+  "env": {
+    "staging": {
+      "name": "wildflow-platform-staging",
+      "workers_dev": true,
+      "main": "worker/index.ts",
+      "assets": {
+        "directory": "./dist",
+        "binding": "ASSETS",
+        "not_found_handling": "single-page-application",
+        "run_worker_first": true
+      },
+      "vars": {
+        "SUPABASE_URL": "https://sfpgajxqmcymzetjwypz.supabase.co",
+        "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmcGdhanhxbWN5bXpldGp3eXB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1NTA2NjksImV4cCI6MjA5NjEyNjY2OX0.ZV8AUwKj5openYNbvSuvJxHeDuUuxLBZSVlg1xYpB1A"
+      }
+    }
   }
 }

@@ -44,13 +44,22 @@ export function Footer() {
             </Link>
           ))}
           {isAuthenticated && (
-            <Link
-              to="/admin"
-              className="text-sm hover:text-white transition-colors"
-              style={{ color: '#6A8A72', minHeight: '36px', display: 'inline-flex', alignItems: 'center' }}
-            >
-              管理
-            </Link>
+            <>
+              <Link
+                to="/admin"
+                className="text-sm hover:text-white transition-colors"
+                style={{ color: '#6A8A72', minHeight: '36px', display: 'inline-flex', alignItems: 'center' }}
+              >
+                管理
+              </Link>
+              <Link
+                to="/admin/factory"
+                className="text-sm hover:text-white transition-colors"
+                style={{ color: '#6A8A72', minHeight: '36px', display: 'inline-flex', alignItems: 'center' }}
+              >
+                企画工場
+              </Link>
+            </>
           )}
         </div>
       </div>

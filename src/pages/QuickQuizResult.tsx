@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { QuickResult } from '../utils/calcQuickType';
 import { ABILITY_LABELS, ABILITY_TO_ANIMALS, ABILITY_LESSON } from '../utils/calcQuickType';
+import { track } from '../services/analytics';
 
 const ABILITY_ORDER = ['strength', 'endurance', 'speed', 'flexibility', 'coordination'] as const;
 
@@ -29,6 +30,7 @@ function AbilityBar({ label, score, isLow }: { label: string; score: number; isL
 }
 
 export function QuickQuizResult() {
+  useEffect(() => { track('complete_wild_type_diagnosis', { quiz_type: 'quick' }); }, []);
   const location = useLocation();
   const navigate = useNavigate();
   const result = location.state?.result as QuickResult | undefined;
