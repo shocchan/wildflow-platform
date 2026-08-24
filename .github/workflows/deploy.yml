@@ -24,6 +24,8 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          # GA4 測定ID。Secret 未登録なら空文字が入り、計測は完全に無効(no-op)のまま。
+          VITE_GA4_ID: ${{ secrets.VITE_GA4_ID }}
 
       - name: Deploy to Cloudflare Workers
         run: npx wrangler deploy

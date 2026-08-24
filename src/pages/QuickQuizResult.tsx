@@ -3,10 +3,13 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import type { QuickResult } from '../utils/calcQuickType';
 import { ABILITY_LABELS, ABILITY_TO_ANIMALS, ABILITY_LESSON } from '../utils/calcQuickType';
 import { track } from '../services/analytics';
+import { supabase } from '../services/supabaseClient';
+import { SITE_CONFIG } from '../config/site';
+import { KawabadoInvite } from '../components/KawabadoInvite';
 
 const ABILITY_ORDER = ['strength', 'endurance', 'speed', 'flexibility', 'coordination'] as const;
 
-const SITE_URL = 'https://wild-flow.com';
+const SITE_URL = SITE_CONFIG.siteUrl;
 
 function AbilityBar({ label, score, isLow }: { label: string; score: number; isLow: boolean }) {
   const color = isLow ? '#F59E0B' : '#2D8F4E';
@@ -29,12 +32,17 @@ function AbilityBar({ label, score, isLow }: { label: string; score: number; isL
   );
 }
 
+type LeadState = 'idle' | 'saving' | 'done' | 'error';
+
 export function QuickQuizResult() {
   useEffect(() => { track('complete_wild_type_diagnosis', { quiz_type: 'quick' }); }, []);
   const location = useLocation();
   const navigate = useNavigate();
   const result = location.state?.result as QuickResult | undefined;
   const [copied, setCopied] = useState(false);
+  const [email, setEmail] = useState('');
+  const [leadState, setLeadState] = useState<LeadState>('idle');
+  const [leadError, setLeadError] = useState('');
 
   if (!result) {
     navigate('/quiz/quick');
@@ -45,6 +53,47 @@ export function QuickQuizResult() {
   const lowestLabel = ABILITY_LABELS[lowestAbility];
   const animals = ABILITY_TO_ANIMALS[lowestAbility];
   const lesson = ABILITY_LESSON[lowestAbility];
+
+  /**
+   * 結果を見せた「あと」の任意メール登録。
+   * ⚠️ 結果表示をメールでゲートしない（先に結果を見せる）。ここは完全に任意。
+   * 保存先は60問診断と同じ quiz_leads。source='quick' で取得元を区別する。
+   */
+  const handleLeadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (leadState === 'saving') return;
+    const value = email.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      setLeadError('正しいメールアドレスを入力してください');
+      return;
+    }
+    setLeadError('');
+    setLeadState('saving');
+
+    // 10問診断は名前を取らない。name はNOT NULL想定なので固定の目印を入れる
+    // （CSV出力でカンマを含まない文字列にすること）
+    const base = {
+      name: '（10問診断）',
+      email: value,
+      wild_type: `10問診断：${lowestLabel}が伸びしろ`,
+      scores,
+    };
+
+    let { error } = await supabase.from('quiz_leads').insert([{ ...base, source: 'quick' }]);
+    // source 列を足すマイグレーション（20260824_quiz_leads_source.sql）が未適用でも
+    // 取りこぼさないよう、列が無い場合は source 抜きで入れ直す
+    if (error?.code === 'PGRST204') {
+      ({ error } = await supabase.from('quiz_leads').insert([base]));
+    }
+
+    if (error) {
+      console.error('[quick-quiz] quiz_leads insert failed:', error.message);
+      setLeadState('error');
+      return;
+    }
+    track('generate_lead', { quiz_type: 'quick' });
+    setLeadState('done');
+  };
 
   const shareTextX = `私は${lowestLabel}が伸びしろの身体タイプでした！🐾\nあなたの野生タイプは何型？ #wildflow #身体のMBTI\n${SITE_URL}/quiz/quick`;
   const shareTextLine = `私は${lowestLabel}が伸びしろの身体タイプでした！あなたは？wildflowで診断してみて👇 ${SITE_URL}/quiz/quick`;
@@ -144,6 +193,68 @@ export function QuickQuizResult() {
         )}
       </div>
 
+      {/* 結果保存（任意のメール登録）— 結果を見せたあとに置く。ゲートしない */}
+      <div
+        className="p-6 rounded-2xl border mb-6"
+        style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}
+      >
+        {leadState === 'done' ? (
+          <div className="text-center">
+            <p className="text-3xl mb-2">📩</p>
+            <p className="font-bold mb-1" style={{ color: '#1C2A1E' }}>登録しました！</p>
+            <p className="text-sm" style={{ color: '#4A6550' }}>
+              「{lowestLabel}」を伸ばすトレーニングの解説をお送りします。
+            </p>
+          </div>
+        ) : (
+          <>
+            <h2 className="text-base font-bold mb-1" style={{ color: '#1C2A1E' }}>
+              📩 この結果を保存する（任意）
+            </h2>
+            <p className="text-sm mb-4" style={{ color: '#4A6550' }}>
+              メールアドレスを入れておくと、「{lowestLabel}」を伸ばすトレーニングの
+              詳しい解説と、新しいレッスンのお知らせが届きます。入力しなくても結果はこのまま見られます。
+            </p>
+            <form onSubmit={handleLeadSubmit} className="flex flex-col sm:flex-row gap-3">
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="example@email.com"
+                autoComplete="email"
+                className="flex-1 px-4 py-3 rounded-xl border text-sm outline-none transition-colors"
+                style={{ borderColor: '#E2E8E4', color: '#1C2A1E', minHeight: '48px' }}
+                onFocus={e => (e.currentTarget.style.borderColor = '#2D8F4E')}
+                onBlur={e => (e.currentTarget.style.borderColor = '#E2E8E4')}
+              />
+              <button
+                type="submit"
+                disabled={leadState === 'saving'}
+                className="px-6 py-3 rounded-xl font-bold text-sm text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                style={{ backgroundColor: '#2D8F4E', minHeight: '48px' }}
+              >
+                {leadState === 'saving' ? '送信中…' : '受け取る'}
+              </button>
+            </form>
+            {leadError && (
+              <p className="text-sm mt-2" style={{ color: '#EF4444' }}>{leadError}</p>
+            )}
+            {leadState === 'error' && (
+              <p className="text-sm mt-2" style={{ color: '#EF4444' }}>
+                送信に失敗しました。時間をおいて試すか{' '}
+                <a href={`mailto:${SITE_CONFIG.contactEmail}`} className="underline font-bold">
+                  {SITE_CONFIG.contactEmail}
+                </a>{' '}
+                までご連絡ください。
+              </p>
+            )}
+            <p className="text-xs mt-3" style={{ color: '#A8D5A2' }}>
+              入力いただいた情報は解説とお知らせの送付にのみ使用します。
+            </p>
+          </>
+        )}
+      </div>
+
       {/* 詳細診断CTA */}
       <div
         className="p-6 rounded-2xl border text-center mb-6"
@@ -162,6 +273,12 @@ export function QuickQuizResult() {
           📊 60問で詳しく診断する →
         </a>
       </div>
+
+      {/* kawabadoへの送客（文脈のある本文リンク） */}
+      <KawabadoInvite
+        placement="quick_quiz_result"
+        lead="wildflowのレッスンは不定期開催です。「今週どこかで動きたい」なら、"
+      />
 
       {/* シェアボタン */}
       <div

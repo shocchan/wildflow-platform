@@ -3,6 +3,7 @@ import { track } from '../services/analytics';
 import { supabase } from '../services/supabaseClient';
 import { questions } from '../data/quizQuestions';
 import { calcAbilityScores, determineWildType } from '../utils/calcWildType';
+import { SITE_CONFIG } from '../config/site';
 
 const LABELS = ['まったく違う', '少し違う', 'どちらでもない', '少しそう', 'とてもそう'];
 
@@ -14,7 +15,10 @@ const ABILITY_LABELS: Record<string, string> = {
   coordination: '協調性',
 };
 
-const SITE_URL = 'https://wildflow-platform.shodorannga.workers.dev';
+// ⚠️ ここは以前 staging（workers.dev / noindex）のURLが入っており、
+//    診断完了画面のシェアで noindex ドメインを配ってしまっていた。
+//    正準は src/config/site.ts の siteUrl。直書きしないこと。
+const SITE_URL = SITE_CONFIG.siteUrl;
 
 type Step = 'gate' | 'quiz' | 'done';
 

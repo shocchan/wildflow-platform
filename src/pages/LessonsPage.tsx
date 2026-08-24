@@ -5,6 +5,7 @@ import { LESSON_TYPE_MAP } from '../types/lesson';
 import type { Lesson, LessonType } from '../types/lesson';
 import { supabase } from '../services/supabaseClient';
 import { track } from '../services/analytics';
+import { KawabadoInvite } from '../components/KawabadoInvite';
 
 interface Testimonial {
   name: string;
@@ -157,15 +158,22 @@ export function LessonsPage() {
             ))}
           </div>
         ) : filteredLessons.length === 0 ? (
-          <div className="text-center py-20 rounded-2xl border" style={{ borderColor: '#E2E8E4', color: '#5a7a62' }}>
-            <p className="text-4xl mb-3">🌿</p>
-            <p className="font-bold">
-              {activeFilter
-                ? `${LESSON_TYPE_MAP[activeFilter].ability}のレッスンは現在開催予定がありません`
-                : '現在開催予定のレッスンはありません'}
-            </p>
-            <p className="text-sm mt-1">SNSをフォローして最新情報をチェックしてください</p>
-          </div>
+          <>
+            <div className="text-center py-16 rounded-2xl border mb-6" style={{ borderColor: '#E2E8E4', color: '#5a7a62' }}>
+              <p className="text-4xl mb-3">🌿</p>
+              <p className="font-bold">
+                {activeFilter
+                  ? `${LESSON_TYPE_MAP[activeFilter].ability}のレッスンは現在開催予定がありません`
+                  : '現在開催予定のレッスンはありません'}
+              </p>
+              <p className="text-sm mt-1">SNSをフォローして最新情報をチェックしてください</p>
+            </div>
+            {/* 在庫0のときに手ぶらで帰さない。同じ地域の実開催の活動に案内する */}
+            <KawabadoInvite
+              placement="lessons_empty"
+              lead="次の開催が決まるまでのあいだ、"
+            />
+          </>
         ) : (
           <div className="space-y-4">
             {filteredLessons.map(lesson => {
