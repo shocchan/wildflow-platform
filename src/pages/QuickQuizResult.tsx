@@ -6,6 +6,7 @@ import { track } from '../services/analytics';
 import { supabase } from '../services/supabaseClient';
 import { SITE_CONFIG } from '../config/site';
 import { KawabadoInvite } from '../components/KawabadoInvite';
+import { fetchProductHealth, type ProductHealth } from '../services/productHealth';
 
 const ABILITY_ORDER = ['strength', 'endurance', 'speed', 'flexibility', 'coordination'] as const;
 
@@ -71,6 +72,14 @@ export function QuickQuizResult() {
   const [email, setEmail] = useState('');
   const [leadState, setLeadState] = useState<LeadState>('idle');
   const [leadError, setLeadError] = useState('');
+  /* いま実際に買えるものがあるか（G-3）。読めないうちは何も出さない＝嘘のCTAを出さない */
+  const [health, setHealth] = useState<ProductHealth | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    void fetchProductHealth().then((h) => { if (alive) setHealth(h); });
+    return () => { alive = false; };
+  }, []);
 
   useEffect(() => { if (fromNav) rememberResult(fromNav); }, [fromNav]);
   useEffect(() => { if (!result) navigate('/quiz/quick', { replace: true }); }, [result, navigate]);
@@ -192,20 +201,54 @@ export function QuickQuizResult() {
         </p>
       </div>
 
-      {/* おすすめレッスン */}
+      {/*
+        おすすめレッスン（2026-09-09 G-3 で作り直し）。
+
+        以前はここが弱い文字リンクで、しかも行き先の /lessons は
+        「現在開催予定のレッスンはありません」しか出ない状態が続いていた。
+        いまは**実際に買えるものだけを案内する**:
+          ・開催予定がある → その日程へ（第一CTA）
+          ・無いがフルパックはある → 日程相談つきのフルパックへ
+          ・どちらも無い → 申し込みを促さない（連絡先だけ出す。嘘のCTAを出さない）
+      */}
       <div
         className="p-5 rounded-2xl mb-6"
         style={{ backgroundColor: '#EDF7EE', borderLeft: '4px solid #2D8F4E' }}
       >
-        <h2 className="text-base font-bold mb-1" style={{ color: '#1A6B38' }}>🎯 おすすめレッスン</h2>
-        <p className="text-sm font-bold" style={{ color: '#1C2A1E' }}>{lesson}</p>
-        <a
-          href="/lessons"
-          className="inline-flex items-center gap-1 mt-3 text-sm font-bold transition-opacity hover:opacity-70"
-          style={{ color: '#2D8F4E', minHeight: '44px' }}
-        >
-          レッスン詳細を見る →
-        </a>
+        <h2 className="text-base font-bold mb-1" style={{ color: '#1A6B38' }}>🎯 あなたに効くレッスン</h2>
+        <p className="text-sm font-bold mb-3" style={{ color: '#1C2A1E' }}>{lesson}</p>
+
+        {health === null ? null : health.singleLessonBuyable ? (
+          <a
+            href="/lessons"
+            onClick={() => track('click_primary_cta', { cta: 'quick_result_lessons' })}
+            className="inline-flex items-center justify-center gap-1.5 px-6 rounded-xl font-bold text-white transition-opacity hover:opacity-90"
+            style={{ backgroundColor: '#2D8F4E', minHeight: '48px' }}
+          >
+            開催予定のレッスンを見る（次回 {health.nextLessonDate}）→
+          </a>
+        ) : health.publishedPackages > 0 ? (
+          <>
+            <a
+              href="/lessons/package"
+              onClick={() => track('click_primary_cta', { cta: 'quick_result_package' })}
+              className="inline-flex items-center justify-center gap-1.5 px-6 rounded-xl font-bold text-white transition-opacity hover:opacity-90"
+              style={{ backgroundColor: '#D97706', minHeight: '48px' }}
+            >
+              日程の相談つきでフルパックに申し込む →
+            </a>
+            <p className="mt-2 text-sm" style={{ color: '#5a7a62' }}>
+              いまは単発レッスンの開催予定がありません。フルパックは日程を相談しながら進められます。
+            </p>
+          </>
+        ) : (
+          <p className="text-sm" style={{ color: '#5a7a62' }}>
+            いまは開催予定のレッスンがありません。次の開催が決まりしだいレッスンページに掲載します。
+            先に相談したい場合は{' '}
+            <a href="/contact" className="font-bold underline" style={{ color: '#2D8F4E' }}>お問い合わせ</a>
+            {' '}からどうぞ。
+          </p>
+        )}
         {lowestAbility === 'flexibility' && (
           <p className="mt-3 text-sm" style={{ color: '#4A6550' }}>
             🌿{' '}

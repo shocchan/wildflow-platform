@@ -12,6 +12,7 @@ import { fetchAllRecoveryPartnersAdmin, createRecoveryPartner, updateRecoveryPar
 import { LESSON_TYPE_MAP } from '../types/lesson';
 import type { Lesson, LessonEntry, LessonType, LessonStatus } from '../types/lesson';
 import { supabase } from '../services/supabaseClient';
+import { ProductHealthBanner } from '../components/ProductHealthBanner';
 import { useAuth } from '../hooks/useAuth';
 import { getCroppedImg, type CropArea } from '../utils/cropImage';
 import type { Post, RecoveryPartner } from '../types';
@@ -1103,6 +1104,9 @@ export function AdminPage() {
   return (
     <main className="max-w-5xl mx-auto px-4 py-10">
       {toast && <Toast msg={toast} />}
+      {/* 「いま買えるものが無い」を、いちばん上で知らせる（2026-09-09 G-1）。
+          0件はエラーを出さないので、これが無いと誰も気づけない */}
+      <ProductHealthBanner />
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-black text-white">🛠 管理画面</h1>
         <button onClick={logout} className="px-4 py-2.5 rounded-xl text-sm border transition-colors hover:border-red-500 hover:text-red-400" style={{ borderColor: '#1e3a5f', color: '#64748b' }}>ログアウト</button>

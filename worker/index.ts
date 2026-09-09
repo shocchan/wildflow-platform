@@ -359,6 +359,47 @@ function estimateCost(model: string, usage?: { input_tokens?: number; output_tok
   return Math.round(cost * 10000) / 10000;
 }
 
+/**
+ * いま実際に買えるものがあるか（2026-09-09 G-1 / G-2）。
+ *
+ * 返すのは件数と最も近い開催日だけ。匿名キーで読めるのは lessons と lesson_packages の
+ * 公開行だけなので、ここで見えるものは公開サイトで見えるものと同じ。
+ *
+ * ok=false は「診断からレッスンへ送っているのに、着いた先に何も無い」状態。
+ * 監視から叩けるように、状態は HTTP 200 で返して body の ok で表す
+ * （5xx にすると Cloudflare の障害と区別できなくなる）。
+ */
+async function handleProductHealth(env: Env): Promise<Response> {
+  const today = new Date().toISOString().slice(0, 10);
+  const head = { apikey: env.SUPABASE_ANON_KEY, authorization: `Bearer ${env.SUPABASE_ANON_KEY}` };
+
+  const lessonsRes = await fetch(
+    `${env.SUPABASE_URL}/rest/v1/lessons?select=date&status=eq.published&date=gte.${today}&order=date.asc`,
+    { headers: head },
+  );
+  const packagesRes = await fetch(
+    `${env.SUPABASE_URL}/rest/v1/lesson_packages?select=id&status=eq.published`,
+    { headers: head },
+  );
+  if (!lessonsRes.ok || !packagesRes.ok) {
+    return json({ ok: false, reason: 'unavailable' }, 200);
+  }
+  const lessons = (await lessonsRes.json()) as { date?: string }[];
+  const packages = (await packagesRes.json()) as unknown[];
+  const upcomingLessons = lessons.length;
+  const publishedPackages = packages.length;
+
+  return json({
+    ok: upcomingLessons > 0 || publishedPackages > 0,
+    upcomingLessons,
+    publishedPackages,
+    nextLessonDate: lessons[0]?.date ?? null,
+    // 「単発レッスンで体験してください」と書いているのに1件も無い状態を、はっきり名前で出す
+    singleLessonBuyable: upcomingLessons > 0,
+    checkedAt: new Date().toISOString(),
+  });
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -368,6 +409,22 @@ export default {
         return await handleGenerate(request, env);
       } catch (e) {
         return json({ error: `内部エラー: ${e instanceof Error ? e.message : String(e)}` }, 500);
+      }
+    }
+    /*
+      在庫の健康診断（2026-09-09 G-2）。
+      2026-09-09 の監査で、公開中のレッスンが全期間で1件・日付は2026-07-20（終了済み）＝
+      **診断からレッスンへ来た人は必ず「開催予定がありません」に着く**状態が続いていた。
+      サイトのどこにも警告が出ず、誰も気づけなかった。
+      ここは認証不要の読み取り専用で、公開ポリシー（lessons は誰でもSELECT可）だけを使う。
+      個人情報は返さない（件数と最も近い開催日だけ）。
+    */
+    if (url.pathname === '/api/health/products') {
+      if (request.method !== 'GET') return json({ error: 'GET only' }, 405);
+      try {
+        return await handleProductHealth(env);
+      } catch (e) {
+        return json({ ok: false, error: e instanceof Error ? e.message : 'unknown' }, 503);
       }
     }
     if (url.pathname.startsWith('/api/')) return json({ error: 'not found' }, 404);
