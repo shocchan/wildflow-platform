@@ -374,9 +374,14 @@ export function HomePage() {
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
             あなたの野生、まだ眠っていませんか？
           </h2>
+          {/*
+            文とボタンの行き先を合わせる（2026-09-09 UX監査 §16）。
+            もとは「60問の本格診断で…」と書きながらボタンは10問診断へ飛んでいた。
+            60問は名前とメールの入力が先に要るので、同じ扱いにはできない。
+          */}
           <p className="mb-8" style={{ color: '#C8E6CA', fontSize: '18px', lineHeight: '1.8' }}>
-            60問の本格診断で、あなたの身体の強みと弱みを動物タイプで可視化。<br />
-            診断後にあなた専用の処方レッスンも提示されます。
+            10問・約1分で、5軸のうち<strong className="text-white">いま一番伸ばせるところ</strong>が分かります。<br />
+            結果の画面で、そこに効くレッスンまで提示します。
           </p>
           <Link
             to="/quiz/quick"
@@ -395,6 +400,16 @@ export function HomePage() {
             🐾 10問で簡単診断（無料）
           </Link>
           <p className="mt-3 text-sm" style={{ color: '#A8D5A2' }}>10問 / 約1分 / 会員登録不要</p>
+          <p className="mt-4">
+            <Link
+              to="/quiz"
+              onClick={() => track('click_primary_cta', { cta: 'bottom_full_quiz' })}
+              className="text-sm underline"
+              style={{ color: '#C8E6CA' }}
+            >
+              22タイプまで判定する60問の詳細診断（お名前・メールが必要）→
+            </Link>
+          </p>
         </div>
       </section>
     </main>

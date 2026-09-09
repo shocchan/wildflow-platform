@@ -64,9 +64,10 @@ export function LessonPackagePage() {
 
       setPageState('done');
     } catch (err) {
+      // 技術的な原因は開発者コンソールへ。画面には**次に何をすればいいか**だけを出す
+      // （2026-09-09 UX監査 §13。もとは err.message をそのまま画面に出していた）
       console.error('[package-entry] submit failed:', err);
-      const detail = err instanceof Error ? err.message : String(err);
-      setErrorMsg(`申し込みに失敗しました。時間をおいて再度お試しください。（詳細: ${detail}）`);
+      setErrorMsg('申し込みを送信できませんでした。通信環境を確認して、もう一度お試しください。何度も失敗する場合は info@kawabado.com までご連絡ください（お名前とご希望を書いていただければ、こちらで承ります）。');
       setPageState('error');
     }
   };

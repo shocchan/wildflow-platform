@@ -34,20 +34,48 @@ function AbilityBar({ label, score, isLow }: { label: string; score: number; isL
 
 type LeadState = 'idle' | 'saving' | 'done' | 'error';
 
+/**
+ * 結果の控え（2026-09-09 UX監査）。
+ *
+ * 結果は router の location.state だけに載せていたので、
+ * この画面から X・LINE でシェアして戻る／再読み込みする／ブラウザを復帰させると
+ * 結果が消えて 10問の最初へ飛ばされていた。**シェアを勧めている画面**でこれが起きる。
+ * 同じタブのあいだだけ控えを残す（個人情報は含まない。5軸のスコアだけ）。
+ */
+const RESULT_KEY = 'wildflow.quickQuiz.result.v1';
+
+const rememberResult = (r: QuickResult): void => {
+  try { sessionStorage.setItem(RESULT_KEY, JSON.stringify(r)); } catch { /* private mode 等 */ }
+};
+
+const recallResult = (): QuickResult | undefined => {
+  try {
+    const raw = sessionStorage.getItem(RESULT_KEY);
+    if (!raw) return undefined;
+    const v = JSON.parse(raw) as QuickResult;
+    // 形が違うものは使わない（古い版の控えで画面を壊さない）
+    return v && v.lowestAbility && v.scores ? v : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 export function QuickQuizResult() {
   useEffect(() => { track('complete_wild_type_diagnosis', { quiz_type: 'quick' }); }, []);
   const location = useLocation();
   const navigate = useNavigate();
-  const result = location.state?.result as QuickResult | undefined;
+  const fromNav = location.state?.result as QuickResult | undefined;
+  // 初回描画で決める（effect の中で setState して1フレーム空にしない）
+  const [result] = useState<QuickResult | undefined>(() => fromNav ?? recallResult());
   const [copied, setCopied] = useState(false);
   const [email, setEmail] = useState('');
   const [leadState, setLeadState] = useState<LeadState>('idle');
   const [leadError, setLeadError] = useState('');
 
-  if (!result) {
-    navigate('/quiz/quick');
-    return null;
-  }
+  useEffect(() => { if (fromNav) rememberResult(fromNav); }, [fromNav]);
+  useEffect(() => { if (!result) navigate('/quiz/quick', { replace: true }); }, [result, navigate]);
+
+  if (!result) return null;
 
   const { lowestAbility, secondLowest, scores } = result;
   const lowestLabel = ABILITY_LABELS[lowestAbility];
