@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "defaultMode": "dontAsk",
+    "allow": [
+      "Bash",
+      "Read",
+      "Edit",
+      "Write",
+      "Fetch",
+      "WebFetch",
+      "WebSearch"
+    ],
+    "ask": [
+      "Bash(*api.stripe.com*)",
+      "Bash(*api.paypal.com*)",
+      "Bash(*sk_live*)",
+      "Bash(*sk_test*)",
+      "Bash(*secrets set*)",
+      "Bash(*supabase functions deploy*)",
+      "Bash(*remote-sql*--write*)"
+    ],
+    "deny": [
+      "Bash(*deploy-production.sh*)",
+      "Bash(*wrangler pages deploy*--branch=main*)",
+      "Bash(*wrangler deploy --env production*)",
+      "Bash(*functions/deploy*)",
+      "Write(.env.production)",
+      "Edit(.env.production)",
+      "Write(.env.production.local)",
+      "Edit(.env.production.local)",
+      "Write(.npmrc)",
+      "Edit(.npmrc)",
+      "Write(secret:*)"
+    ]
+  }
+}
