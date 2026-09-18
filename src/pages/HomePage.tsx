@@ -412,16 +412,7 @@ export function HomePage() {
             🐾 10問で簡単診断（無料）
           </Link>
           <p className="mt-3 text-sm" style={{ color: '#A8D5A2' }}>10問 / 約1分 / 会員登録不要</p>
-          <p className="mt-4">
-            <Link
-              to="/quiz"
-              onClick={() => track('click_primary_cta', { cta: 'bottom_full_quiz' })}
-              className="text-sm underline"
-              style={{ color: '#C8E6CA' }}
-            >
-              22タイプまで判定する60問の詳細診断（お名前・メールが必要）→
-            </Link>
-          </p>
+          {/* 2026-09-18 P1-9（A案）: 60問への導線はトップから外した（結果ページには残る） */}
         </div>
       </section>
     </main>

@@ -3,7 +3,8 @@ import { useAuth } from '../hooks/useAuth';
 
 const NAV_LINKS = [
   { to: '/blog', label: 'ブログ' },
-  { to: '/quiz', label: '野生診断' },
+  // 2026-09-18 P1-9（A案）: ナビとトップからは60問（/quiz）を外し、10問だけを出す。60問のルート自体は残す
+  { to: '/quiz/quick', label: '野生診断' },
   { to: '/lessons', label: 'レッスン' },
   { to: '/recovery', label: 'リカバリー' },
   { to: '/profile', label: 'プロフィール' },
