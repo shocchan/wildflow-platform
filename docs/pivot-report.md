@@ -101,3 +101,36 @@
 - GitHub Actions「Staging preview」run 35342831781: **success**（2026-09-18 21:1x JST）。
 - 確認済み: staging のトップが返す JS のハッシュ（`index-C57PBMWW.js`）が手元の `feat/badminton-pivot` のビルドと一致。`/badminton`・`/beginner` が新しい静的HTMLを返す（200）。
 - つまり **https://wildflow-platform-staging.shodorannga.workers.dev/ で今回の変更がそのまま見られる。** 本番 wild-flow.com は変更していない。
+
+
+---
+
+# 追記（2026-09-18 夜）：「ガラッと改善案」の実装
+
+CEO の「全部ガラッと改善案を実行して。staging で」を受けて、同じブランチ `feat/badminton-pivot` に追加した。本番は未変更。
+
+## 実装したもの
+
+| 提案 | 実装 | ファイル |
+|---|---|---|
+| 診断ページの見出し・質問文を入口ごとに | バド入口：「バド体力チェック／コートで先に疲れるのはどこ？」+ 10問すべてコートの言い回しに。はじめて入口：やさしい言い回し。**id・軸・逆転は元のまま**なので配点・判定は不変 | `src/data/entryCopy.ts`（新規）、`src/pages/QuickQuiz.tsx` |
+| 診断の名前を用途別に | バド体力チェック／はじめての身体チェック／簡易診断。結果ページの見出しも連動 | 同上、`src/pages/QuickQuizResult.tsx` |
+| 結果を「今日やる1動作」で始める | 結果の直後に軸ごとの1動作（手順3つ + 30秒動画枠）。動画URLは `entryCopy.ts` の `TODAY_MOVE[軸].video` に入れるだけ | `src/components/TodayMove.tsx`（新規） |
+| メール登録の理由を変える | 「解説を送る」→「その軸の動きを週1本・30秒動画つきで送る」。バド入口は A4 シートもすぐ届く、と明記 | `src/data/entryCopy.ts`、`QuickQuizResult.tsx` |
+| 60問・22タイプはバドで使わない | バド入口では「動物タイプ」ブロックと「60問で詳しく」を出さない。はじめて／その他では残す | `QuickQuizResult.tsx` |
+| 練習前5分を印刷できる1枚に | `/routine`：A4 1枚の印刷CSS付き。写真3枚は空枠。「今日のコートで意識する」チェック欄付き。noindex | `public/routine.html`（新規） |
+| 症状10項目をセルフチェックに | カードにチェックボックス。チェックすると、共通する床の動きを集計して上位3つを表示。保存も送信もしない | `public/badminton.html`（`#symptoms`） |
+
+## やらなかったもの
+- **kawabado 側の逆導線**（活動ページ→/badminton）: 別リポジトリ（P0-5 相当）のため今回も対象外。
+- **Level 1 冊子の販売／特典化**: 冊子は Animal Flow® 公式マニュアル準拠の内容で、配布の可否（著作権）を CEO が判断する必要がある。代わりに A4 ルーティンシート（自作コピー）を特典にした。
+- **週1本の動画メール**: 送る仕組み（配信）はまだ無い。登録は quiz_leads に貯まるだけ。文言で約束しているので、配信手段（Resend で手動でもよい）を決めるまでは、登録者に手動で送る前提。
+
+## 追加の素材（9/22）
+- `/routine` の写真3枚：手首くるくる（手元）／Static Beast（横）／Crab Reach（斜め前）。各 800×600。
+- 「今日やる1動作」の30秒動画×5（Static Beast／Static Crab／Underswitch／Crab Reach／Beast Reach）。縦動画可。
+- `/routine` 右下の QR（wild-flow.com/badminton へ）。
+
+## 確認したこと
+- `npm run build` 通過。375px で /badminton・/routine・診断・結果の横はみ出し無し。
+- バド入口で診断→結果：見出し「コートで先に音を上げるのは」、直後に「今日やる1動作」、動物タイプと60問は非表示、出口3ブロックはバド版。
