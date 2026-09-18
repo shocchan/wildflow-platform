@@ -7,7 +7,7 @@ import tailwindcss from '@tailwindcss/vite'
  * 本番（Cloudflare Workers assets）は /beginner を beginner.html に自動で解決するが、
  * vite dev はしないので、ここで同じ挙動に揃える（/animalflow も同様）。
  */
-const STATIC_HTML_PAGES = ['animalflow', 'beginner', 'badminton']
+const STATIC_HTML_PAGES = ['animalflow', 'beginner', 'badminton', 'routine']
 const cleanStaticUrls = (): Plugin => ({
   name: 'wildflow-clean-static-urls',
   configureServer(server) {
