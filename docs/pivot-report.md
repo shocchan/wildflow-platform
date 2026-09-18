@@ -134,3 +134,48 @@ CEO の「全部ガラッと改善案を実行して。staging で」を受け�
 ## 確認したこと
 - `npm run build` 通過。375px で /badminton・/routine・診断・結果の横はみ出し無し。
 - バド入口で診断→結果：見出し「コートで先に音を上げるのは」、直後に「今日やる1動作」、動物タイプと60問は非表示、出口3ブロックはバド版。
+
+
+---
+
+# 追記（2026-09-18 深夜）：しょっちゃんキャラのイラストを全ページに
+
+CEO の「しょっちゃんキャラを使ってイラストをはめ込んで。生成は ChatGPT で」を受けて実施。同じブランチに2コミット追加、staging 反映。
+
+## 使った素材
+- **既存イラスト8枚**（`~/Downloads/しょっちゃんのイラスト類/`：正面・スマッシュ・逆立ち・喜び・綱渡り・サーブ・フォア・バック。青タオル＋グレーパーカーの統一画風・透過）→ `public/img/shocchan/*.webp`
+- **ChatGPT 生成10枚**（上の4枚を参照画像として添付し、同じ画風で。ブリーフは `docs/wildflow-illustration-brief.md`）
+  - 床の動き: `beast`（膝浮かせ・修正1回）／`crab`／`crab-reach`／`wrist`／`underswitch`／`beast-reach`
+  - バドの症状: `knee-wobble`（着地で膝が笑う）／`high-stance`（構えが高い）／`shoulder-stuck`（ハイバックで肩）
+  - `five-axes`（5つの力を5ポーズで、横長1枚）
+  - すべて透過PNG → 余白トリム → WebP（q82、最大1024px、1枚50〜120KB）。md5 で10枚が別物であることを確認。元PNGはリポジトリに入れていない（Downloads に残っている）
+  - 検品で直したもの: 1枚目のビーストは膝が床についていたので「膝を2〜3cm浮かせて4点支持」で再生成。他は1回目採用。文字・吹き出しの混入なし
+  - ChatGPT の会話が1回固まった（停止ボタンが消えない）ので、新しい会話に生成済み2枚を参照として渡して続行した
+
+## どこに入れたか
+| ページ | 場所 | 画像 |
+|---|---|---|
+| トップ | ヒーローの2ボタン上 | smash（バド）・handstand（はじめて） |
+| トップ | 「身体のMBTI」5軸カードの上 | five-axes |
+| /badminton | ヒーロー | knee-wobble（コピー「膝が笑う」と一致） |
+| /badminton | 「床の上でつくれる」3カード下 | beast |
+| /badminton | 5軸対応表の上 | five-axes |
+| /badminton | 症状10カードの右上 | 01 knee-wobble／02 high-stance／03 shoulder-stuck／04 crab-reach／05 beast／06・07 underswitch／08・10 beast-reach／09 wrist |
+| /badminton | 練習前5分の手順上 | wrist・beast・crab-reach の3枚並び |
+| /badminton | 出口 01・03、上部バーのロゴ | serve・joy・face |
+| /beginner | ヒーロー／こんな方へ／まず1分／出口02／ロゴ | handstand／balance／beast／joy／face |
+| /routine（A4） | STEP1〜3 の写真枠 → イラストに差し替え／ロゴ | wrist・beast・crab-reach／face |
+| 診断結果 | 「今日やる1動作」の手順横 | 軸ごとに beast／crab／underswitch／crab-reach／beast-reach |
+| /lessons | 通知フォームの上 | face |
+
+## 写真素材リストの変更
+- `/routine` の写真3枚と `/beginner`「まず1分」の写真は **イラストで埋まったので必須ではなくなった**（撮れれば差し替え可）。
+- `/badminton` ヒーロー下の体育館写真（1600×900）と、動画5本＋6本は引き続き必要。
+
+## 確認したこと
+- `npm run build` 通過。375px で /badminton・/beginner・/routine・診断結果・トップの横はみ出し無し、画像の欠損0。
+- 症状カードは見出しと画像が重ならないよう右側に84pxの領域を確保。
+
+## 保留（CEO 判断）
+- five-axes の5ポーズの「順番」は 筋力→持久力→スピード→柔軟性→調整力 で生成したが、③スピードと④柔軟性がやや似て見える。気になれば個別に再生成する（ブリーフの #10）。
+- ブログ3本の本文画像はまだ写真のコメント枠のまま。イラスト（beast／crab／crab-reach）を仮に入れてもよい。
