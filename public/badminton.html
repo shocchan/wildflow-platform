@@ -210,6 +210,12 @@ window.WF_VIDEOS = {
     #wf-root .hero .wrap{grid-template-columns:1fr;}
     #wf-root .hero .chara{width:150px;justify-self:center;order:-1;margin-bottom:-6px;}
   }
+  #wf-root .five{margin:28px auto 0;max-width:820px;}
+  #wf-root .five img{width:100%;height:auto;display:block;}
+  #wf-root .sym label.s{padding-right:104px;min-height:150px;}
+  #wf-root .sym label.s .sym-img{position:absolute;right:12px;top:42px;width:84px;height:auto;}
+  #wf-root .strip{display:flex;gap:10px;margin-bottom:16px;}
+  #wf-root .strip img{width:calc((100% - 20px)/3);height:auto;background:var(--mint);border-radius:12px;padding:6px;}
   /* ── /badminton 追加分 ── */
   #wf-root .axes{margin-top:36px;overflow-x:auto;-webkit-overflow-scrolling:touch;background:var(--paper);border:1px solid #DDEADE;border-radius:16px;}
   #wf-root .axes table{width:100%;min-width:640px;border-collapse:collapse;font-size:14px;text-align:left;}
@@ -262,7 +268,7 @@ window.WF_VIDEOS = {
   <!-- TOP BAR -->
   <div class="topbar">
     <div class="wrap">
-      <a class="logo" href="/"><img src="/img/shocchan/face.png" alt="" width="32" height="32"><b>wild</b>flow</a>
+      <a class="logo" href="/"><img src="/img/shocchan/face.webp" alt="" width="32" height="32"><b>wild</b>flow</a>
       <nav class="links" aria-label="サイト内リンク">
         <a href="/beginner">🌱 はじめて</a>
         <a href="#symptoms">症状10個</a>
@@ -283,7 +289,7 @@ window.WF_VIDEOS = {
         川口・蕨でバドミントンをしているしょっちゃんが、Animal Flow を「バドの体」のために組み直しました。</p>
       <a class="cta" href="#axes">バドの5つの場面で見る <span class="arw">→</span></a>
     </div>
-    <img class="chara" src="/img/shocchan/smash.png" alt="スマッシュを打つしょっちゃん" width="370" height="320">
+    <img class="chara" src="/img/shocchan/knee-wobble.webp" alt="スマッシュのあとの着地で膝がぐらつくしょっちゃん" width="918" height="1024">
     </div>
     <div class="scrollcue" aria-hidden="true">⌄</div>
   </header>
@@ -313,11 +319,7 @@ window.WF_VIDEOS = {
           <p>痛みの治療は医療の仕事です。ここでやるのは、膝・腰・肩に負担が集まりにくい体の使い方を、動きで覚えること。</p>
         </div>
       </div>
-      <!-- 写真：体育館の床でビースト姿勢をとるしょっちゃん（ラケットを脇に置く）推奨 1600×900 -->
-      <div class="ph-img wide reveal" style="margin-top:40px" role="img" aria-label="体育館の床で四つん這いの基本姿勢をとる様子。脇にラケットとシャトル" data-alt="体育館の床でのビースト姿勢・ラケットを脇に">
-        <div class="cam">📷</div>
-        写真を準備中<br><small>体育館の床でのビースト姿勢（ラケットを脇に）／1600×900</small>
-      </div>
+      <div class="why-chara reveal"><img class="chara" src="/img/shocchan/beast.webp" alt="四つん這いで膝を浮かせたビースト姿勢のしょっちゃん" width="1024" height="954" style="width:260px"></div>
     </div>
   </section>
 
@@ -330,6 +332,7 @@ window.WF_VIDEOS = {
         <p class="lead reveal">wildflow の身体診断は、筋力・持久力・スピード・柔軟性・調整力の5軸で見ます。
           その5軸を、バドミントンのコートで起きる場面に置き換えるとこうなります。</p>
       </div>
+      <div class="five reveal"><img src="/img/shocchan/five-axes.webp" alt="筋力・持久力・スピード・柔軟性・調整力を表す5つのポーズのしょっちゃん" width="1600" height="504"></div>
       <div class="axes reveal">
         <table>
           <thead>
@@ -386,6 +389,7 @@ window.WF_VIDEOS = {
       <div class="sym">
         <label class="s reveal" data-no="01" data-axis="strength">
           <input type="checkbox" class="sc" aria-label="症状01に当てはまる">
+          <img class="sym-img" src="/img/shocchan/knee-wobble.webp" alt="着地で膝が内に入ってぐらつく" loading="lazy">
           <div class="n">01 ／ 膝</div>
           <h3>スマッシュのあと、膝が笑って踏ん張れない</h3>
           <p>着地で膝が内に入り、股関節ではなく膝で衝撃を受けやすい使い方。</p>
@@ -394,6 +398,7 @@ window.WF_VIDEOS = {
         </label>
         <label class="s reveal" data-no="02" data-axis="endurance">
           <input type="checkbox" class="sc" aria-label="症状02に当てはまる">
+          <img class="sym-img" src="/img/shocchan/high-stance.webp" alt="疲れて構えが高くなる" loading="lazy">
           <div class="n">02 ／ 持久力</div>
           <h3>ラリー後半、構えがどんどん高くなる</h3>
           <p>低い姿勢を支える裏もも・お尻・背中が先に疲れ、腰だけで支える形になりやすい。</p>
@@ -402,6 +407,7 @@ window.WF_VIDEOS = {
         </label>
         <label class="s reveal" data-no="03" data-axis="flexibility">
           <input type="checkbox" class="sc" aria-label="症状03に当てはまる">
+          <img class="sym-img" src="/img/shocchan/shoulder-stuck.webp" alt="ハイバックで肩が詰まる" loading="lazy">
           <div class="n">03 ／ 肩</div>
           <h3>ハイバックで肩が詰まる・振り抜けない</h3>
           <p>前傾で固まった胸郭と肩甲骨のまま、腕だけで振り上げようとしやすい。</p>
@@ -410,6 +416,7 @@ window.WF_VIDEOS = {
         </label>
         <label class="s reveal" data-no="04" data-axis="flexibility">
           <input type="checkbox" class="sc" aria-label="症状04に当てはまる">
+          <img class="sym-img" src="/img/shocchan/crab-reach.webp" alt="クラブリーチで胸を開く" loading="lazy">
           <div class="n">04 ／ 胸郭</div>
           <h3>ラウンド・ザ・ヘッドで胸が開かず、打点が低い</h3>
           <p>背中側（広背筋・肩甲骨まわり）が硬いと、上体を反らす代わりに腰を反りやすい。</p>
@@ -418,6 +425,7 @@ window.WF_VIDEOS = {
         </label>
         <label class="s reveal" data-no="05" data-axis="strength">
           <input type="checkbox" class="sc" aria-label="症状05に当てはまる">
+          <img class="sym-img" src="/img/shocchan/beast.webp" alt="ビースト姿勢" loading="lazy">
           <div class="n">05 ／ 腰</div>
           <h3>試合の翌日、腰が重い</h3>
           <p>反り腰のまま打つ・着地することで、負担が腰の一点に集まりやすい。</p>
@@ -426,6 +434,7 @@ window.WF_VIDEOS = {
         </label>
         <label class="s reveal" data-no="06" data-axis="speed">
           <input type="checkbox" class="sc" aria-label="症状06に当てはまる">
+          <img class="sym-img" src="/img/shocchan/underswitch.webp" alt="アンダースウィッチ" loading="lazy">
           <div class="n">06 ／ 切り替え</div>
           <h3>フォア⇄バックの切り替えが一拍遅れる</h3>
           <p>腰のひねり戻しが遅く、上体の向きが変わってから足がついてくる形になりやすい。</p>
@@ -434,6 +443,7 @@ window.WF_VIDEOS = {
         </label>
         <label class="s reveal" data-no="07" data-axis="speed">
           <input type="checkbox" class="sc" aria-label="症状07に当てはまる">
+          <img class="sym-img" src="/img/shocchan/underswitch.webp" alt="アンダースウィッチ" loading="lazy">
           <div class="n">07 ／ 一歩目</div>
           <h3>サイドへの一歩目が出ない・蹴り出しが弱い</h3>
           <p>股関節の内外旋が使えず、膝から下だけで横に動こうとしやすい。</p>
@@ -442,6 +452,7 @@ window.WF_VIDEOS = {
         </label>
         <label class="s reveal" data-no="08" data-axis="coordination">
           <input type="checkbox" class="sc" aria-label="症状08に当てはまる">
+          <img class="sym-img" src="/img/shocchan/beast-reach.webp" alt="ビーストリーチ" loading="lazy">
           <div class="n">08 ／ 前後</div>
           <h3>ヘアピンに飛び込んだあと、戻れない</h3>
           <p>前への重心移動はできても、反対側の伸展でブレーキと戻りをつくれていないことが多い。</p>
@@ -450,6 +461,7 @@ window.WF_VIDEOS = {
         </label>
         <label class="s reveal" data-no="09" data-axis="flexibility">
           <input type="checkbox" class="sc" aria-label="症状09に当てはまる">
+          <img class="sym-img" src="/img/shocchan/wrist.webp" alt="手首のウォームアップ" loading="lazy">
           <div class="n">09 ／ 手首</div>
           <h3>手首・前腕が張る、グリップが硬い</h3>
           <p>握り込んだまま打ち続け、手首を全方向に動かす機会がないと、前腕が固まりやすい。</p>
@@ -458,6 +470,7 @@ window.WF_VIDEOS = {
         </label>
         <label class="s reveal" data-no="10" data-axis="coordination">
           <input type="checkbox" class="sc" aria-label="症状10に当てはまる">
+          <img class="sym-img" src="/img/shocchan/beast-reach.webp" alt="ビーストリーチ" loading="lazy">
           <div class="n">10 ／ 打点</div>
           <h3>打点に入るのが半歩ずれる・片足でぐらつく</h3>
           <p>片足で支える局面で骨盤が傾き、体幹がブレて打点が安定しにくい。</p>
@@ -487,6 +500,7 @@ window.WF_VIDEOS = {
       </div>
       <div class="box">
         <div class="reveal">
+          <div class="strip"><img src="/img/shocchan/wrist.webp" alt="手首のウォームアップ" loading="lazy"><img src="/img/shocchan/beast.webp" alt="スタティック・ビースト" loading="lazy"><img src="/img/shocchan/crab-reach.webp" alt="クラブ・リーチ" loading="lazy"></div>
           <ol>
             <li><b>手首くるくる（30秒）</b>：グリップを握る前に、手首と前腕を全方向に。床に手をつく準備にもなります。</li>
             <li><b>Static Beast（10秒 × 3）</b>：四つん這いで膝を2〜3cm浮かせて止まる。股関節で床を押す感覚が、低い構えの土台です。</li>
@@ -510,7 +524,7 @@ window.WF_VIDEOS = {
       <div class="exits">
         <div class="exit reveal">
           <div class="no">01 ／ 1分で知る</div>
-          <img class="chara" src="/img/shocchan/serve.png" alt="" width="370" height="320">
+          <img class="chara" src="/img/shocchan/serve.webp" alt="" width="370" height="320">
           <h3>🐾 10問の身体診断</h3>
           <p>5軸のうち、いま一番伸ばしやすい軸が分かります。結果の画面から、そのままバド向けの動きに戻ってこられます。登録不要。</p>
           <a class="btn amber" href="/quiz/quick?entry=badminton">10問で診断する →</a>
@@ -523,7 +537,7 @@ window.WF_VIDEOS = {
         </div>
         <div class="exit reveal">
           <div class="no">03 ／ コートで会う</div>
-          <img class="chara" src="/img/shocchan/joy.png" alt="" width="370" height="320">
+          <img class="chara" src="/img/shocchan/joy.webp" alt="" width="370" height="320">
           <h3>🏸 kawabado の通常活動</h3>
           <p>同じしょっちゃんが川口・蕨でやっているバドミントンの集まり。初心者や1人参加が多い、ゆるい活動です。</p>
           <a class="btn ghost" href="https://kawabado.com/ja/activity?utm_source=wildflow&amp;utm_medium=referral&amp;utm_campaign=badminton_page" target="_blank" rel="noopener">kawabado を見る ↗</a>

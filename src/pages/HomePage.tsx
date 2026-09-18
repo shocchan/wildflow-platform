@@ -99,8 +99,8 @@ export function HomePage() {
           </p>
           {/* しょっちゃんキャラ（既存イラスト・青タオル）。ボタンの上に2体並べて、どちらの入口かを絵でも伝える */}
           <div className="flex justify-center items-end gap-2 mb-2" aria-hidden="true">
-            <img src="/img/shocchan/smash.png" alt="" width={370} height={320} style={{ width: '132px', height: 'auto' }} loading="eager" />
-            <img src="/img/shocchan/handstand.png" alt="" width={370} height={320} style={{ width: '132px', height: 'auto' }} loading="eager" />
+            <img src="/img/shocchan/smash.webp" alt="" width={370} height={320} style={{ width: '132px', height: 'auto' }} loading="eager" />
+            <img src="/img/shocchan/handstand.webp" alt="" width={370} height={320} style={{ width: '132px', height: 'auto' }} loading="eager" />
           </div>
           <div className="flex flex-col sm:flex-row items-stretch justify-center gap-3 max-w-xl mx-auto">
             <a
@@ -161,6 +161,16 @@ export function HomePage() {
             それとも器用なのにスピードが出ない「カワウソ型」？
           </p>
 
+          {/* 5つの力をしょっちゃんの5ポーズで（ChatGPT生成） */}
+          <img
+            src="/img/shocchan/five-axes.webp"
+            alt="筋力・持久力・スピード・柔軟性・調整力を表す5つのポーズのしょっちゃん"
+            width={1600}
+            height={504}
+            className="mx-auto mb-4"
+            style={{ width: '100%', maxWidth: '720px', height: 'auto' }}
+            loading="lazy"
+          />
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-10">
             {AXES.map(ax => (
               <div

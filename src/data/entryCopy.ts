@@ -96,6 +96,8 @@ export interface TodayMove {
   how: string[];
   /** YouTube / Vimeo の URL または ID。空文字なら「動画準備中」 */
   video: string;
+  /** public/img/shocchan/<image>.webp（ChatGPT生成のしょっちゃんイラスト） */
+  image: string;
   /** /badminton・/beginner の該当箇所 */
   more: Record<Entry, string>;
 }
@@ -105,30 +107,35 @@ export const TODAY_MOVE: Record<QuickQuestion['ability'], TodayMove> = {
     name: 'Static Beast', jp: 'スタティック・ビースト',
     how: ['四つん這い。手は肩の真下、膝は腰の真下', '膝を床から2〜3cm浮かせ、指先で床を押す', '目線は下、お腹に軽く力。10秒 × 3回'],
     video: '',
+    image: 'beast',
     more: { badminton: '/badminton#symptoms', beginner: '/beginner#t2', general: '/animalflow.html#t2' },
   },
   endurance: {
     name: 'Static Crab', jp: 'スタティック・クラブ',
     how: ['仰向けで手と足をつき、お尻を床から2〜3cm浮かせる', '胸を天井に持ち上げ続ける。腰だけで反らない', '目線は少し上。10秒 × 3回'],
     video: '',
+    image: 'crab',
     more: { badminton: '/badminton#symptoms', beginner: '/beginner#t4', general: '/animalflow.html#t4' },
   },
   speed: {
     name: 'Underswitch', jp: 'アンダースウィッチ',
     how: ['四つん這い（ビースト）から、片足を反対の手の下にくぐらせる', 'そのまま仰向けの四足（クラブ）へ向きを変える', '左右交互に、ゆっくり5回ずつ'],
     video: '',
+    image: 'underswitch',
     more: { badminton: '/badminton#symptoms', beginner: '/beginner#t5', general: '/animalflow.html#t5' },
   },
   flexibility: {
     name: 'Crab Reach', jp: 'クラブ・リーチ',
     how: ['仰向けの四足（クラブ）から、片手を頭上後方へ伸ばす', '腰ではなく胸で開く。お尻は持ち上げたまま', '目線は伸ばした手の先。左右 × 3回'],
     video: '',
+    image: 'crab-reach',
     more: { badminton: '/badminton#symptoms', beginner: '/beginner#t3', general: '/animalflow.html#t3' },
   },
   coordination: {
     name: 'Beast Reach', jp: 'ビースト・リーチ',
     how: ['四つん這い（ビースト）から、対角の手と足を同時に前へ伸ばす', '残る3点で床を押し続け、骨盤を傾けない', '左右 × 5回、ゆっくり'],
     video: '',
+    image: 'beast-reach',
     more: { badminton: '/badminton#symptoms', beginner: '/beginner#t6', general: '/animalflow.html#t6' },
   },
 };

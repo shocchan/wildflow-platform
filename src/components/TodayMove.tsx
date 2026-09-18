@@ -27,15 +27,7 @@ export function TodayMove({ ability, abilityLabel, entry }: { ability: Ability; 
   const url = embedUrl(m.video);
   return (
     <div className="rounded-2xl mb-6 overflow-hidden" style={{ backgroundColor: '#1a3a2a' }}>
-      <div className="p-5 md:p-6 relative">
-        <img
-          src="/img/shocchan/joy.png"
-          alt=""
-          width={370}
-          height={320}
-          className="absolute right-3 top-2 hidden sm:block"
-          style={{ width: '92px', height: 'auto', filter: 'drop-shadow(0 4px 10px rgba(0,0,0,.25))' }}
-        />
+      <div className="p-5 md:p-6">
         <p className="text-xs font-bold mb-1" style={{ color: '#6fcf97', letterSpacing: '0.14em' }}>TODAY ／ 今日やる1動作（30秒）</p>
         <h2 className="text-xl font-black mb-1 text-white">
           {m.name} <span className="text-sm font-medium" style={{ color: '#C8E6CA' }}>{m.jp}</span>
@@ -44,6 +36,15 @@ export function TodayMove({ ability, abilityLabel, entry }: { ability: Ability; 
           「{abilityLabel}」が伸びしろなら、まずこれ1つ。レッスンに来なくても、今日の床でできます。
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+          {/* しょっちゃんの動作イラスト（ChatGPT生成・青タオル）。動画が入るまでの「見て分かる」担当 */}
+          <img
+            src={`/img/shocchan/${m.image}.webp`}
+            alt={`${m.jp}をするしょっちゃん`}
+            width={1024}
+            height={1024}
+            className="mx-auto rounded-xl"
+            style={{ width: '200px', height: 'auto', backgroundColor: '#EDF7EE', padding: '8px' }}
+          />
           <ol className="space-y-2 text-sm" style={{ color: '#FFFFFF' }}>
             {m.how.map((h, i) => (
               <li key={i} className="flex gap-2">
