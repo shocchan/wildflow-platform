@@ -5,6 +5,8 @@ import { fetchLatestPosts } from '../services/posts';
 import { fetchProfileSettings } from '../services/settings';
 import { track } from '../services/analytics';
 import type { Post } from '../types';
+import { useLang, langPath } from '../i18n/lang';
+import { MESSAGES } from '../i18n/messages';
 
 function InstructorAvatar() {
   const [photoUrl, setPhotoUrl] = useState('');
@@ -47,18 +49,13 @@ const TYPE_GRID_SPECIAL = [
   { emoji: '🥚', name: 'ドラゴンエッグ', rare: 'egg' },
 ];
 
-const AXES = [
-  { icon: '💪', label: '筋力', desc: '押す・踏ん張る・支える力' },
-  { icon: '🔥', label: '持久力', desc: '動き続けるスタミナ' },
-  { icon: '⚡', label: 'スピード', desc: '瞬発力・反応速度' },
-  { icon: '🌊', label: '柔軟性', desc: '関節の可動域・しなやかさ' },
-  { icon: '🎯', label: '調整力', desc: '連動性・リズム・バランス' },
-];
-
 export function HomePage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const quizSectionRef = useRef<HTMLElement>(null);
+  const lang = useLang();
+  const t = MESSAGES[lang].home;
+  const AXES = t.axes;
 
   useEffect(() => {
     fetchLatestPosts(3).then(setPosts).finally(() => setLoading(false));
@@ -82,20 +79,20 @@ export function HomePage() {
             className="text-xs font-bold uppercase mb-4"
             style={{ color: '#2D8F4E', letterSpacing: '0.2em', fontFamily: 'Sora, sans-serif' }}
           >
-            ANIMAL FLOW × KAWAGUCHI / WARABI
+            {t.kicker}
           </p>
           <h1
             className="font-black leading-tight mb-6"
             style={{ fontSize: 'clamp(32px, 6vw, 52px)', color: '#1C2A1E' }}
           >
-            床の上で、<br />コートで動ける体をつくる。
+            {t.title1}<br />{t.title2}
           </h1>
           <p className="mb-3" style={{ color: '#4A6550', lineHeight: 1.8, fontSize: '18px' }}>
-            道具いらず、床さえあればできる全身運動 Animal Flow。<br className="hidden md:block" />
-            川口・蕨で、バドミントンをする人にも、運動がはじめての人にも。
+            {t.lead1}<br className="hidden md:block" />
+            {t.lead2}
           </p>
           <p className="mb-6 font-bold" style={{ color: '#1C2A1E', fontSize: '16px' }}>
-            あなたはどちらですか？
+            {t.which}
           </p>
           {/* しょっちゃんキャラ（既存イラスト・青タオル）。ボタンの上に2体並べて、どちらの入口かを絵でも伝える */}
           <div className="flex justify-center items-end gap-2 mb-2" aria-hidden="true">
@@ -104,8 +101,8 @@ export function HomePage() {
           </div>
           <div className="flex flex-col sm:flex-row items-stretch justify-center gap-3 max-w-xl mx-auto">
             <a
-              href="/badminton"
-              onClick={() => track('click_primary_cta', { cta: 'hero_badminton' })}
+              href={langPath('/badminton', lang)}
+              onClick={() => track('click_primary_cta', { cta: 'hero_badminton', lang })}
               className="flex-1 inline-flex flex-col items-center justify-center gap-1 font-bold transition-all hover:-translate-y-0.5 px-6 py-4"
               style={{
                 backgroundColor: '#f5a623',
@@ -115,12 +112,12 @@ export function HomePage() {
                 minHeight: '72px',
               }}
             >
-              <span style={{ fontSize: '18px' }}>🏸 バドミントンをしている</span>
-              <span className="text-xs font-medium" style={{ color: '#5a4a1e' }}>膝・腰・肩の不安を、動きから見直す</span>
+              <span style={{ fontSize: '18px' }}>{t.badBtn}</span>
+              <span className="text-xs font-medium" style={{ color: '#5a4a1e' }}>{t.badSub}</span>
             </a>
             <a
-              href="/beginner"
-              onClick={() => track('click_primary_cta', { cta: 'hero_beginner' })}
+              href={langPath('/beginner', lang)}
+              onClick={() => track('click_primary_cta', { cta: 'hero_beginner', lang })}
               className="flex-1 inline-flex flex-col items-center justify-center gap-1 font-bold transition-all hover:-translate-y-0.5 px-6 py-4"
               style={{
                 backgroundColor: '#FFFFFF',
@@ -130,11 +127,11 @@ export function HomePage() {
                 minHeight: '72px',
               }}
             >
-              <span style={{ fontSize: '18px' }}>🌱 運動は苦手・はじめて</span>
-              <span className="text-xs font-medium" style={{ color: '#4A6550' }}>床でちょっと、動物みたいに動いてみる</span>
+              <span style={{ fontSize: '18px' }}>{t.begBtn}</span>
+              <span className="text-xs font-medium" style={{ color: '#4A6550' }}>{t.begSub}</span>
             </a>
           </div>
-          <p className="mt-4 text-sm" style={{ color: '#4A6550' }}>どちらでもない方は、下の「身体のMBTI」から</p>
+          <p className="mt-4 text-sm" style={{ color: '#4A6550' }}>{t.neither}</p>
           <div
             className="mt-12 flex justify-center cursor-pointer animate-bounce"
             style={{ color: '#4A6550' }}
@@ -152,19 +149,19 @@ export function HomePage() {
         <div className="max-w-3xl md:max-w-4xl mx-auto text-center">
           <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: '#2D8F4E' }}>WHAT IS WILDFLOW?</p>
           <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: '#1C2A1E' }}>
-            身体のMBTI、はじめました。
+            {t.whatTitle}
           </h2>
           <p className="leading-relaxed mb-10" style={{ color: '#4A6550', fontSize: '18px', lineHeight: '1.8' }}>
-            MBTIが「性格」を16タイプで分類するように、<br className="hidden md:block" />
-            wildflow は「身体の特性」を22タイプの動物で分類します。<br className="hidden md:block" />
-            あなたは力があるのに持久力がない「サイ型」？<br className="hidden md:block" />
-            それとも器用なのにスピードが出ない「カワウソ型」？
+            {t.whatBody[0]}<br className="hidden md:block" />
+            {t.whatBody[1]}<br className="hidden md:block" />
+            {t.whatBody[2]}<br className="hidden md:block" />
+            {t.whatBody[3]}
           </p>
 
           {/* 5つの力をしょっちゃんの5ポーズで（ChatGPT生成） */}
           <img
             src="/img/shocchan/five-axes.webp"
-            alt="筋力・持久力・スピード・柔軟性・調整力を表す5つのポーズのしょっちゃん"
+            alt={t.fiveAlt}
             width={1600}
             height={504}
             className="mx-auto mb-4"
@@ -199,7 +196,7 @@ export function HomePage() {
               minHeight: '56px',
             }}
           >
-            🐾 10問で簡単診断 →
+            {t.quickCta}
           </Link>
         </div>
       </section>
@@ -211,9 +208,9 @@ export function HomePage() {
             <InstructorAvatar />
           </div>
           <div>
-            <p className="text-xs font-bold uppercase mb-0.5" style={{ color: '#2D8F4E', letterSpacing: '0.1em' }}>インストラクター</p>
-            <p className="font-black text-lg leading-tight mb-1" style={{ color: '#1C2A1E' }}>しょっちゃん</p>
-            <p className="text-sm leading-relaxed" style={{ color: '#4A6550' }}>上海で出会ったAnimal Flowに24万円を即決。日本語教師×野生身体研究家</p>
+            <p className="text-xs font-bold uppercase mb-0.5" style={{ color: '#2D8F4E', letterSpacing: '0.1em' }}>{t.instructor}</p>
+            <p className="font-black text-lg leading-tight mb-1" style={{ color: '#1C2A1E' }}>{t.instructorName}</p>
+            <p className="text-sm leading-relaxed" style={{ color: '#4A6550' }}>{t.instructorBio}</p>
           </div>
         </div>
       </section>
@@ -222,31 +219,25 @@ export function HomePage() {
       <section className="py-16 px-4 md:px-8 lg:px-12" style={{ backgroundColor: '#EDF7EE' }}>
         <div className="max-w-4xl md:max-w-6xl mx-auto">
           <p className="text-sm font-bold tracking-widest uppercase mb-3 text-center" style={{ color: '#1A6B38' }}>HOW IT WORKS</p>
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-12" style={{ color: '#1C2A1E' }}>野生を解放する3ステップ</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-12" style={{ color: '#1C2A1E' }}>{t.howTitle}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="text-6xl font-black opacity-20 mb-2" style={{ color: '#F59E0B' }}>01</div>
-              <div className="text-3xl mb-3">🐾</div>
-              <h3 className="font-bold text-lg mb-2" style={{ color: '#1C2A1E' }}>診断する</h3>
-              <p className="text-sm md:text-base leading-relaxed" style={{ color: '#4A6550' }}>
-                10問の簡単診断で、あなたの身体の伸びしろアビリティを発見
-              </p>
+              <div className="text-3xl mb-3">{t.how[0].emoji}</div>
+              <h3 className="font-bold text-lg mb-2" style={{ color: '#1C2A1E' }}>{t.how[0].title}</h3>
+              <p className="text-sm md:text-base leading-relaxed" style={{ color: '#4A6550' }}>{t.how[0].body}</p>
             </div>
             <div className="text-center">
               <div className="text-6xl font-black opacity-20 mb-2" style={{ color: '#F59E0B' }}>02</div>
-              <div className="text-3xl mb-3">📊</div>
-              <h3 className="font-bold text-lg mb-2" style={{ color: '#1C2A1E' }}>自分を知る</h3>
-              <p className="text-sm md:text-base leading-relaxed" style={{ color: '#4A6550' }}>
-                5軸のバランスを知り、22タイプの野生動物の中から自分を発見
-              </p>
+              <div className="text-3xl mb-3">{t.how[1].emoji}</div>
+              <h3 className="font-bold text-lg mb-2" style={{ color: '#1C2A1E' }}>{t.how[1].title}</h3>
+              <p className="text-sm md:text-base leading-relaxed" style={{ color: '#4A6550' }}>{t.how[1].body}</p>
             </div>
             <div className="text-center">
               <div className="text-6xl font-black opacity-20 mb-2" style={{ color: '#F59E0B' }}>03</div>
-              <div className="text-3xl mb-3">🏃</div>
-              <h3 className="font-bold text-lg mb-2" style={{ color: '#1C2A1E' }}>野生を解放する</h3>
-              <p className="text-sm md:text-base leading-relaxed" style={{ color: '#4A6550' }}>
-                伸びしろに特化した1時間のAnimal Flowレッスンで身体を変える
-              </p>
+              <div className="text-3xl mb-3">{t.how[2].emoji}</div>
+              <h3 className="font-bold text-lg mb-2" style={{ color: '#1C2A1E' }}>{t.how[2].title}</h3>
+              <p className="text-sm md:text-base leading-relaxed" style={{ color: '#4A6550' }}>{t.how[2].body}</p>
             </div>
           </div>
         </div>
@@ -257,11 +248,11 @@ export function HomePage() {
         <div className="max-w-3xl md:max-w-4xl mx-auto text-center">
           <p className="text-sm font-bold uppercase tracking-widest mb-4" style={{ color: '#6fcf97', letterSpacing: '0.15em' }}>WHY WILDFLOW</p>
           <h2 className="text-xl md:text-2xl font-black mb-5 leading-tight" style={{ color: '#FFFFFF' }}>
-            上海で出会った「動物の動き」が、<br className="hidden md:block" />24万円を即決させた。
+            {t.whyTitle1}<br className="hidden md:block" />{t.whyTitle2}
           </h2>
           <p className="mb-8 leading-relaxed" style={{ color: '#C8E6CA', fontSize: '16px', lineHeight: '1.9' }}>
-            妻に連れられて行った謎の運動教室。インストラクターの一言が頭の中で何かをつないだ。<br className="hidden md:block" />
-            「これを日本に持ち帰らなければ」と、理屈なく感じた瞬間があった。
+            {t.whyBody1}<br className="hidden md:block" />
+            {t.whyBody2}
           </p>
           <Link
             to="/blog"
@@ -275,8 +266,13 @@ export function HomePage() {
               minHeight: '50px',
             }}
           >
-            しょっちゃんのストーリーを読む →
+            {t.whyCta}
           </Link>
+          <p className="mt-4">
+            <a href={langPath('/about-animalflow', lang)} className="text-sm underline" style={{ color: '#C8E6CA', minHeight: '44px', display: 'inline-block', padding: '10px 0' }}>
+              {t.aboutCta}
+            </a>
+          </p>
         </div>
       </section>
 
@@ -284,8 +280,8 @@ export function HomePage() {
       <section className="py-16 px-4 md:px-8 lg:px-12" style={{ backgroundColor: '#EDF7EE' }}>
         <div className="max-w-3xl md:max-w-5xl mx-auto text-center">
           <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: '#2D8F4E' }}>22 TYPES</p>
-          <h2 className="text-2xl md:text-3xl font-bold mb-2" style={{ color: '#1C2A1E' }}>あなたはどの動物？</h2>
-          <p className="text-sm md:text-base mb-10" style={{ color: '#4A6550' }}>22種類の動物タイプの中から、あなたの身体特性が判定されます。</p>
+          <h2 className="text-2xl md:text-3xl font-bold mb-2" style={{ color: '#1C2A1E' }}>{t.typesTitle}</h2>
+          <p className="text-sm md:text-base mb-10" style={{ color: '#4A6550' }}>{t.typesLead}</p>
 
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-3">
             {TYPE_GRID_MAIN.map((t, i) => (
@@ -332,7 +328,7 @@ export function HomePage() {
           </div>
 
           <p className="text-sm mb-6" style={{ color: '#4A6550' }}>
-            レア中のレア <span className="font-bold" style={{ color: '#F59E0B' }}>🐉 ドラゴン型</span> が出ることも。
+            {t.rare} <span className="font-bold" style={{ color: '#F59E0B' }}>{t.dragon}</span> {t.rareTail}
           </p>
           <Link
             to="/quiz/quick"
@@ -358,7 +354,7 @@ export function HomePage() {
               el.style.color = '#2D8F4E';
             }}
           >
-            🐾 自分のタイプを調べる
+            {t.typesCta}
           </Link>
         </div>
       </section>
@@ -368,9 +364,9 @@ export function HomePage() {
         <section className="px-4 md:px-8 lg:px-12 py-16" style={{ backgroundColor: '#FDF8EF' }}>
           <div className="max-w-5xl md:max-w-6xl mx-auto">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold" style={{ color: '#1C2A1E' }}>最新記事</h2>
+              <h2 className="text-2xl font-bold" style={{ color: '#1C2A1E' }}>{t.latest}</h2>
               <Link to="/blog" className="text-sm transition-colors hover:opacity-70 inline-flex items-center" style={{ color: '#2D8F4E', minHeight: '44px', padding: '10px 0' }}>
-                すべて見る →
+                {t.seeAll}
               </Link>
             </div>
             {loading ? (
@@ -399,7 +395,7 @@ export function HomePage() {
         <div className="max-w-xl md:max-w-2xl mx-auto text-center">
           <p className="text-4xl mb-4">🐾</p>
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-            あなたの野生、まだ眠っていませんか？
+            {t.bottomTitle}
           </h2>
           {/*
             文とボタンの行き先を合わせる（2026-09-09 UX監査 §16）。
@@ -407,8 +403,8 @@ export function HomePage() {
             60問は名前とメールの入力が先に要るので、同じ扱いにはできない。
           */}
           <p className="mb-8" style={{ color: '#C8E6CA', fontSize: '18px', lineHeight: '1.8' }}>
-            10問・約1分で、5軸のうち<strong className="text-white">いま一番伸ばせるところ</strong>が分かります。<br />
-            結果の画面で、そこに効くレッスンまで提示します。
+            {t.bottomBody1}<strong className="text-white">{t.bottomStrong}</strong>{t.bottomBody2}<br />
+            {t.bottomBody3}
           </p>
           <Link
             to="/quiz/quick"
@@ -424,9 +420,9 @@ export function HomePage() {
               minHeight: '56px',
             }}
           >
-            🐾 10問で簡単診断（無料）
+            {t.bottomCta}
           </Link>
-          <p className="mt-3 text-sm" style={{ color: '#A8D5A2' }}>10問 / 約1分 / 会員登録不要</p>
+          <p className="mt-3 text-sm" style={{ color: '#A8D5A2' }}>{t.bottomNote}</p>
           {/* 2026-09-18 P1-9（A案）: 60問への導線はトップから外した（結果ページには残る） */}
         </div>
       </section>

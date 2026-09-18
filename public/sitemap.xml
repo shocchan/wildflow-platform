@@ -21,6 +21,26 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://wild-flow.com/about-animalflow</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://wild-flow.com/zh/badminton</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://wild-flow.com/zh/beginner</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://wild-flow.com/zh/about-animalflow</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://wild-flow.com/quiz</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>

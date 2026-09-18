@@ -1,14 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-
-const NAV_LINKS = [
-  { to: '/blog', label: 'ブログ' },
-  // 2026-09-18 P1-9（A案）: ナビとトップからは60問（/quiz）を外し、10問だけを出す。60問のルート自体は残す
-  { to: '/quiz/quick', label: '野生診断' },
-  { to: '/lessons', label: 'レッスン' },
-  { to: '/recovery', label: 'リカバリー' },
-  { to: '/profile', label: 'プロフィール' },
-];
+import { useLang } from '../i18n/lang';
+import { MESSAGES } from '../i18n/messages';
 
 const LEGAL_LINKS = [
   { to: '/faq', label: 'よくある質問' },
@@ -19,6 +12,16 @@ const LEGAL_LINKS = [
 
 export function Footer() {
   const { isAuthenticated } = useAuth();
+  const lang = useLang();
+  const t = MESSAGES[lang].nav;
+  // 2026-09-18 P1-9（A案）: 60問（/quiz）はナビから外し、10問だけを出す
+  const NAV_LINKS = [
+    { to: '/blog', label: t.blog },
+    { to: '/quiz/quick', label: t.quiz },
+    { to: '/lessons', label: t.lessons },
+    { to: '/recovery', label: t.recovery },
+    { to: '/profile', label: t.profile },
+  ];
   return (
     <footer style={{ backgroundColor: '#1C2A1E' }}>
       {/* メインフッター */}
@@ -29,7 +32,7 @@ export function Footer() {
             <span className="font-black text-lg" style={{ color: '#2D8F4E' }}>wild</span>
             <span className="font-black text-lg text-white">flow</span>
           </Link>
-          <p className="text-xs" style={{ color: '#4A6550' }}>野生の身体を、すべての人へ。</p>
+          <p className="text-xs" style={{ color: '#4A6550' }}>{t.tagline}</p>
         </div>
 
         {/* ナビゲーション */}

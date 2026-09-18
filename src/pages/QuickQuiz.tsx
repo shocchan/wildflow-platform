@@ -5,8 +5,8 @@ import { calcQuickResult } from '../utils/calcQuickType';
 import { track } from '../services/analytics';
 import { getEntry, rememberEntryFromSearch } from '../utils/entry';
 import { ENTRY_COPY, questionsForEntry } from '../data/entryCopy';
-
-const LABELS = ['全く違う', 'あまり違う', '少しそう', 'とてもそう'];
+import { useLang } from '../i18n/lang';
+import { MESSAGES } from '../i18n/messages';
 
 export function QuickQuiz() {
   const navigate = useNavigate();
@@ -23,8 +23,11 @@ export function QuickQuiz() {
   // /badminton・/beginner からの流入は ?entry= で分かる。先に控えてから、見出し・質問文を入口ごとに出し分ける
   // （P0-4 + 言い回し差し替え）。ロジック（id・軸・逆転）は quickQuestions のまま。
   const [entry] = useState(() => { rememberEntryFromSearch(search); return getEntry(); });
-  const copy = ENTRY_COPY[entry];
-  const questions = questionsForEntry(entry, quickQuestions);
+  const lang = useLang();
+  const copy = ENTRY_COPY[lang][entry];
+  const questions = questionsForEntry(entry, quickQuestions, lang);
+  const tq = MESSAGES[lang].quiz;
+  const LABELS = tq.labels;
 
   useEffect(() => {
     track('start_wild_type_diagnosis', { quiz_type: 'quick', entry });
@@ -67,12 +70,12 @@ export function QuickQuiz() {
         <h1 className="font-black" style={{ color: '#1C2A1E', fontSize: '28px', lineHeight: '1.3' }}>
           {copy.quizHeading}
         </h1>
-        <p className="text-xs mt-2" style={{ color: '#4A6550' }}>登録不要。{copy.axesWord}のうち、いま一番伸ばしやすいところが分かります。</p>
+        <p className="text-xs mt-2" style={{ color: '#4A6550' }}>{tq.note(copy.axesWord)}</p>
       </div>
 
       <div className="mb-8">
         <div className="flex justify-between items-center text-xs mb-2" style={{ color: '#4A6550' }}>
-          <span>質問 {current + 1} / {questions.length}</span>
+          <span>{tq.progress(current + 1, questions.length)}</span>
           {current > 0 && (
             <button
               onClick={handlePrev}
@@ -80,7 +83,7 @@ export function QuickQuiz() {
               className="text-xs transition-colors disabled:opacity-30 flex items-center gap-1"
               style={{ color: '#4A6550' }}
             >
-              ← 前の質問へ
+              {tq.prev}
             </button>
           )}
         </div>

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { QuickResult } from '../utils/calcQuickType';
-import { ABILITY_LABELS, ABILITY_TO_ANIMALS, ABILITY_LESSON } from '../utils/calcQuickType';
+import { ABILITY_TO_ANIMALS } from '../utils/calcQuickType';
+import { useLang } from '../i18n/lang';
+import { MESSAGES } from '../i18n/messages';
 import { track } from '../services/analytics';
 import { supabase } from '../services/supabaseClient';
 import { SITE_CONFIG } from '../config/site';
@@ -15,14 +17,14 @@ const ABILITY_ORDER = ['strength', 'endurance', 'speed', 'flexibility', 'coordin
 
 const SITE_URL = SITE_CONFIG.siteUrl;
 
-function AbilityBar({ label, score, isLow }: { label: string; score: number; isLow: boolean }) {
+function AbilityBar({ label, score, isLow, lowText }: { label: string; score: number; isLow: boolean; lowText: string }) {
   const color = isLow ? '#F59E0B' : '#2D8F4E';
   return (
     <div className="mb-3">
       <div className="flex justify-between text-sm mb-1">
         <span style={{ color }}>
           {label}
-          {isLow && <span className="ml-1 text-sm">▲ 伸びしろ</span>}
+          {isLow && <span className="ml-1 text-sm">{lowText}</span>}
         </span>
         <span style={{ color }}>{score}</span>
       </div>
@@ -73,7 +75,9 @@ export function QuickQuizResult() {
   const [result] = useState<QuickResult | undefined>(() => fromNav ?? recallResult());
   // どのページから診断に来たか（/badminton・/beginner・それ以外）。出口3ブロックの出し分けに使う（P0-4）
   const [entry] = useState(() => getEntry());
-  const copy = ENTRY_COPY[entry];
+  const lang = useLang();
+  const copy = ENTRY_COPY[lang][entry];
+  const tr = MESSAGES[lang].result;
   const [copied, setCopied] = useState(false);
   const [email, setEmail] = useState('');
   const [leadState, setLeadState] = useState<LeadState>('idle');
@@ -93,9 +97,10 @@ export function QuickQuizResult() {
   if (!result) return null;
 
   const { lowestAbility, secondLowest, scores } = result;
-  const lowestLabel = ABILITY_LABELS[lowestAbility];
+  const lowestLabel = MESSAGES[lang].abilities[lowestAbility];
+  const lowestLabelJa = MESSAGES.ja.abilities[lowestAbility];
   const animals = ABILITY_TO_ANIMALS[lowestAbility];
-  const lesson = ABILITY_LESSON[lowestAbility];
+  const lesson = MESSAGES[lang].lessons[lowestAbility];
 
   /**
    * 結果を見せた「あと」の任意メール登録。
@@ -107,7 +112,7 @@ export function QuickQuizResult() {
     if (leadState === 'saving') return;
     const value = email.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      setLeadError('正しいメールアドレスを入力してください');
+      setLeadError(tr.emailError);
       return;
     }
     setLeadError('');
@@ -118,7 +123,7 @@ export function QuickQuizResult() {
     const base = {
       name: '（10問診断）',
       email: value,
-      wild_type: `10問診断（${entry}）：${lowestLabel}が伸びしろ`,
+      wild_type: `10問診断（${entry}${lang === 'zh' ? '/zh' : ''}）：${lowestLabelJa}が伸びしろ`,
       scores,
     };
 
@@ -134,15 +139,16 @@ export function QuickQuizResult() {
       setLeadState('error');
       return;
     }
-    track('generate_lead', { quiz_type: 'quick' });
+    track('generate_lead', { quiz_type: 'quick', lang });
     setLeadState('done');
   };
 
-  const shareTextX = `私は${lowestLabel}が伸びしろの身体タイプでした！🐾\nあなたの野生タイプは何型？ #wildflow #身体のMBTI\n${SITE_URL}/quiz/quick`;
-  const shareTextLine = `私は${lowestLabel}が伸びしろの身体タイプでした！あなたは？wildflowで診断してみて👇 ${SITE_URL}/quiz/quick`;
+  const shareUrl = `${SITE_URL}/quiz/quick${lang === 'zh' ? '?lang=zh' : ''}`;
+  const shareTextX = tr.shareTextX(lowestLabel, shareUrl);
+  const shareTextLine = tr.shareTextLine(lowestLabel, shareUrl);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(`${SITE_URL}/quiz/quick`);
+    navigator.clipboard.writeText(shareUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -150,7 +156,7 @@ export function QuickQuizResult() {
   return (
     <main className="max-w-2xl md:max-w-4xl mx-auto px-4 md:px-8 lg:px-12 py-12">
       <div className="text-center mb-8">
-        <p className="text-sm font-medium mb-1" style={{ color: '#1A6B38' }}>{copy.quizName.replace(/ — .*$/, '')} 結果</p>
+        <p className="text-sm font-medium mb-1" style={{ color: '#1A6B38' }}>{copy.quizName.replace(/ — .*$/, '')} {tr.resultSuffix}</p>
         <h1 className="font-black mb-2" style={{ color: '#1C2A1E', fontSize: '36px', lineHeight: '1.3' }}>
           {copy.resultHeading}
         </h1>
@@ -172,11 +178,12 @@ export function QuickQuizResult() {
         className="p-6 rounded-2xl border mb-6"
         style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}
       >
-        <p className="text-sm font-bold mb-4" style={{ color: '#4A6550' }}>── {copy.axesWord}のスコア ──</p>
+        <p className="text-sm font-bold mb-4" style={{ color: '#4A6550' }}>{tr.scoreTitle(copy.axesWord)}</p>
         {ABILITY_ORDER.map(ab => (
           <AbilityBar
             key={ab}
-            label={ABILITY_LABELS[ab]}
+            label={MESSAGES[lang].abilities[ab]}
+            lowText={tr.low}
             score={scores[ab]}
             isLow={ab === lowestAbility || ab === secondLowest}
           />
@@ -189,12 +196,8 @@ export function QuickQuizResult() {
         className="p-6 rounded-2xl border mb-6"
         style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}
       >
-        <h2 className="text-lg font-bold mb-3" style={{ color: '#1C2A1E' }}>
-          この力が伸びしろの動物タイプ
-        </h2>
-        <p className="text-sm mb-3" style={{ color: '#4A6550' }}>
-          「{lowestLabel}」が伸びしろの動物タイプはこれら：
-        </p>
+        <h2 className="text-lg font-bold mb-3" style={{ color: '#1C2A1E' }}>{tr.animalsTitle}</h2>
+        <p className="text-sm mb-3" style={{ color: '#4A6550' }}>{tr.animalsLead(lowestLabel)}</p>
         <div className="flex flex-wrap gap-2 mb-4">
           {animals.map(animal => (
             <span
@@ -206,9 +209,7 @@ export function QuickQuizResult() {
             </span>
           ))}
         </div>
-        <p className="text-xs" style={{ color: '#4A6550' }}>
-          あなたがどのタイプに当てはまるかは、詳細診断（60問）で判定できます。
-        </p>
+        <p className="text-xs" style={{ color: '#4A6550' }}>{tr.animalsNote}</p>
       </div>
       )}
 
@@ -232,11 +233,11 @@ export function QuickQuizResult() {
         {leadState === 'done' ? (
           <div className="text-center">
             <p className="text-3xl mb-2">📩</p>
-            <p className="font-bold mb-1" style={{ color: '#1C2A1E' }}>登録しました！</p>
+            <p className="font-bold mb-1" style={{ color: '#1C2A1E' }}>{tr.leadDoneTitle}</p>
             <p className="text-sm" style={{ color: '#4A6550' }}>{copy.leadDone(lowestLabel)}</p>
             {entry === 'badminton' && (
-              <a href="/routine" className="inline-block mt-3 text-sm font-bold underline" style={{ color: '#2D8F4E' }}>
-                練習前5分ルーティン（A4印刷用）をいま開く →
+              <a href={lang === 'zh' ? '/zh/routine' : '/routine'} className="inline-block mt-3 text-sm font-bold underline" style={{ color: '#2D8F4E' }}>
+                {tr.routineNow}
               </a>
             )}
           </div>
@@ -262,7 +263,7 @@ export function QuickQuizResult() {
                 className="px-6 py-3 rounded-xl font-bold text-sm text-white transition-opacity hover:opacity-90 disabled:opacity-50"
                 style={{ backgroundColor: '#2D8F4E', minHeight: '48px' }}
               >
-                {leadState === 'saving' ? '送信中…' : '受け取る'}
+                {leadState === 'saving' ? tr.sending : tr.receive}
               </button>
             </form>
             {leadError && (
@@ -270,15 +271,15 @@ export function QuickQuizResult() {
             )}
             {leadState === 'error' && (
               <p className="text-sm mt-2" style={{ color: '#EF4444' }}>
-                送信に失敗しました。時間をおいて試すか{' '}
+                {tr.sendFail}{' '}
                 <a href={`mailto:${SITE_CONFIG.contactEmail}`} className="underline font-bold">
                   {SITE_CONFIG.contactEmail}
                 </a>{' '}
-                までご連絡ください。
+                {tr.sendFail2}
               </p>
             )}
             <p className="text-xs mt-3" style={{ color: '#A8D5A2' }}>
-              入力いただいた情報は解説とお知らせの送付にのみ使用します。
+              {tr.privacy}
             </p>
           </>
         )}
@@ -290,17 +291,14 @@ export function QuickQuizResult() {
         className="p-6 rounded-2xl border text-center mb-6"
         style={{ backgroundColor: '#FFFFFF', borderColor: '#2D8F4E', borderWidth: '2px' }}
       >
-        <p className="font-bold mb-1" style={{ color: '#1C2A1E' }}>どのタイプか詳しく知りたい方は</p>
-        <p className="text-sm mb-4" style={{ color: '#4A6550' }}>
-          60問の詳細診断で、22タイプの中からあなたの野生タイプを完全判定。
-          結果はメールでお送りします。
-        </p>
+        <p className="font-bold mb-1" style={{ color: '#1C2A1E' }}>{tr.fullTitle}</p>
+        <p className="text-sm mb-4" style={{ color: '#4A6550' }}>{tr.fullBody}</p>
         <a
           href="/quiz"
           className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full font-bold text-white transition-opacity hover:opacity-90"
           style={{ backgroundColor: '#2D8F4E' }}
         >
-          📊 60問で詳しく診断する →
+          {tr.fullCta}
         </a>
       </div>
       )}
@@ -311,7 +309,7 @@ export function QuickQuizResult() {
         style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}
       >
         <p className="text-sm font-bold mb-3 text-center" style={{ color: '#1C2A1E' }}>
-          📣 友達にシェアする
+          {tr.shareTitle}
         </p>
         <div className="flex flex-col sm:flex-row gap-3">
           <a
@@ -321,23 +319,23 @@ export function QuickQuizResult() {
             className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-bold text-sm text-white transition-opacity hover:opacity-80"
             style={{ backgroundColor: '#000000' }}
           >
-            𝕏 でシェアする
+            {tr.shareX}
           </a>
           <a
-            href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(`${SITE_URL}/quiz/quick`)}&text=${encodeURIComponent(shareTextLine)}`}
+            href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareTextLine)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-bold text-sm text-white transition-opacity hover:opacity-80"
             style={{ backgroundColor: '#06C755' }}
           >
-            LINE でシェアする
+            {tr.shareLine}
           </a>
           <button
             onClick={handleCopy}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-bold text-sm border-2 transition-opacity hover:opacity-80"
             style={{ borderColor: '#E2E8E4', color: '#1C2A1E', backgroundColor: '#F8F7F2' }}
           >
-            {copied ? '✅ コピーしました！' : '🔗 URLをコピー（XHS・lemon8用）'}
+            {copied ? tr.copied : tr.copy}
           </button>
         </div>
       </div>
@@ -348,7 +346,7 @@ export function QuickQuizResult() {
           className="text-sm font-medium transition-opacity hover:opacity-70"
           style={{ color: '#4A6550' }}
         >
-          🔄 もう一度簡易診断する
+          {tr.again}
         </button>
       </div>
     </main>
