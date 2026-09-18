@@ -8,7 +8,7 @@ export function LangToggle({ compact = false }: { compact?: boolean }) {
       type="button"
       onClick={() => setLang(l)}
       aria-pressed={lang === l}
-      className="px-2.5 rounded-full text-xs font-bold transition-colors"
+      className="px-2.5 rounded-full text-xs font-bold transition-colors whitespace-nowrap"
       style={{
         minHeight: compact ? '32px' : '36px',
         backgroundColor: lang === l ? '#2D8F4E' : 'transparent',

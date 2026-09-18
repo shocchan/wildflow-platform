@@ -42,10 +42,10 @@
   #wf-root .topbar .logo{display:inline-flex;align-items:center;font-weight:900;font-size:22px;text-decoration:none;}
   #wf-root .topbar .logo img{width:32px;height:32px;border-radius:50%;margin-right:6px;}
   #wf-root .topbar .logo b{color:var(--green);}
-  #wf-root .topbar .links{display:flex;gap:4px;align-items:center;}
+  #wf-root .topbar .links{display:flex;gap:4px;align-items:center;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
   #wf-root .topbar .links a{font-size:13px;font-weight:700;text-decoration:none;color:var(--ink-soft);padding:8px 10px;border-radius:999px;white-space:nowrap;}
   #wf-root .topbar .links a:hover{background:var(--mint);color:var(--green);}
-  #wf-root .lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:2px;background:var(--cream);margin-left:6px;}
+  #wf-root .lang{display:inline-flex;flex:0 0 auto;border:1px solid var(--line);border-radius:999px;padding:2px;background:var(--cream);margin-left:6px;}
   #wf-root .lang a{font-size:12px;padding:5px 10px;border-radius:999px;}
   #wf-root .lang a.on{background:var(--green);color:#fff;}
   #wf-root .hero{background:var(--green-deep);color:#F3F6EF;position:relative;overflow:hidden;}
@@ -119,7 +119,7 @@
       <nav class="links" aria-label="站内链接">
         <a href="/zh/beginner">🌱 零基础</a>
         <a href="/zh/badminton">🏸 羽毛球专区</a>
-        <span class="lang"><a href="/zh/about-animalflow">日本語</a><a class="on" href="/zh/zh/about-animalflow">中文</a></span>
+        <span class="lang"><a href="/about-animalflow">日本語</a><a class="on" href="/zh/about-animalflow">中文</a></span>
       </nav>
     </div>
   </div>

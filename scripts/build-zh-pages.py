@@ -81,6 +81,13 @@ def translate_page(name: str, check_only: bool) -> list[str]:
     # 生成物であることを先頭コメントに
     head = head.replace('<!doctype html>\n<!--', '<!doctype html>\n<!-- 自動生成: scripts/build-zh-pages.py（元: public/' + name + '.html）。直接編集せず、scripts/zh/' + name + '.json を直す -->\n<!--', 1)
 
+    # --- 言語切替は先に確定させ、リンク書き換えの対象から外す（/zh/zh/ を防ぐ）
+    toggles: list[str] = []
+    def hold(m):
+        toggles.append(f'<span class="lang"><a href="/{m.group(1)}">日本語</a><a class="on" href="/zh/{m.group(1)}">中文</a></span>')
+        return f'@@LANG{len(toggles)-1}@@'
+    body = re.sub(r'<span class="lang"><a class="on" href="/([^"]+)">日本語</a><a href="/zh/[^"]+">中文</a></span>', hold, body)
+
     # --- body: サイト内リンクを /zh/ へ（アンカー・クエリ付きも）。SPA 側は ?lang=zh を付ける
     for p in STATIC_LINKS:
         body = re.sub(rf'href="{re.escape(p)}(?=[#"?])', f'href="/zh{p}', body)
@@ -88,9 +95,8 @@ def translate_page(name: str, check_only: bool) -> list[str]:
     body = re.sub(r'href="/(quiz/quick|lessons|blog|contact|quiz)(\?[^"]*)?"', lambda m: f'href="/{m.group(1)}{m.group(2) + "&" if m.group(2) else "?"}lang=zh"', body)
     body = body.replace('href="/"', 'href="/?lang=zh"')
     body = body.replace('kawabado.com/ja/', 'kawabado.com/zh/')
-    # 言語切替の on/off
-    body = re.sub(r'<span class="lang"><a class="on" href="/([^"]+)">日本語</a><a href="/zh/[^"]+">中文</a></span>',
-                  lambda m: f'<span class="lang"><a href="/{m.group(1)}">日本語</a><a class="on" href="/zh/{m.group(1)}">中文</a></span>', body)
+    for i, t in enumerate(toggles):
+        body = body.replace(f'@@LANG{i}@@', t)
 
     out = head + '<body>' + body
     if not check_only:
