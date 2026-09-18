@@ -5,8 +5,9 @@ import { ABILITY_LABELS, ABILITY_TO_ANIMALS, ABILITY_LESSON } from '../utils/cal
 import { track } from '../services/analytics';
 import { supabase } from '../services/supabaseClient';
 import { SITE_CONFIG } from '../config/site';
-import { KawabadoInvite } from '../components/KawabadoInvite';
+import { ResultExits } from '../components/ResultExits';
 import { fetchProductHealth, type ProductHealth } from '../services/productHealth';
+import { getEntry } from '../utils/entry';
 
 const ABILITY_ORDER = ['strength', 'endurance', 'speed', 'flexibility', 'coordination'] as const;
 
@@ -62,12 +63,14 @@ const recallResult = (): QuickResult | undefined => {
 };
 
 export function QuickQuizResult() {
-  useEffect(() => { track('complete_wild_type_diagnosis', { quiz_type: 'quick' }); }, []);
+  useEffect(() => { track('complete_wild_type_diagnosis', { quiz_type: 'quick', entry: getEntry() }); }, []);
   const location = useLocation();
   const navigate = useNavigate();
   const fromNav = location.state?.result as QuickResult | undefined;
   // 初回描画で決める（effect の中で setState して1フレーム空にしない）
   const [result] = useState<QuickResult | undefined>(() => fromNav ?? recallResult());
+  // どのページから診断に来たか（/badminton・/beginner・それ以外）。出口3ブロックの出し分けに使う（P0-4）
+  const [entry] = useState(() => getEntry());
   const [copied, setCopied] = useState(false);
   const [email, setEmail] = useState('');
   const [leadState, setLeadState] = useState<LeadState>('idle');
@@ -202,67 +205,16 @@ export function QuickQuizResult() {
       </div>
 
       {/*
-        おすすめレッスン（2026-09-09 G-3 で作り直し）。
-
-        以前はここが弱い文字リンクで、しかも行き先の /lessons は
-        「現在開催予定のレッスンはありません」しか出ない状態が続いていた。
-        いまは**実際に買えるものだけを案内する**:
-          ・開催予定がある → その日程へ（第一CTA）
-          ・無いがフルパックはある → 日程相談つきのフルパックへ
-          ・どちらも無い → 申し込みを促さない（連絡先だけ出す。嘘のCTAを出さない）
+        出口3ブロック（2026-09-18 P0-4）。入口（/badminton・/beginner・その他）で出し分ける。
+        ②レッスンは G-3（2026-09-09）の「実際に買えるものだけ案内する」ロジックをそのまま ResultExits に移した。
       */}
-      <div
-        className="p-5 rounded-2xl mb-6"
-        style={{ backgroundColor: '#EDF7EE', borderLeft: '4px solid #2D8F4E' }}
-      >
-        <h2 className="text-base font-bold mb-1" style={{ color: '#1A6B38' }}>🎯 あなたに効くレッスン</h2>
-        <p className="text-sm font-bold mb-3" style={{ color: '#1C2A1E' }}>{lesson}</p>
-
-        {health === null ? null : health.singleLessonBuyable ? (
-          <a
-            href="/lessons"
-            onClick={() => track('click_primary_cta', { cta: 'quick_result_lessons' })}
-            className="inline-flex items-center justify-center gap-1.5 px-6 rounded-xl font-bold text-white transition-opacity hover:opacity-90"
-            style={{ backgroundColor: '#2D8F4E', minHeight: '48px' }}
-          >
-            開催予定のレッスンを見る（次回 {health.nextLessonDate}）→
-          </a>
-        ) : health.publishedPackages > 0 ? (
-          <>
-            <a
-              href="/lessons/package"
-              onClick={() => track('click_primary_cta', { cta: 'quick_result_package' })}
-              className="inline-flex items-center justify-center gap-1.5 px-6 rounded-xl font-bold text-white transition-opacity hover:opacity-90"
-              style={{ backgroundColor: '#D97706', minHeight: '48px' }}
-            >
-              日程の相談つきでフルパックに申し込む →
-            </a>
-            <p className="mt-2 text-sm" style={{ color: '#5a7a62' }}>
-              いまは単発レッスンの開催予定がありません。フルパックは日程を相談しながら進められます。
-            </p>
-          </>
-        ) : (
-          <p className="text-sm" style={{ color: '#5a7a62' }}>
-            いまは開催予定のレッスンがありません。次の開催が決まりしだいレッスンページに掲載します。
-            先に相談したい場合は{' '}
-            <a href="/contact" className="font-bold underline" style={{ color: '#2D8F4E' }}>お問い合わせ</a>
-            {' '}からどうぞ。
-          </p>
-        )}
-        {lowestAbility === 'flexibility' && (
-          <p className="mt-3 text-sm" style={{ color: '#4A6550' }}>
-            🌿{' '}
-            <a
-              href="/recovery"
-              className="font-bold underline transition-opacity hover:opacity-70"
-              style={{ color: '#2D8F4E' }}
-            >
-              /recovery のヨガ教室
-            </a>
-            もチェックしてみてください。
-          </p>
-        )}
-      </div>
+      <ResultExits
+        entry={entry}
+        ability={lowestAbility}
+        abilityLabel={lowestLabel}
+        lesson={lesson}
+        health={health}
+      />
 
       {/* 結果保存（任意のメール登録）— 結果を見せたあとに置く。ゲートしない */}
       <div
@@ -344,12 +296,6 @@ export function QuickQuizResult() {
           📊 60問で詳しく診断する →
         </a>
       </div>
-
-      {/* kawabadoへの送客（文脈のある本文リンク） */}
-      <KawabadoInvite
-        placement="quick_quiz_result"
-        lead="wildflowのレッスンは不定期開催です。「今週どこかで動きたい」なら、"
-      />
 
       {/* シェアボタン */}
       <div

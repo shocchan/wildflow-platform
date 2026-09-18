@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { quickQuestions } from '../data/quickQuizQuestions';
 import { calcQuickResult } from '../utils/calcQuickType';
 import { track } from '../services/analytics';
+import { getEntry, rememberEntryFromSearch } from '../utils/entry';
 
 const LABELS = ['全く違う', 'あまり違う', '少しそう', 'とてもそう'];
 
 export function QuickQuiz() {
   const navigate = useNavigate();
+  const { search } = useLocation();
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [selected, setSelected] = useState<number | null>(null);
@@ -17,7 +19,11 @@ export function QuickQuiz() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [current]);
 
-  useEffect(() => { track('start_wild_type_diagnosis', { quiz_type: 'quick' }); }, []);
+  useEffect(() => {
+    // /badminton・/beginner からの流入は ?entry= で分かる。結果ページの出口を出し分けるために控える（P0-4）
+    rememberEntryFromSearch(search);
+    track('start_wild_type_diagnosis', { quiz_type: 'quick', entry: getEntry() });
+  }, [search]);
 
   const handleSelect = (value: number) => {
     if (isTransitioning) return;
