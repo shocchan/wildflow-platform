@@ -94,9 +94,14 @@ export function HomePage() {
             道具いらず、床さえあればできる全身運動 Animal Flow。<br className="hidden md:block" />
             川口・蕨で、バドミントンをする人にも、運動がはじめての人にも。
           </p>
-          <p className="mb-8 font-bold" style={{ color: '#1C2A1E', fontSize: '16px' }}>
+          <p className="mb-6 font-bold" style={{ color: '#1C2A1E', fontSize: '16px' }}>
             あなたはどちらですか？
           </p>
+          {/* しょっちゃんキャラ（既存イラスト・青タオル）。ボタンの上に2体並べて、どちらの入口かを絵でも伝える */}
+          <div className="flex justify-center items-end gap-2 mb-2" aria-hidden="true">
+            <img src="/img/shocchan/smash.png" alt="" width={370} height={320} style={{ width: '132px', height: 'auto' }} loading="eager" />
+            <img src="/img/shocchan/handstand.png" alt="" width={370} height={320} style={{ width: '132px', height: 'auto' }} loading="eager" />
+          </div>
           <div className="flex flex-col sm:flex-row items-stretch justify-center gap-3 max-w-xl mx-auto">
             <a
               href="/badminton"

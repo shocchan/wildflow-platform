@@ -169,6 +169,19 @@ window.WF_VIDEOS = {
   #wf-root .foot .fine{margin-top:36px;font-size:12px;color:#7E977F;}
   #wf-root .foot .fine a{color:#A8C2AA;}
 
+  /* しょっちゃんキャラ */
+  #wf-root .chara{display:block;height:auto;filter:drop-shadow(0 6px 14px rgba(0,0,0,.18));}
+  #wf-root .hero .wrap{display:grid;grid-template-columns:1fr 240px;gap:24px;align-items:center;}
+  #wf-root .hero .chara{width:240px;justify-self:end;}
+  #wf-root .topbar .logo img{display:inline-block;width:32px;height:32px;border-radius:50%;vertical-align:middle;margin-right:6px;}
+  #wf-root .topbar .logo{display:inline-flex;align-items:center;}
+  #wf-root .exit .chara{width:96px;margin:-6px 0 8px;}
+  #wf-root .worry-chara{display:flex;justify-content:center;margin-top:26px;}
+  #wf-root .worry-chara .chara{width:180px;}
+  @media(max-width:720px){
+    #wf-root .hero .wrap{grid-template-columns:1fr;}
+    #wf-root .hero .chara{width:150px;justify-self:center;order:-1;margin-bottom:-6px;}
+  }
   /* ── /beginner 追加分 ── */
   #wf-root .topbar{background:var(--paper);border-bottom:1px solid var(--line);}
   #wf-root .topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:56px;}
@@ -225,7 +238,7 @@ window.WF_VIDEOS = {
   <!-- TOP BAR（SPAのヘッダーが無い静的ページなので、戻り導線だけ置く） -->
   <div class="topbar">
     <div class="wrap">
-      <a class="logo" href="/"><b>wild</b>flow</a>
+      <a class="logo" href="/"><img src="/img/shocchan/face.png" alt="" width="32" height="32"><b>wild</b>flow</a>
       <nav class="links" aria-label="サイト内リンク">
         <a href="/badminton">🏸 バド向け</a>
         <a href="/lessons">レッスン</a>
@@ -238,12 +251,15 @@ window.WF_VIDEOS = {
   <header class="hero">
     <span class="blob b1"></span><span class="blob b2"></span>
     <div class="wrap">
+    <div>
       <span class="kicker">はじめての方へ</span>
       <h1>運動が苦手でも、<br><span class="hl">床でちょっと</span>動いてみる。</h1>
       <p>ジムは続かない。体が硬い。走るのはしんどい。
         それでも「なんとなく動きたい」なら、床に手をついて、動物みたいに動いてみるところから。
         道具はいらない、寝転がれるスペースがあれば今日から始められます。</p>
       <a class="cta" href="#first">まず1分、やってみる <span class="arw">→</span></a>
+    </div>
+    <img class="chara" src="/img/shocchan/handstand.png" alt="逆立ちするしょっちゃん" width="370" height="320">
     </div>
     <div class="scrollcue" aria-hidden="true">⌄</div>
   </header>
@@ -273,6 +289,7 @@ window.WF_VIDEOS = {
           <p>ふだん使わない「ひねる・横に動く」方向を動かして、体の偏りをリセットしやすくします。</p>
         </div>
       </div>
+      <div class="worry-chara reveal"><img class="chara" src="/img/shocchan/balance.png" alt="綱渡りでバランスをとるしょっちゃん" width="370" height="320"></div>
     </div>
   </section>
 
@@ -502,6 +519,7 @@ window.WF_VIDEOS = {
         </div>
         <div class="exit reveal">
           <div class="no">02 ／ 一緒に動く</div>
+          <img class="chara" src="/img/shocchan/joy.png" alt="" width="370" height="320">
           <h3>🌿 少人数のレッスン</h3>
           <p>川口・蕨で、床を使った1時間のレッスン。運動経験ゼロの方を前提に、その日の体に合わせて進めます。</p>
           <a class="btn" href="/lessons">レッスンを見る →</a>

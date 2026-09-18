@@ -75,7 +75,7 @@ export function LessonNotifyForm() {
 
   return (
     <div className="rounded-2xl border p-6 mb-6" style={{ borderColor: '#E2E8E4', backgroundColor: '#FFFFFF' }}>
-      <p className="text-3xl mb-2 text-center">🌿</p>
+      <img src="/img/shocchan/face.png" alt="" width={240} height={240} className="mx-auto mb-2" style={{ width: '72px', height: 'auto' }} />
       <h3 className="font-bold text-center mb-1" style={{ color: '#1C2A1E' }}>いまは開催予定のレッスンがありません</h3>
       <p className="text-sm text-center mb-5" style={{ color: '#5a7a62' }}>
         次の開催が決まったら、メールでお知らせします。日程が合うときだけ来てください。

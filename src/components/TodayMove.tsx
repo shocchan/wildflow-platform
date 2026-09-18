@@ -27,7 +27,15 @@ export function TodayMove({ ability, abilityLabel, entry }: { ability: Ability; 
   const url = embedUrl(m.video);
   return (
     <div className="rounded-2xl mb-6 overflow-hidden" style={{ backgroundColor: '#1a3a2a' }}>
-      <div className="p-5 md:p-6">
+      <div className="p-5 md:p-6 relative">
+        <img
+          src="/img/shocchan/joy.png"
+          alt=""
+          width={370}
+          height={320}
+          className="absolute right-3 top-2 hidden sm:block"
+          style={{ width: '92px', height: 'auto', filter: 'drop-shadow(0 4px 10px rgba(0,0,0,.25))' }}
+        />
         <p className="text-xs font-bold mb-1" style={{ color: '#6fcf97', letterSpacing: '0.14em' }}>TODAY ／ 今日やる1動作（30秒）</p>
         <h2 className="text-xl font-black mb-1 text-white">
           {m.name} <span className="text-sm font-medium" style={{ color: '#C8E6CA' }}>{m.jp}</span>
