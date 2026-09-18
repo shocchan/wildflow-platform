@@ -6,6 +6,7 @@ import type { Lesson, LessonType } from '../types/lesson';
 import { supabase } from '../services/supabaseClient';
 import { track } from '../services/analytics';
 import { KawabadoInvite } from '../components/KawabadoInvite';
+import { LessonNotifyForm } from '../components/LessonNotifyForm';
 
 interface Testimonial {
   name: string;
@@ -159,41 +160,17 @@ export function LessonsPage() {
           </div>
         ) : filteredLessons.length === 0 ? (
           <>
-            <div className="text-center py-16 rounded-2xl border mb-6" style={{ borderColor: '#E2E8E4', color: '#5a7a62' }}>
-              <p className="text-4xl mb-3">🌿</p>
-              <p className="font-bold">
-                {activeFilter
-                  ? `${LESSON_TYPE_MAP[activeFilter].ability}のレッスンは現在開催予定がありません`
-                  : '現在開催予定のレッスンはありません'}
+            {/*
+              「何もありません」で終わらせない（2026-09-09 UX監査 §15 → 2026-09-18 P0-6 で通知登録フォームに差し替え）。
+              絞り込み中で0件のときだけは、他の軸に切り替えられる案内を先に出す。
+            */}
+            {activeFilter && (
+              <p className="text-sm mb-3" style={{ color: '#5a7a62' }}>
+                {LESSON_TYPE_MAP[activeFilter].ability}のレッスンは現在開催予定がありません。
+                他のアビリティは開催予定があるかもしれません（上のボタンで切り替えられます）。
               </p>
-              {/*
-                「何もありません」で終わらせない（2026-09-09 UX監査 §15）。
-                もとは「SNSをフォローして」とだけ書いていたが、押せるSNSリンクがこの画面に無く、
-                診断→レッスンで来た人がここで完全に行き止まりになっていた。
-                いま実際に取れる行動（開催予定の連絡を受け取る／フルパックを申し込む）を出す。
-              */}
-              <p className="text-sm mt-1">
-                {activeFilter
-                  ? '他のアビリティのレッスンは開催予定があるかもしれません（上のボタンで切り替えられます）。'
-                  : '次回の開催が決まりしだい、このページに掲載します。'}
-              </p>
-              <div className="mt-5 flex flex-col items-center gap-3">
-                <a
-                  href="/lessons/package"
-                  className="inline-flex items-center justify-center px-6 rounded-xl font-bold text-sm text-white"
-                  style={{ backgroundColor: '#D97706', minHeight: '48px' }}
-                >
-                  日程の相談つきでフルパックに申し込む →
-                </a>
-                <a
-                  href="/contact"
-                  className="text-sm underline"
-                  style={{ color: '#2D8F4E', minHeight: '44px', padding: '10px 0' }}
-                >
-                  次の開催が決まったら連絡してほしい
-                </a>
-              </div>
-            </div>
+            )}
+            <LessonNotifyForm />
             {/* 在庫0のときに手ぶらで帰さない。同じ地域の実開催の活動に案内する */}
             <KawabadoInvite
               placement="lessons_empty"
