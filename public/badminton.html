@@ -1,9 +1,9 @@
 <!doctype html>
 <!--
 ============================================================
- はじめての方向けページ（wild-flow.com/beginner）
- 2026-09-18 バドミントン・ピボット P0-3。
- /animalflow.html をコピーして再編集したもの（元ファイルは触っていない）。
+ バドミントン向けページ（wild-flow.com/badminton）
+ 2026-09-18 バドミントン・ピボット P0-2。
+ /beginner.html（＝animalflow.html 由来）と同じ見た目で組んだ静的ページ。
 ============================================================
  ■ 動画の追加方法（ここだけ編集すればOK）
    下の <script id="wf-video-config"> の中の各テーマに、
@@ -18,16 +18,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>運動が苦手でも大丈夫。床でちょっと動くAnimal Flow入門 | wildflow</title>
-<meta name="description" content="ジムは続かない、体が硬い、運動は苦手。そんな方のためのAnimal Flow入門。道具いらず、床さえあればできる6つのステップを、川口・蕨のしょっちゃんがやさしく案内します。">
+<title>バドミントンで膝・腰・肩が不安な人へ。床でつくるコートの体 | wildflow</title>
+<meta name="description" content="スマッシュ後の膝、ハイバックの肩、翌日の腰。バドミントンで起きる体の詰まりを、床の上のAnimal Flowで見直す。5軸×コートの場面の対応表と、練習前5分のルーティン。川口・蕨。">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="canonical" href="https://wild-flow.com/beginner">
+<link rel="canonical" href="https://wild-flow.com/badminton">
 
 <!-- OGP -->
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://wild-flow.com/beginner">
-<meta property="og:title" content="運動が苦手でも大丈夫。床でちょっと動くAnimal Flow入門 | wildflow">
-<meta property="og:description" content="ジムは続かない、体が硬い、運動は苦手。そんな方のための、床さえあればできる6つのステップ。">
+<meta property="og:url" content="https://wild-flow.com/badminton">
+<meta property="og:title" content="バドミントンで膝・腰・肩が不安な人へ。床でつくるコートの体 | wildflow">
+<meta property="og:description" content="バドミントンで起きる体の詰まりを、床の上のAnimal Flowで見直す。5軸×コートの場面の対応表つき。">
 <meta property="og:image" content="https://wild-flow.com/ogp.png">
 <meta property="og:locale" content="ja_JP">
 <meta property="og:site_name" content="wildflow">
@@ -35,12 +35,7 @@
 <script id="wf-video-config">
 /* ▼▼▼ ここに動画URL/IDを貼るだけ ▼▼▼ */
 window.WF_VIDEOS = {
-  wrist:      "",   // ① まずは手首をくるくる   (Wrist Mobilizations)
-  activation: "",   // ② 体の"スイッチ"を入れる (Activations)
-  fss:        "",   // ③ 気持ちよく伸ばす       (Form Specific Stretches)
-  traveling:  "",   // ④ 動物みたいに歩く       (Traveling Forms)
-  switches:   "",   // ⑤ 動きをつなげる         (Switches & Transitions)
-  flow:       ""    // ⑥ 流れるように動く       (Flows)
+  routine: ""    // 練習前5分ルーティン（手首くるくる→Static Beast→Crab Reach）
 };
 /* ▲▲▲ ここまで ▲▲▲ */
 </script>
@@ -202,6 +197,25 @@ window.WF_VIDEOS = {
   #wf-root .exit .btn.ghost{background:transparent;color:var(--green);border:2px solid var(--green);}
   #wf-root .fine-note{font-size:12.5px;color:var(--moss);margin-top:18px;}
 
+  /* ── /badminton 追加分 ── */
+  #wf-root .axes{margin-top:36px;overflow-x:auto;-webkit-overflow-scrolling:touch;background:var(--paper);border:1px solid #DDEADE;border-radius:16px;}
+  #wf-root .axes table{width:100%;min-width:640px;border-collapse:collapse;font-size:14px;text-align:left;}
+  #wf-root .axes th{background:var(--green);color:#fff;font-weight:700;padding:12px 14px;font-size:13px;white-space:nowrap;}
+  #wf-root .axes td{padding:14px;border-top:1px solid var(--line);vertical-align:top;color:var(--ink-soft);line-height:1.7;}
+  #wf-root .axes td b{color:var(--ink);font-size:15px;}
+  #wf-root .axes td small{color:var(--moss);font-size:12px;}
+  #wf-root .axes tbody tr:nth-child(even) td{background:#FBFCF9;}
+  #wf-root .cta-inline{display:inline-flex;align-items:center;gap:8px;background:var(--amber);color:var(--green-deep);font-weight:700;font-size:15px;
+    padding:14px 26px;border-radius:999px;text-decoration:none;min-height:48px;}
+  #wf-root .cta-inline:hover{filter:brightness(1.05);}
+  #wf-root .sym{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:36px;text-align:left;}
+  #wf-root .sym .s{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:20px;}
+  #wf-root .sym .s .n{font-size:11px;letter-spacing:.14em;font-weight:700;color:var(--green);margin-bottom:6px;}
+  #wf-root .sym .s h3{font-size:16px;font-weight:900;margin:0 0 8px;line-height:1.5;}
+  #wf-root .sym .s p{font-size:13.5px;color:var(--ink-soft);margin:0 0 6px;}
+  #wf-root .sym .s .mv{font-weight:700;color:var(--amber-deep);background:#FDF2DC;border:1px solid #F5E0B8;padding:4px 10px;border-radius:999px;font-size:12.5px;display:inline-block;margin-top:6px;}
+  #wf-root .first .vslot,#wf-root .first .vwrap{align-self:stretch;}
+
   @media(max-width:720px){
     #wf-root .first .box{grid-template-columns:1fr;gap:22px;}
     #wf-root .topbar .links a{padding:8px 6px;font-size:12px;}
@@ -222,14 +236,14 @@ window.WF_VIDEOS = {
 
 <div id="wf-root">
 
-  <!-- TOP BAR（SPAのヘッダーが無い静的ページなので、戻り導線だけ置く） -->
+  <!-- TOP BAR -->
   <div class="topbar">
     <div class="wrap">
       <a class="logo" href="/"><b>wild</b>flow</a>
       <nav class="links" aria-label="サイト内リンク">
-        <a href="/badminton">🏸 バド向け</a>
+        <a href="/beginner">🌱 はじめて</a>
         <a href="/lessons">レッスン</a>
-        <a href="/quiz/quick?entry=beginner">10問診断</a>
+        <a href="/quiz/quick?entry=badminton">10問診断</a>
       </nav>
     </div>
   </div>
@@ -238,290 +252,165 @@ window.WF_VIDEOS = {
   <header class="hero">
     <span class="blob b1"></span><span class="blob b2"></span>
     <div class="wrap">
-      <span class="kicker">はじめての方へ</span>
-      <h1>運動が苦手でも、<br><span class="hl">床でちょっと</span>動いてみる。</h1>
-      <p>ジムは続かない。体が硬い。走るのはしんどい。
-        それでも「なんとなく動きたい」なら、床に手をついて、動物みたいに動いてみるところから。
-        道具はいらない、寝転がれるスペースがあれば今日から始められます。</p>
-      <a class="cta" href="#first">まず1分、やってみる <span class="arw">→</span></a>
+      <span class="kicker">ANIMAL FLOW × BADMINTON</span>
+      <h1>スマッシュのあと、<br><span class="hl">膝が笑う</span>のは年齢のせい？</h1>
+      <p>ラリー後半で足が止まる。ハイバックで肩が詰まる。翌日の腰が重い。
+        コートで起きるその「詰まり」は、床の上の四足の動きで見直せることが多い。
+        川口・蕨でバドミントンをしているしょっちゃんが、Animal Flow を「バドの体」のために組み直しました。</p>
+      <a class="cta" href="#axes">バドの5つの場面で見る <span class="arw">→</span></a>
     </div>
     <div class="scrollcue" aria-hidden="true">⌄</div>
   </header>
 
-  <!-- WORRIES -->
+  <!-- WHY BADMINTON × ANIMAL FLOW -->
   <section class="center">
     <div class="wrap">
-      <p class="eyebrow reveal">For beginners</p>
-      <h2 class="sec reveal">こんな方のためのページです。</h2>
-      <p class="lead reveal">「運動」と聞くだけで身構えてしまう人ほど、床の上の動きは合いやすい。
-        キツければやさしく、慣れたら少し強く。自分のペースで大丈夫です。</p>
-      <div class="worry">
-        <div class="w reveal">
-          <p class="q">🛋️ ジムに行っても続かない</p>
-          <p>行く準備がいらないのが強み。家の床で、着替えもせずにできます。1日1動き、30秒からでOK。</p>
+      <p class="eyebrow reveal">Why floor work?</p>
+      <h2 class="sec reveal">コートの動きは、床の上でつくれる。</h2>
+      <p class="lead reveal">バドミントンは「低い構え → 一歩 → 打つ → 戻る」の繰り返し。
+        股関節で床を押す、片足で体を支える、胸を開いて腕を振る。
+        Animal Flow の動きは、その一つひとつと同じ体の使い方でできています。</p>
+      <div class="grid3">
+        <div class="card reveal">
+          <div class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2D8F4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-6"/></svg></div>
+          <h3>ラケットなしで、動きの土台だけ</h3>
+          <p>シャトルを追うと、体の癖は隠れます。床の上では隠れない。膝が内に入る、腰が反る、肩がすくむ。それを先に直します。</p>
         </div>
-        <div class="w reveal">
-          <p class="q">🪨 体が硬くて前屈もつらい</p>
-          <p>止まって我慢するストレッチではなく、動きながら伸ばします。硬い人ほど、変化を感じやすいパートです。</p>
+        <div class="card reveal">
+          <div class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2D8F4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <h3>体育館でも、家でもできる</h3>
+          <p>道具はいりません。練習前の5分、試合の翌朝の5分。コートの隅でも、自宅の床でも同じことができます。</p>
         </div>
-        <div class="w reveal">
-          <p class="q">🥱 運動経験がほぼゼロ</p>
-          <p>四つん這いで止まる、手首を回す。そこから始まります。できない動きは飛ばして構いません。</p>
+        <div class="card reveal">
+          <div class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2D8F4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18M3 12h18"/></svg></div>
+          <h3>「治す」ではなく「起きにくくする」</h3>
+          <p>痛みの治療は医療の仕事です。ここでやるのは、膝・腰・肩に負担が集まりにくい体の使い方を、動きで覚えること。</p>
         </div>
-        <div class="w reveal">
-          <p class="q">💻 デスクワークで肩・腰が重い</p>
-          <p>ふだん使わない「ひねる・横に動く」方向を動かして、体の偏りをリセットしやすくします。</p>
-        </div>
+      </div>
+      <!-- 写真：体育館の床でビースト姿勢をとるしょっちゃん（ラケットを脇に置く）推奨 1600×900 -->
+      <div class="ph-img wide reveal" style="margin-top:40px" role="img" aria-label="体育館の床で四つん這いの基本姿勢をとる様子。脇にラケットとシャトル" data-alt="体育館の床でのビースト姿勢・ラケットを脇に">
+        <div class="cam">📷</div>
+        写真を準備中<br><small>体育館の床でのビースト姿勢（ラケットを脇に）／1600×900</small>
       </div>
     </div>
   </section>
 
-  <!-- FIRST STEP -->
-  <section class="first" id="first">
+  <!-- 5 AXES TABLE -->
+  <section class="why" id="axes">
     <div class="wrap">
       <div class="center">
-        <p class="eyebrow reveal">First 1 minute</p>
-        <h2 class="sec reveal">まず1分。「四つん這いで止まる」だけ。</h2>
-        <p class="lead reveal">Animal Flow のいちばん基本の姿勢「ビースト」。動かなくていい。止まるだけで、お腹と背中に自然と力が入ります。</p>
+        <p class="eyebrow reveal">5 axes × badminton</p>
+        <h2 class="sec reveal">バドの5つの場面 × 体の5つの軸</h2>
+        <p class="lead reveal">wildflow の身体診断は、筋力・持久力・スピード・柔軟性・調整力の5軸で見ます。
+          その5軸を、バドミントンのコートで起きる場面に置き換えるとこうなります。</p>
+      </div>
+      <div class="axes reveal">
+        <table>
+          <thead>
+            <tr><th>軸</th><th>コートで起きること</th><th>床でやる Animal Flow の動き</th><th>ねらい</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>💪 筋力</b><br><small>押す・踏ん張る・支える</small></td>
+              <td>スマッシュ後の踏ん張り、レシーブの低い構えで腰が落ちすぎる</td>
+              <td>Static Beast ／ Loaded Beast ／ Static Crab</td>
+              <td>股関節で床を押す感覚と、低い姿勢に耐える体幹・後面の筋を起こす</td>
+            </tr>
+            <tr>
+              <td><b>🔥 持久力</b><br><small>動き続けるスタミナ</small></td>
+              <td>ラリー後半で足が止まる、3ゲーム目で構えが高くなる</td>
+              <td>Traveling Beast ／ Traveling Crab ／ Lateral Traveling Beast</td>
+              <td>全身を使って移動し続ける持久力。上下動を抑えてフラットに動く</td>
+            </tr>
+            <tr>
+              <td><b>⚡ スピード</b><br><small>瞬発力・反応速度</small></td>
+              <td>フォア⇄バックの切り替えが遅れる、一歩目が出ない</td>
+              <td>Underswitch ／ Side Kickthrough ／ Front Kickthrough</td>
+              <td>股関節の内外旋と、腰のひねり戻し。方向転換の一歩目を作る</td>
+            </tr>
+            <tr>
+              <td><b>🌊 柔軟性</b><br><small>関節の可動域</small></td>
+              <td>ハイバックで肩が詰まる、ラウンド・ザ・ヘッドで胸が開かない</td>
+              <td>Ape Reach ／ Crab Reach ／ Scorpion Reach ／ Wave Unload</td>
+              <td>肩甲骨・胸郭・股関節を動きながら広げ、打つ前の「タメ」の可動域を確保する</td>
+            </tr>
+            <tr>
+              <td><b>🎯 調整力</b><br><small>連動・リズム・バランス</small></td>
+              <td>打点に入るのが半歩ずれる、片足で踏み込むとぐらつく</td>
+              <td>Beast Reach ／ Beast Flow（動きをつなげる）</td>
+              <td>片側支持でブレない体幹と、次の一手を考えながら動く脳と体の協調</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="fine-note center">動きの名称は Animal Flow® Level 1 の公式名称です。「治る」「改善する」といった効果を保証するものではなく、負担が集まりにくい体の使い方を練習するものです。</p>
+      <div class="center" style="margin-top:28px">
+        <a class="cta-inline" href="/quiz/quick?entry=badminton">自分はどの軸が弱い？10問で診断する →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SYMPTOMS（P1-7 でここに10項目の対応表を入れる） -->
+  <div id="symptoms-slot"></div>
+
+  <!-- 5 MIN ROUTINE -->
+  <section class="first" id="routine">
+    <div class="wrap">
+      <div class="center">
+        <p class="eyebrow reveal">Before you play</p>
+        <h2 class="sec reveal">練習前の5分。まずはこの3つ。</h2>
+        <p class="lead reveal">難しい動きはいりません。ラケットを置いて、床に手をつくところから。</p>
       </div>
       <div class="box">
         <div class="reveal">
           <ol>
-            <li>四つん這いになる。手は肩の真下、膝は腰の真下。</li>
-            <li>膝を床から2〜3cmだけ浮かせる。指先で床を押す。</li>
-            <li>目線は下、首は長く。お腹に軽く力を入れて、10秒キープ。</li>
-            <li>膝をおろして休む。これを3回。</li>
+            <li><b>手首くるくる（30秒）</b>：グリップを握る前に、手首と前腕を全方向に。床に手をつく準備にもなります。</li>
+            <li><b>Static Beast（10秒 × 3）</b>：四つん這いで膝を2〜3cm浮かせて止まる。股関節で床を押す感覚が、低い構えの土台です。</li>
+            <li><b>Crab Reach（左右 × 3）</b>：仰向けの四足から片手を頭上へ。前傾で固まりがちな胸を開いてから、コートに入ります。</li>
           </ol>
-          <p class="note">※ 手首が痛いときは、先に「① 手首くるくる」をやってから。痛みがあるときは無理に続けないでください。</p>
+          <p class="note">※ 痛みがある部位は動かさないでください。痛みが続く場合は医療機関へ。ここで扱うのは体の使い方の練習で、治療ではありません。</p>
         </div>
-        <!-- 写真：Static Beast の横からの姿勢（推奨 1200×900、4:3） -->
-        <div class="ph-img reveal" role="img" aria-label="四つん這いで膝を浮かせた基本姿勢（ビースト）を横から見た写真" data-alt="Static Beast の横からの姿勢">
-          <div class="cam">📷</div>
-          写真を準備中<br><small>ビースト姿勢（横から）／1200×900</small>
-        </div>
+        <!-- 動画：3つの動きを続けて見せる縦動画（推奨 1080×1920、60秒以内）。空なら「動画準備中」 -->
+        <div class="vslot" data-key="routine"></div>
       </div>
     </div>
   </section>
 
-  <!-- WHAT -->
-  <section class="center">
-    <div class="wrap">
-      <p class="eyebrow reveal">What is Animal Flow?</p>
-      <h2 class="sec reveal">「動物のマネ」って思うでしょ。<br>ちょっとちがうんです。</h2>
-      <p class="lead reveal">たしかにクマやサルみたいに動くけれど、めざすのは "あなた自身" の身体。
-        手足を床につけて動くと、ふだん眠っている力が起きて、体がびっくりするほど動きやすくなります。</p>
-
-      <div class="grid3">
-        <div class="card reveal">
-          <div class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2D8F4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-6"/></svg></div>
-          <h3>じわじわ、体が変わる</h3>
-          <p>続けるうちに、体が軽く、姿勢がラクに。実はその効果、ちゃんと研究でも確かめられています。</p>
-        </div>
-        <div class="card reveal">
-          <div class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2D8F4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div>
-          <h3>道具はいらない</h3>
-          <p>マシンもウェイトも不要。必要なのは自分の体と、寝転がれるくらいのスペースだけ。おうちでOK。</p>
-        </div>
-        <div class="card reveal">
-          <div class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2D8F4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18M3 12h18"/></svg></div>
-          <h3>誰でも、今日から</h3>
-          <p>年齢も運動経験も関係なし。キツければやさしく、慣れたら強く。自分のペースで始められます。</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- WHY -->
-  <section class="why">
-    <div class="wrap center">
-      <p class="eyebrow reveal">Why it feels good</p>
-      <h2 class="sec reveal">なんで、こんなに気持ちいいの？</h2>
-      <p class="lead reveal">四つん這いで動くだけ。なのに、終わったあとは体がスッキリ。
-        その理由を、むずかしい言葉ぬきで。</p>
-
-      <div class="grid4" style="text-align:left;">
-        <div class="item reveal">
-          <div class="em" aria-hidden="true">🧠</div>
-          <h3>体が思いどおりに動く</h3>
-          <p>手と足をバラバラに使うから、脳と体の連携がぐんぐん良くなる。バランスも、とっさの動きも上手に。</p>
-        </div>
-        <div class="item reveal">
-          <div class="em" aria-hidden="true">🌿</div>
-          <h3>バネのある、しなやかさ</h3>
-          <p>体を包む"膜"がゴムみたいに働いて、動きにバネが生まれる。軽やかに、疲れにくい体へ。</p>
-        </div>
-        <div class="item reveal">
-          <div class="em" aria-hidden="true">💪</div>
-          <h3>全身をいっぺんに</h3>
-          <p>手足で床を支えるから、お腹も背中も腕も同時に使う。一部だけじゃない"つながった強さ"がつく。</p>
-        </div>
-        <div class="item reveal">
-          <div class="em" aria-hidden="true">🔄</div>
-          <h3>こりや痛みが出にくく</h3>
-          <p>前後だけでなく、ひねる・横に動くもたっぷり。ふだん使わない方向をほぐして、体の偏りをリセット。</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- THEME NAV -->
-  <nav class="navchips" aria-label="ステップ一覧">
-    <div class="wrap">
-      <div class="row">
-        <a href="#t1">① 手首くるくる</a>
-        <a href="#t2">② スイッチ</a>
-        <a href="#t3">③ 伸ばす</a>
-        <a href="#t4">④ 動物歩き</a>
-        <a href="#t5">⑤ つなげる</a>
-        <a href="#t6">⑥ フロー</a>
-      </div>
-    </div>
-  </nav>
-
-  <!-- THEMES -->
-  <section class="themes" id="themes">
-    <div class="wrap center" style="padding-bottom:6px;">
-      <p class="eyebrow reveal">6 Steps</p>
-      <h2 class="sec reveal">6つのステップで、少しずつ。</h2>
-      <p class="lead reveal">むずかしい順番はありません。気になったところから、動画をマネして動いてみてください。</p>
-    </div>
-
-    <div class="wrap">
-
-      <!-- 1 -->
-      <article class="theme reveal" id="t1">
-        <div class="head">
-          <div class="badge"><span class="step">STEP</span><span class="no">1</span></div>
-          <div class="htext"><h2>まずは手首をくるくる</h2><div class="en">Warm up</div></div>
-        </div>
-        <div class="body">
-          <div class="desc">
-            <p>デスクワークやスマホで、手首は思っている以上に疲れてこわばりがち。床に手をつく前に、手首をくるくる回してやさしくほぐしておきましょう。これだけで、このあとの動きがぐっとラクになります。</p>
-            <div class="tags"><span class="tag">#手首すっきり</span><span class="tag">#こりをほぐす</span><span class="tag">#すきま時間に</span></div>
-            <p class="ref"><b>正式名称</b>Wrist Mobilizations ／ Wrist Rolls・Waves・Lateral・Rocks・Magnetic・Relief</p>
-          </div>
-          <div class="vslot" data-key="wrist"></div>
-        </div>
-      </article>
-
-      <!-- 2 -->
-      <article class="theme alt reveal" id="t2">
-        <div class="head">
-          <div class="badge"><span class="step">STEP</span><span class="no">2</span></div>
-          <div class="htext"><h2>体の"スイッチ"を入れる</h2><div class="en">Core on</div></div>
-        </div>
-        <div class="body">
-          <div class="desc">
-            <p>四つん這いになって、じっと止まる。たったそれだけで、お腹まわりと背中に自然と力が入って、体の芯が目を覚まします。地味に見えて、じつはいちばん効くパート。</p>
-            <div class="tags"><span class="tag">#お腹に効く</span><span class="tag">#姿勢が整う</span><span class="tag">#体の芯</span></div>
-            <p class="ref"><b>正式名称</b>Activations ／ Static Beast・Static Crab</p>
-          </div>
-          <div class="vslot" data-key="activation"></div>
-        </div>
-      </article>
-
-      <!-- 3 -->
-      <article class="theme reveal" id="t3">
-        <div class="head">
-          <div class="badge"><span class="step">STEP</span><span class="no">3</span></div>
-          <div class="htext"><h2>気持ちよく、伸ばす</h2><div class="en">Stretch</div></div>
-        </div>
-        <div class="body">
-          <div class="desc">
-            <p>ガチガチに固まった背中・肩・股関節を、動きながら大きく伸ばしていく。止まって我慢するストレッチとちがって、じんわり効いて気持ちいい。朝いちや寝る前にもぴったりです。</p>
-            <div class="tags"><span class="tag">#背中ほぐす</span><span class="tag">#股関節ゆるむ</span><span class="tag">#気持ちいい</span></div>
-            <p class="ref"><b>正式名称</b>Form Specific Stretches ／ Loaded Beast・Ape Reach・Crab Reach・Scorpion Reach・Beast Reach・Wave Unload</p>
-          </div>
-          <div class="vslot" data-key="fss"></div>
-        </div>
-      </article>
-
-      <!-- 4 -->
-      <article class="theme alt reveal" id="t4">
-        <div class="head">
-          <div class="badge"><span class="step">STEP</span><span class="no">4</span></div>
-          <div class="htext"><h2>動物みたいに歩く</h2><div class="en">Move</div></div>
-        </div>
-        <div class="body">
-          <div class="desc">
-            <p>クマ、サル、カニ——動物になりきって、床を這うように移動します。遊んでいるうちに、いつのまにか全身がつながって、体力も動きのキレもアップ。子どもの頃のハイハイの感覚です。</p>
-            <div class="tags"><span class="tag">#全身運動</span><span class="tag">#遊び感覚</span><span class="tag">#体力アップ</span></div>
-            <p class="ref"><b>正式名称</b>Traveling Forms ／ Ape・Beast・Crab（前後左右）・Lateral Ape 1-3・Forward Ape / Frog</p>
-          </div>
-          <div class="vslot" data-key="traveling"></div>
-        </div>
-      </article>
-
-      <!-- 5 -->
-      <article class="theme reveal" id="t5">
-        <div class="head">
-          <div class="badge"><span class="step">STEP</span><span class="no">5</span></div>
-          <div class="htext"><h2>動きをつなげる</h2><div class="en">Connect</div></div>
-        </div>
-        <div class="body">
-          <div class="desc">
-            <p>ひとつの動きから、次の動きへ。くるっと回ったり、足をスッと抜いたり。できると気持ちいいし、見た目もちょっとかっこいい。ここが Animal Flow のいちばんワクワクするところ。</p>
-            <div class="tags"><span class="tag">#キレのある動き</span><span class="tag">#かっこいい</span><span class="tag">#達成感</span></div>
-            <p class="ref"><b>正式名称</b>Switches &amp; Transitions ／ Underswitch・Side Kickthrough・Scorpion・Front Kickthrough</p>
-          </div>
-          <div class="vslot" data-key="switches"></div>
-        </div>
-      </article>
-
-      <!-- 6 -->
-      <article class="theme alt reveal" id="t6">
-        <div class="head">
-          <div class="badge"><span class="step">STEP</span><span class="no">6</span></div>
-          <div class="htext"><h2>流れるように動く</h2><div class="en">Flow</div></div>
-        </div>
-        <div class="body">
-          <div class="desc">
-            <p>バラバラだった動きが、一本の流れになる瞬間。決まった正解はありません。音楽に乗って、自分だけのフローを。ダンスみたいに、瞑想みたいに、ただ動くことを楽しむ時間です。</p>
-            <div class="tags"><span class="tag">#自分だけの流れ</span><span class="tag">#没入</span><span class="tag">#ただ楽しい</span></div>
-            <p class="ref"><b>正式名称</b>Flows ／ The Beast Flow ほか（方向 &gt; 四肢 &gt; コマンドでコールアウト）</p>
-          </div>
-          <div class="vslot" data-key="flow"></div>
-        </div>
-      </article>
-
-    </div>
-  </section>
-
-  <!-- EXITS：ここから先、3つの行き先 -->
+  <!-- EXITS -->
   <section class="center" id="next">
     <div class="wrap">
       <p class="eyebrow reveal">Next step</p>
-      <h2 class="sec reveal">ひとりで続かなければ、次の一歩へ。</h2>
-      <p class="lead reveal">動画をマネするだけでも十分。もう少し知りたくなったら、この3つから選んでください。</p>
+      <h2 class="sec reveal">ここから先、3つの行き先。</h2>
+      <p class="lead reveal">自分に合うものを一つだけ選んでください。全部やる必要はありません。</p>
       <div class="exits">
         <div class="exit reveal">
           <div class="no">01 ／ 1分で知る</div>
           <h3>🐾 10問の身体診断</h3>
-          <p>筋力・持久力・スピード・柔軟性・調整力。5つのうち、いま一番伸ばしやすいところが分かります。登録不要。</p>
-          <a class="btn amber" href="/quiz/quick?entry=beginner">10問で診断する →</a>
+          <p>5軸のうち、いま一番伸ばしやすい軸が分かります。結果の画面から、そのままバド向けの動きに戻ってこられます。登録不要。</p>
+          <a class="btn amber" href="/quiz/quick?entry=badminton">10問で診断する →</a>
         </div>
         <div class="exit reveal">
           <div class="no">02 ／ 一緒に動く</div>
-          <h3>🌿 少人数のレッスン</h3>
-          <p>川口・蕨で、床を使った1時間のレッスン。運動経験ゼロの方を前提に、その日の体に合わせて進めます。</p>
+          <h3>🌿 床の上の1時間レッスン</h3>
+          <p>川口・蕨で、Animal Flow の少人数レッスン。バドの人には、その日の「詰まり」に合わせて動きを組みます。</p>
           <a class="btn" href="/lessons">レッスンを見る →</a>
         </div>
         <div class="exit reveal">
-          <div class="no">03 ／ 読んで知る</div>
-          <h3>📖 しょっちゃんのブログ</h3>
-          <p>上海で Animal Flow に出会った話や、体づくりのヒント。まずは読みものから、という方へ。</p>
-          <a class="btn ghost" href="/blog">ブログを読む →</a>
+          <div class="no">03 ／ コートで会う</div>
+          <h3>🏸 kawabado の通常活動</h3>
+          <p>同じしょっちゃんが川口・蕨でやっているバドミントンの集まり。初心者や1人参加が多い、ゆるい活動です。</p>
+          <a class="btn ghost" href="https://kawabado.com/ja/activity?utm_source=wildflow&amp;utm_medium=referral&amp;utm_campaign=badminton_page" target="_blank" rel="noopener">kawabado を見る ↗</a>
         </div>
       </div>
-      <p class="fine-note">バドミントンをしている方は、<a href="/badminton">バド向けのページ</a>のほうが近道です。</p>
+      <p class="fine-note">運動そのものがはじめての方は、<a href="/beginner">はじめての方向けページ</a>からどうぞ。</p>
     </div>
   </section>
 
   <!-- FOOTER -->
   <footer class="foot">
-    <h2>今日の1分が、はじまり。</h2>
-    <p>まずは①手首くるくるか、四つん這いで10秒。1日ひとつ、ちょっとだけでOK。少しずつ、動ける体にしていきましょう。</p>
-    <a class="cta" href="#themes">6つのステップに戻る ↑</a>
+    <h2>次の練習の前に、床で5分。</h2>
+    <p>手首くるくる、ビースト、クラブリーチ。この3つだけで構いません。コートで動ける体は、床の上から。</p>
+    <a class="cta" href="#axes">5つの軸に戻る ↑</a>
     <div class="fine">Animal Flow® は Global Bodyweight Training, LLC の登録商標です。／ presented by <a href="/">wildflow</a></div>
   </footer>
 
