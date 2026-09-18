@@ -72,52 +72,64 @@ export function HomePage() {
         style={{ background: 'linear-gradient(135deg, #D4EDD8 0%, #F8F7F2 100%)', minHeight: '85vh', display: 'flex', alignItems: 'center' }}
       >
         <div className="relative max-w-3xl md:max-w-4xl mx-auto w-full">
+          {/*
+            2026-09-18 バドミントン・ピボット（P0-1）。
+            FV は「あなたはどっち？」の分岐だけにして、診断CTAは下のセクションへ降ろした。
+            ・バドミントン経験者 → /badminton（バド症状 × Animal Flow）
+            ・運動が苦手／はじめて → /beginner（animalflow.html をやさしく再編集）
+          */}
           <p
             className="text-xs font-bold uppercase mb-4"
             style={{ color: '#2D8F4E', letterSpacing: '0.2em', fontFamily: 'Sora, sans-serif' }}
           >
-            BODY TYPE DIAGNOSIS
+            ANIMAL FLOW × KAWAGUCHI / WARABI
           </p>
           <h1
             className="font-black leading-tight mb-6"
-            style={{ fontSize: 'clamp(36px, 6vw, 52px)', color: '#1C2A1E' }}
+            style={{ fontSize: 'clamp(32px, 6vw, 52px)', color: '#1C2A1E' }}
           >
-            あなたの身体、<br />何型の動物ですか？
+            床の上で、<br />コートで動ける体をつくる。
           </h1>
-          <p className="mb-3" style={{ color: '#4A6550', lineHeight: 1.8, fontSize: '20px' }}>
-            筋力・持久力・スピード・柔軟性・調整力。<br className="hidden md:block" />
-            5つの軸で測定し、22種類の動物タイプで表す身体診断。
+          <p className="mb-3" style={{ color: '#4A6550', lineHeight: 1.8, fontSize: '18px' }}>
+            道具いらず、床さえあればできる全身運動 Animal Flow。<br className="hidden md:block" />
+            川口・蕨で、バドミントンをする人にも、運動がはじめての人にも。
           </p>
-          <p className="mb-10" style={{ color: '#4A6550', fontSize: '16px' }}>
-            性格でなく<strong style={{ color: '#1C2A1E' }}>「身体の特性」</strong>を診断する、動物版フィジカル診断。
+          <p className="mb-8 font-bold" style={{ color: '#1C2A1E', fontSize: '16px' }}>
+            あなたはどちらですか？
           </p>
-          <div className="flex flex-col items-center gap-3">
-            <Link
-              to="/quiz/quick"
-              onClick={() => track('click_primary_cta', { cta: 'hero_quick_quiz' })}
-              className="inline-flex items-center justify-center gap-2 font-bold transition-all hover:-translate-y-0.5"
+          <div className="flex flex-col sm:flex-row items-stretch justify-center gap-3 max-w-xl mx-auto">
+            <a
+              href="/badminton"
+              onClick={() => track('click_primary_cta', { cta: 'hero_badminton' })}
+              className="flex-1 inline-flex flex-col items-center justify-center gap-1 font-bold transition-all hover:-translate-y-0.5 px-6 py-4"
               style={{
                 backgroundColor: '#f5a623',
                 color: '#1C2A1E',
-                padding: '0 40px',
-                borderRadius: '100px',
+                borderRadius: '20px',
                 boxShadow: '0 4px 14px rgba(245,166,35,0.4)',
-                fontSize: '18px',
-                minHeight: '56px',
+                minHeight: '72px',
               }}
             >
-              🐾 10問で無料診断する（約1分）
-            </Link>
-            <Link
-              to="/quiz"
-              onClick={() => track('click_primary_cta', { cta: 'hero_full_quiz' })}
-              className="text-sm transition-all hover:opacity-70"
-              style={{ color: '#4A6550' }}
+              <span style={{ fontSize: '18px' }}>🏸 バドミントンをしている</span>
+              <span className="text-xs font-medium" style={{ color: '#5a4a1e' }}>膝・腰・肩の不安を、動きから見直す</span>
+            </a>
+            <a
+              href="/beginner"
+              onClick={() => track('click_primary_cta', { cta: 'hero_beginner' })}
+              className="flex-1 inline-flex flex-col items-center justify-center gap-1 font-bold transition-all hover:-translate-y-0.5 px-6 py-4"
+              style={{
+                backgroundColor: '#FFFFFF',
+                color: '#1C2A1E',
+                border: '2px solid #2D8F4E',
+                borderRadius: '20px',
+                minHeight: '72px',
+              }}
             >
-              📊 60問で詳しく診断する →
-            </Link>
+              <span style={{ fontSize: '18px' }}>🌱 運動は苦手・はじめて</span>
+              <span className="text-xs font-medium" style={{ color: '#4A6550' }}>床でちょっと、動物みたいに動いてみる</span>
+            </a>
           </div>
-          <p className="mt-3 text-sm" style={{ color: '#4A6550' }}>詳細診断は結果をメールでお送りします</p>
+          <p className="mt-4 text-sm" style={{ color: '#4A6550' }}>どちらでもない方は、下の「身体のMBTI」から</p>
           <div
             className="mt-12 flex justify-center cursor-pointer animate-bounce"
             style={{ color: '#4A6550' }}
