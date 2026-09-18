@@ -4,6 +4,7 @@ import { quickQuestions } from '../data/quickQuizQuestions';
 import { calcQuickResult } from '../utils/calcQuickType';
 import { track } from '../services/analytics';
 import { getEntry, rememberEntryFromSearch } from '../utils/entry';
+import { ENTRY_COPY, questionsForEntry } from '../data/entryCopy';
 
 const LABELS = ['全く違う', 'あまり違う', '少しそう', 'とてもそう'];
 
@@ -19,11 +20,15 @@ export function QuickQuiz() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [current]);
 
+  // /badminton・/beginner からの流入は ?entry= で分かる。先に控えてから、見出し・質問文を入口ごとに出し分ける
+  // （P0-4 + 言い回し差し替え）。ロジック（id・軸・逆転）は quickQuestions のまま。
+  const [entry] = useState(() => { rememberEntryFromSearch(search); return getEntry(); });
+  const copy = ENTRY_COPY[entry];
+  const questions = questionsForEntry(entry, quickQuestions);
+
   useEffect(() => {
-    // /badminton・/beginner からの流入は ?entry= で分かる。結果ページの出口を出し分けるために控える（P0-4）
-    rememberEntryFromSearch(search);
-    track('start_wild_type_diagnosis', { quiz_type: 'quick', entry: getEntry() });
-  }, [search]);
+    track('start_wild_type_diagnosis', { quiz_type: 'quick', entry });
+  }, [entry]);
 
   const handleSelect = (value: number) => {
     if (isTransitioning) return;
@@ -31,15 +36,15 @@ export function QuickQuiz() {
     setIsTransitioning(true);
 
     setTimeout(() => {
-      const newAnswers = { ...answers, [quickQuestions[current].id]: value };
+      const newAnswers = { ...answers, [questions[current].id]: value };
       setAnswers(newAnswers);
 
-      if (current < quickQuestions.length - 1) {
+      if (current < questions.length - 1) {
         setCurrent(c => c + 1);
         setSelected(null);
         setIsTransitioning(false);
       } else {
-        const result = calcQuickResult(newAnswers, quickQuestions);
+        const result = calcQuickResult(newAnswers, questions);
         navigate('/quiz/quick/result', { state: { result } });
       }
     }, 300);
@@ -49,24 +54,25 @@ export function QuickQuiz() {
     if (current === 0 || isTransitioning) return;
     const prevIndex = current - 1;
     setCurrent(prevIndex);
-    setSelected(answers[quickQuestions[prevIndex].id] ?? null);
+    setSelected(answers[questions[prevIndex].id] ?? null);
   };
 
-  const q = quickQuestions[current];
-  const progress = ((current + 1) / quickQuestions.length) * 100;
+  const q = questions[current];
+  const progress = ((current + 1) / questions.length) * 100;
 
   return (
     <main className="max-w-2xl md:max-w-4xl mx-auto px-4 md:px-8 lg:px-12 py-12">
       <div className="text-center mb-8">
-        <p className="text-sm font-medium mb-1" style={{ color: '#2D8F4E' }}>簡易診断 — 約1分</p>
+        <p className="text-sm font-medium mb-1" style={{ color: '#2D8F4E' }}>{copy.quizName}</p>
         <h1 className="font-black" style={{ color: '#1C2A1E', fontSize: '28px', lineHeight: '1.3' }}>
-          あなたの伸びしろアビリティを診断する
+          {copy.quizHeading}
         </h1>
+        <p className="text-xs mt-2" style={{ color: '#4A6550' }}>登録不要。{copy.axesWord}のうち、いま一番伸ばしやすいところが分かります。</p>
       </div>
 
       <div className="mb-8">
         <div className="flex justify-between items-center text-xs mb-2" style={{ color: '#4A6550' }}>
-          <span>質問 {current + 1} / {quickQuestions.length}</span>
+          <span>質問 {current + 1} / {questions.length}</span>
           {current > 0 && (
             <button
               onClick={handlePrev}

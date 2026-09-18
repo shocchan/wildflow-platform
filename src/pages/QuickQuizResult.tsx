@@ -8,6 +8,8 @@ import { SITE_CONFIG } from '../config/site';
 import { ResultExits } from '../components/ResultExits';
 import { fetchProductHealth, type ProductHealth } from '../services/productHealth';
 import { getEntry } from '../utils/entry';
+import { ENTRY_COPY } from '../data/entryCopy';
+import { TodayMove } from '../components/TodayMove';
 
 const ABILITY_ORDER = ['strength', 'endurance', 'speed', 'flexibility', 'coordination'] as const;
 
@@ -71,6 +73,7 @@ export function QuickQuizResult() {
   const [result] = useState<QuickResult | undefined>(() => fromNav ?? recallResult());
   // どのページから診断に来たか（/badminton・/beginner・それ以外）。出口3ブロックの出し分けに使う（P0-4）
   const [entry] = useState(() => getEntry());
+  const copy = ENTRY_COPY[entry];
   const [copied, setCopied] = useState(false);
   const [email, setEmail] = useState('');
   const [leadState, setLeadState] = useState<LeadState>('idle');
@@ -115,7 +118,7 @@ export function QuickQuizResult() {
     const base = {
       name: '（10問診断）',
       email: value,
-      wild_type: `10問診断：${lowestLabel}が伸びしろ`,
+      wild_type: `10問診断（${entry}）：${lowestLabel}が伸びしろ`,
       scores,
     };
 
@@ -147,9 +150,9 @@ export function QuickQuizResult() {
   return (
     <main className="max-w-2xl md:max-w-4xl mx-auto px-4 md:px-8 lg:px-12 py-12">
       <div className="text-center mb-8">
-        <p className="text-sm font-medium mb-1" style={{ color: '#1A6B38' }}>簡易診断 結果</p>
+        <p className="text-sm font-medium mb-1" style={{ color: '#1A6B38' }}>{copy.quizName.replace(/ — .*$/, '')} 結果</p>
         <h1 className="font-black mb-2" style={{ color: '#1C2A1E', fontSize: '36px', lineHeight: '1.3' }}>
-          あなたが最も伸ばせるアビリティは
+          {copy.resultHeading}
         </h1>
         <div
           className="inline-block px-6 py-3 rounded-2xl mt-2"
@@ -161,12 +164,15 @@ export function QuickQuizResult() {
         </div>
       </div>
 
+      {/* 今日やる1動作（結果の直後に、いま床でできる30秒を先に渡す） */}
+      <TodayMove ability={lowestAbility} abilityLabel={lowestLabel} entry={entry} />
+
       {/* スコアグラフ */}
       <div
         className="p-6 rounded-2xl border mb-6"
         style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}
       >
-        <p className="text-sm font-bold mb-4" style={{ color: '#4A6550' }}>── 5軸アビリティスコア ──</p>
+        <p className="text-sm font-bold mb-4" style={{ color: '#4A6550' }}>── {copy.axesWord}のスコア ──</p>
         {ABILITY_ORDER.map(ab => (
           <AbilityBar
             key={ab}
@@ -177,13 +183,14 @@ export function QuickQuizResult() {
         ))}
       </div>
 
-      {/* 該当動物タイプ */}
+      {/* 該当動物タイプ（22タイプはバド文脈では使わないので、バド入口では出さない） */}
+      {entry !== 'badminton' && (
       <div
         className="p-6 rounded-2xl border mb-6"
         style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8E4' }}
       >
         <h2 className="text-lg font-bold mb-3" style={{ color: '#1C2A1E' }}>
-          このアビリティが伸びしろの動物タイプ
+          この力が伸びしろの動物タイプ
         </h2>
         <p className="text-sm mb-3" style={{ color: '#4A6550' }}>
           「{lowestLabel}」が伸びしろの動物タイプはこれら：
@@ -203,6 +210,7 @@ export function QuickQuizResult() {
           あなたがどのタイプに当てはまるかは、詳細診断（60問）で判定できます。
         </p>
       </div>
+      )}
 
       {/*
         出口3ブロック（2026-09-18 P0-4）。入口（/badminton・/beginner・その他）で出し分ける。
@@ -225,19 +233,17 @@ export function QuickQuizResult() {
           <div className="text-center">
             <p className="text-3xl mb-2">📩</p>
             <p className="font-bold mb-1" style={{ color: '#1C2A1E' }}>登録しました！</p>
-            <p className="text-sm" style={{ color: '#4A6550' }}>
-              「{lowestLabel}」を伸ばすトレーニングの解説をお送りします。
-            </p>
+            <p className="text-sm" style={{ color: '#4A6550' }}>{copy.leadDone(lowestLabel)}</p>
+            {entry === 'badminton' && (
+              <a href="/routine" className="inline-block mt-3 text-sm font-bold underline" style={{ color: '#2D8F4E' }}>
+                練習前5分ルーティン（A4印刷用）をいま開く →
+              </a>
+            )}
           </div>
         ) : (
           <>
-            <h2 className="text-base font-bold mb-1" style={{ color: '#1C2A1E' }}>
-              📩 この結果を保存する（任意）
-            </h2>
-            <p className="text-sm mb-4" style={{ color: '#4A6550' }}>
-              メールアドレスを入れておくと、「{lowestLabel}」を伸ばすトレーニングの
-              詳しい解説と、新しいレッスンのお知らせが届きます。入力しなくても結果はこのまま見られます。
-            </p>
+            <h2 className="text-base font-bold mb-1" style={{ color: '#1C2A1E' }}>{copy.leadTitle}</h2>
+            <p className="text-sm mb-4" style={{ color: '#4A6550' }}>{copy.leadBody(lowestLabel)}</p>
             <form onSubmit={handleLeadSubmit} className="flex flex-col sm:flex-row gap-3">
               <input
                 type="email"
@@ -278,7 +284,8 @@ export function QuickQuizResult() {
         )}
       </div>
 
-      {/* 詳細診断CTA */}
+      {/* 詳細診断CTA（60問・22タイプ判定はバド文脈で使わないので、バド入口では出さない） */}
+      {entry !== 'badminton' && (
       <div
         className="p-6 rounded-2xl border text-center mb-6"
         style={{ backgroundColor: '#FFFFFF', borderColor: '#2D8F4E', borderWidth: '2px' }}
@@ -296,6 +303,7 @@ export function QuickQuizResult() {
           📊 60問で詳しく診断する →
         </a>
       </div>
+      )}
 
       {/* シェアボタン */}
       <div
