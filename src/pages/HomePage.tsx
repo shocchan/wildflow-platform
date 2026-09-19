@@ -2,428 +2,232 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PostCard } from '../components/PostCard';
 import { fetchLatestPosts } from '../services/posts';
-import { fetchProfileSettings } from '../services/settings';
 import { track } from '../services/analytics';
 import type { Post } from '../types';
 import { useLang, langPath } from '../i18n/lang';
 import { MESSAGES } from '../i18n/messages';
+import { LANDING, type Move } from '../i18n/landing';
+import { Reveal } from '../components/landing/Reveal';
+import { MoveExplorer } from '../components/landing/MoveExplorer';
+import { ChallengeTimer } from '../components/landing/ChallengeTimer';
+import { kawabadoActivityUrl } from '../config/site';
 
-function InstructorAvatar() {
-  const [photoUrl, setPhotoUrl] = useState('');
-  useEffect(() => {
-    fetchProfileSettings().then(p => { if (p.photo_url) setPhotoUrl(p.photo_url); }).catch(() => {});
-  }, []);
-  if (photoUrl) return <img src={photoUrl} alt="しょっちゃん" className="w-full h-full object-cover" />;
-  return (
-    <div className="w-full h-full flex items-center justify-center text-2xl" style={{ backgroundColor: '#EDF7EE' }}>
-      🌊
-    </div>
-  );
-}
-
-const TYPE_GRID_MAIN = [
-  { emoji: '🦏', name: 'サイ' },
-  { emoji: '🐘', name: 'ゾウ' },
-  { emoji: '🦁', name: 'ライオン' },
-  { emoji: '🐂', name: 'バッファロー' },
-  { emoji: '🐺', name: 'オオカミ' },
-  { emoji: '🐋', name: 'クジラ' },
-  { emoji: '🦅', name: 'ワシ' },
-  { emoji: '🦬', name: 'バイソン' },
-  { emoji: '🐆', name: 'チーター' },
-  { emoji: '🐇', name: 'ウサギ' },
-  { emoji: '🦅', name: 'ハヤブサ' },
-  { emoji: '🐻', name: 'クマ' },
-  { emoji: '🐍', name: 'アナコンダ' },
-  { emoji: '🐆', name: 'ヒョウ' },
-  { emoji: '🐟', name: 'マンタ' },
-  { emoji: '🐙', name: 'タコ' },
-  { emoji: '🐬', name: 'イルカ' },
-  { emoji: '🦜', name: 'オウム' },
-  { emoji: '🦦', name: 'カワウソ' },
-  { emoji: '🦊', name: 'キツネ' },
-];
-
-const TYPE_GRID_SPECIAL = [
-  { emoji: '🐉', name: 'ドラゴン', rare: 'dragon' },
-  { emoji: '🥚', name: 'ドラゴンエッグ', rare: 'egg' },
-];
-
+/**
+ * トップ（2026-09-19 全面刷新）。
+ * 「読む」より「触る・やる」を前に出す：動きを触るエクスプローラー → 30秒チャレンジ → 入口2つ → 10問診断。
+ * 実績数値・受講者の声は入れていない（素材が無いものは作らない）。
+ */
 export function HomePage() {
+  const lang = useLang();
+  const t = LANDING[lang];
+  const tm = MESSAGES[lang].home;
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
-  const quizSectionRef = useRef<HTMLElement>(null);
-  const lang = useLang();
-  const t = MESSAGES[lang].home;
-  const AXES = t.axes;
+  const [move, setMove] = useState<Move>(t.moves[1]);
+  const timerRef = useRef<HTMLElement>(null);
+  const bad = langPath('/badminton', lang);
+  const beg = langPath('/beginner', lang);
 
-  useEffect(() => {
-    fetchLatestPosts(3).then(setPosts).finally(() => setLoading(false));
-  }, []);
+  useEffect(() => { fetchLatestPosts(3).then(setPosts).catch(() => {}).finally(() => setLoading(false)); }, []);
+  useEffect(() => { setMove(LANDING[lang].moves.find(m => m.key === move.key) ?? LANDING[lang].moves[1]); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [lang]);
+
+  const jumpToTimer = (m: Move) => {
+    setMove(m);
+    timerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
 
   return (
-    <main>
-      {/* ── Hero ── */}
-      <section
-        className="relative overflow-hidden py-20 px-4 md:px-8 lg:px-12 text-center"
-        style={{ background: 'linear-gradient(135deg, #D4EDD8 0%, #F8F7F2 100%)', minHeight: '85vh', display: 'flex', alignItems: 'center' }}
-      >
-        <div className="relative max-w-3xl md:max-w-4xl mx-auto w-full">
-          {/*
-            2026-09-18 バドミントン・ピボット（P0-1）。
-            FV は「あなたはどっち？」の分岐だけにして、診断CTAは下のセクションへ降ろした。
-            ・バドミントン経験者 → /badminton（バド症状 × Animal Flow）
-            ・運動が苦手／はじめて → /beginner（animalflow.html をやさしく再編集）
-          */}
-          <p
-            className="text-xs font-bold uppercase mb-4"
-            style={{ color: '#2D8F4E', letterSpacing: '0.2em', fontFamily: 'Sora, sans-serif' }}
-          >
-            {t.kicker}
-          </p>
-          <h1
-            className="font-black leading-tight mb-6"
-            style={{ fontSize: 'clamp(32px, 6vw, 52px)', color: '#1C2A1E' }}
-          >
-            {t.title1}<br />{t.title2}
-          </h1>
-          <p className="mb-3" style={{ color: '#4A6550', lineHeight: 1.8, fontSize: '18px' }}>
-            {t.lead1}<br className="hidden md:block" />
-            {t.lead2}
-          </p>
-          <p className="mb-6 font-bold" style={{ color: '#1C2A1E', fontSize: '16px' }}>
-            {t.which}
-          </p>
-          {/* しょっちゃんキャラ（既存イラスト・青タオル）。ボタンの上に2体並べて、どちらの入口かを絵でも伝える */}
-          <div className="flex justify-center items-end gap-2 mb-2" aria-hidden="true">
-            <img src="/img/shocchan/smash.webp" alt="" width={370} height={320} style={{ width: '132px', height: 'auto' }} loading="eager" />
-            <img src="/img/shocchan/handstand.webp" alt="" width={370} height={320} style={{ width: '132px', height: 'auto' }} loading="eager" />
-          </div>
-          <div className="flex flex-col sm:flex-row items-stretch justify-center gap-3 max-w-xl mx-auto">
-            <a
-              href={langPath('/badminton', lang)}
-              onClick={() => track('click_primary_cta', { cta: 'hero_badminton', lang })}
-              className="flex-1 inline-flex flex-col items-center justify-center gap-1 font-bold transition-all hover:-translate-y-0.5 px-6 py-4"
-              style={{
-                backgroundColor: '#f5a623',
-                color: '#1C2A1E',
-                borderRadius: '20px',
-                boxShadow: '0 4px 14px rgba(245,166,35,0.4)',
-                minHeight: '72px',
-              }}
-            >
-              <span style={{ fontSize: '18px' }}>{t.badBtn}</span>
-              <span className="text-xs font-medium" style={{ color: '#5a4a1e' }}>{t.badSub}</span>
-            </a>
-            <a
-              href={langPath('/beginner', lang)}
-              onClick={() => track('click_primary_cta', { cta: 'hero_beginner', lang })}
-              className="flex-1 inline-flex flex-col items-center justify-center gap-1 font-bold transition-all hover:-translate-y-0.5 px-6 py-4"
-              style={{
-                backgroundColor: '#FFFFFF',
-                color: '#1C2A1E',
-                border: '2px solid #2D8F4E',
-                borderRadius: '20px',
-                minHeight: '72px',
-              }}
-            >
-              <span style={{ fontSize: '18px' }}>{t.begBtn}</span>
-              <span className="text-xs font-medium" style={{ color: '#4A6550' }}>{t.begSub}</span>
-            </a>
-          </div>
-          <p className="mt-4 text-sm" style={{ color: '#4A6550' }}>{t.neither}</p>
-          <div
-            className="mt-12 flex justify-center cursor-pointer animate-bounce"
-            style={{ color: '#4A6550' }}
-            onClick={() => quizSectionRef.current?.scrollIntoView({ behavior: 'smooth' })}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-        </div>
-      </section>
-
-      {/* ── What is this? ── */}
-      <section ref={quizSectionRef} className="py-16 px-4 md:px-8 lg:px-12" style={{ backgroundColor: '#F8F7F2' }}>
-        <div className="max-w-3xl md:max-w-4xl mx-auto text-center">
-          <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: '#2D8F4E' }}>WHAT IS WILDFLOW?</p>
-          <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: '#1C2A1E' }}>
-            {t.whatTitle}
-          </h2>
-          <p className="leading-relaxed mb-10" style={{ color: '#4A6550', fontSize: '18px', lineHeight: '1.8' }}>
-            {t.whatBody[0]}<br className="hidden md:block" />
-            {t.whatBody[1]}<br className="hidden md:block" />
-            {t.whatBody[2]}<br className="hidden md:block" />
-            {t.whatBody[3]}
-          </p>
-
-          {/* 5つの力をしょっちゃんの5ポーズで（ChatGPT生成） */}
-          <img
-            src="/img/shocchan/five-axes.webp"
-            alt={t.fiveAlt}
-            width={1600}
-            height={504}
-            className="mx-auto mb-4"
-            style={{ width: '100%', maxWidth: '720px', height: 'auto' }}
-            loading="lazy"
-          />
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-10">
-            {AXES.map(ax => (
-              <div
-                key={ax.label}
-                className="rounded-xl p-4 text-center"
-                style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8E4' }}
-              >
-                <p className="text-2xl mb-1">{ax.icon}</p>
-                <p className="text-xs font-bold mb-1" style={{ color: '#1C2A1E' }}>{ax.label}</p>
-                <p className="text-sm" style={{ color: '#4A6550' }}>{ax.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          <Link
-            to="/quiz/quick"
-            onClick={() => track('click_primary_cta', { cta: 'about_quick_quiz' })}
-            className="inline-flex items-center gap-2 font-bold transition-all hover:-translate-y-0.5"
-            style={{
-              backgroundColor: '#F59E0B',
-              color: '#1C2A1E',
-              padding: '0 40px',
-              borderRadius: '100px',
-              boxShadow: '0 4px 14px rgba(245,158,11,0.4)',
-              fontSize: '18px',
-              minHeight: '56px',
-            }}
-          >
-            {t.quickCta}
-          </Link>
-        </div>
-      </section>
-
-      {/* ── Instructor Mini Card ── */}
-      <section className="py-8 px-4 md:px-8 lg:px-12" style={{ backgroundColor: '#F8F7F2' }}>
-        <div className="max-w-md mx-auto bg-white rounded-2xl shadow-sm border px-6 py-5 flex items-center gap-5" style={{ borderColor: '#E2E8E4' }}>
-          <div className="flex-shrink-0 w-16 h-16 rounded-full overflow-hidden border-2" style={{ borderColor: '#2D8F4E' }}>
-            <InstructorAvatar />
-          </div>
+    <main style={{ overflowX: 'clip' }}>
+      {/* ── HERO ── */}
+      <section className="relative text-white" style={{ background: 'radial-gradient(1200px 600px at 20% -10%, #2D8F4E 0%, transparent 60%), linear-gradient(160deg, #1a3a2a 0%, #0f261a 100%)' }}>
+        <span className="wf-hero-glow" style={{ width: 420, height: 420, background: '#F5A623', right: '-120px', top: '10%', opacity: .28 }} />
+        <span className="wf-hero-glow" style={{ width: 360, height: 360, background: '#3B82F6', left: '-140px', bottom: '-80px', opacity: .22 }} />
+        <div className="relative max-w-6xl mx-auto px-4 md:px-8 pt-14 pb-16 md:pt-24 md:pb-24 grid grid-cols-1 md:grid-cols-[1.15fr_1fr] gap-8 items-center">
           <div>
-            <p className="text-xs font-bold uppercase mb-0.5" style={{ color: '#2D8F4E', letterSpacing: '0.1em' }}>{t.instructor}</p>
-            <p className="font-black text-lg leading-tight mb-1" style={{ color: '#1C2A1E' }}>{t.instructorName}</p>
-            <p className="text-sm leading-relaxed" style={{ color: '#4A6550' }}>{t.instructorBio}</p>
+            <p className="text-xs font-bold tracking-[.22em] mb-5" style={{ color: '#6fcf97', fontFamily: 'Sora, sans-serif' }}>{t.hero.eyebrow}</p>
+            <h1 className="font-black leading-[1.08] mb-6" style={{ fontSize: 'clamp(38px, 7vw, 74px)' }}>
+              {t.hero.line1}<br />{t.hero.line2}<br /><span style={{ color: '#F5A623' }}>{t.hero.line3}</span>
+            </h1>
+            <p className="mb-8 max-w-xl" style={{ color: '#C8E6CA', fontSize: 'clamp(15px,2vw,18px)', lineHeight: 1.8 }}>{t.hero.lead}</p>
+            <div className="flex flex-col sm:flex-row gap-3 max-w-xl">
+              <a href={bad} onClick={() => track('click_primary_cta', { cta: 'hero_badminton', lang })}
+                className="flex-1 rounded-2xl px-5 py-4 transition-transform hover:-translate-y-0.5"
+                style={{ backgroundColor: '#F5A623', color: '#1a3a2a', boxShadow: '0 10px 30px rgba(245,166,35,.35)' }}>
+                <span className="block font-black text-lg">{t.hero.ctaBad}</span>
+                <span className="block text-xs font-medium opacity-80">{t.hero.ctaBadSub}</span>
+              </a>
+              <a href={beg} onClick={() => track('click_primary_cta', { cta: 'hero_beginner', lang })}
+                className="flex-1 rounded-2xl px-5 py-4 transition-transform hover:-translate-y-0.5"
+                style={{ backgroundColor: 'rgba(255,255,255,.08)', border: '1.5px solid rgba(255,255,255,.35)', color: '#fff' }}>
+                <span className="block font-black text-lg">{t.hero.ctaBeg}</span>
+                <span className="block text-xs font-medium opacity-80">{t.hero.ctaBegSub}</span>
+              </a>
+            </div>
+            <button onClick={() => jumpToTimer(t.moves[1])} className="mt-5 inline-flex items-center gap-2 text-sm font-bold underline underline-offset-4" style={{ color: '#EAF3E6', minHeight: '44px' }}>
+              {t.hero.tryNow}
+            </button>
+          </div>
+          <div className="relative flex justify-center md:justify-end">
+            <div className="absolute inset-x-10 bottom-6 h-12 rounded-[50%]" style={{ background: 'radial-gradient(closest-side, rgba(0,0,0,.45), transparent)' }} />
+            <img src="/img/shocchan/beast-reach.webp" alt="" width={1024} height={949} className="wf-float relative" style={{ width: 'min(78vw, 420px)', height: 'auto', filter: 'drop-shadow(0 20px 40px rgba(0,0,0,.35))' }} loading="eager" />
+          </div>
+        </div>
+        {/* マーキー */}
+        <div className="border-t border-white/10 py-3 overflow-hidden" aria-hidden="true">
+          <div className="wf-marquee gap-10 text-sm font-bold tracking-widest" style={{ color: 'rgba(255,255,255,.45)', fontFamily: 'Sora, sans-serif' }}>
+            {[...t.marquee, ...t.marquee].map((w, i) => <span key={i} className="whitespace-nowrap">✦ {w}</span>)}
           </div>
         </div>
       </section>
 
-      {/* ── How it Works ── */}
-      <section className="py-16 px-4 md:px-8 lg:px-12" style={{ backgroundColor: '#EDF7EE' }}>
-        <div className="max-w-4xl md:max-w-6xl mx-auto">
-          <p className="text-sm font-bold tracking-widest uppercase mb-3 text-center" style={{ color: '#1A6B38' }}>HOW IT WORKS</p>
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-12" style={{ color: '#1C2A1E' }}>{t.howTitle}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="text-6xl font-black opacity-20 mb-2" style={{ color: '#F59E0B' }}>01</div>
-              <div className="text-3xl mb-3">{t.how[0].emoji}</div>
-              <h3 className="font-bold text-lg mb-2" style={{ color: '#1C2A1E' }}>{t.how[0].title}</h3>
-              <p className="text-sm md:text-base leading-relaxed" style={{ color: '#4A6550' }}>{t.how[0].body}</p>
-            </div>
-            <div className="text-center">
-              <div className="text-6xl font-black opacity-20 mb-2" style={{ color: '#F59E0B' }}>02</div>
-              <div className="text-3xl mb-3">{t.how[1].emoji}</div>
-              <h3 className="font-bold text-lg mb-2" style={{ color: '#1C2A1E' }}>{t.how[1].title}</h3>
-              <p className="text-sm md:text-base leading-relaxed" style={{ color: '#4A6550' }}>{t.how[1].body}</p>
-            </div>
-            <div className="text-center">
-              <div className="text-6xl font-black opacity-20 mb-2" style={{ color: '#F59E0B' }}>03</div>
-              <div className="text-3xl mb-3">{t.how[2].emoji}</div>
-              <h3 className="font-bold text-lg mb-2" style={{ color: '#1C2A1E' }}>{t.how[2].title}</h3>
-              <p className="text-sm md:text-base leading-relaxed" style={{ color: '#4A6550' }}>{t.how[2].body}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Shanghai Story Banner ── */}
-      <section className="py-14 px-4 md:px-8 lg:px-12" style={{ backgroundColor: '#1a3a2a' }}>
-        <div className="max-w-3xl md:max-w-4xl mx-auto text-center">
-          <p className="text-sm font-bold uppercase tracking-widest mb-4" style={{ color: '#6fcf97', letterSpacing: '0.15em' }}>WHY WILDFLOW</p>
-          <h2 className="text-xl md:text-2xl font-black mb-5 leading-tight" style={{ color: '#FFFFFF' }}>
-            {t.whyTitle1}<br className="hidden md:block" />{t.whyTitle2}
-          </h2>
-          <p className="mb-8 leading-relaxed" style={{ color: '#C8E6CA', fontSize: '16px', lineHeight: '1.9' }}>
-            {t.whyBody1}<br className="hidden md:block" />
-            {t.whyBody2}
-          </p>
-          <Link
-            to="/blog"
-            className="inline-flex items-center gap-2 font-bold transition-all hover:-translate-y-0.5"
-            style={{
-              backgroundColor: '#f5a623',
-              color: '#1C2A1E',
-              padding: '0 32px',
-              borderRadius: '100px',
-              fontSize: '16px',
-              minHeight: '50px',
-            }}
-          >
-            {t.whyCta}
-          </Link>
-          <p className="mt-4">
-            <a href={langPath('/about-animalflow', lang)} className="text-sm underline" style={{ color: '#C8E6CA', minHeight: '44px', display: 'inline-block', padding: '10px 0' }}>
-              {t.aboutCta}
-            </a>
-          </p>
-        </div>
-      </section>
-
-      {/* ── 22 Types Grid ── */}
-      <section className="py-16 px-4 md:px-8 lg:px-12" style={{ backgroundColor: '#EDF7EE' }}>
-        <div className="max-w-3xl md:max-w-5xl mx-auto text-center">
-          <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: '#2D8F4E' }}>22 TYPES</p>
-          <h2 className="text-2xl md:text-3xl font-bold mb-2" style={{ color: '#1C2A1E' }}>{t.typesTitle}</h2>
-          <p className="text-sm md:text-base mb-10" style={{ color: '#4A6550' }}>{t.typesLead}</p>
-
-          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-3">
-            {TYPE_GRID_MAIN.map((t, i) => (
-              <div
-                key={i}
-                className="rounded-2xl p-3 flex flex-col items-center gap-1 transition-all duration-200 cursor-default"
-                style={{ backgroundColor: '#FFFFFF', border: '2px solid #E2E8E4' }}
-                onMouseEnter={e => {
-                  const el = e.currentTarget as HTMLDivElement;
-                  el.style.borderColor = '#2D8F4E';
-                  el.style.backgroundColor = '#EDF7EE';
-                  el.style.transform = 'translateY(-4px)';
-                  el.style.boxShadow = '0 8px 24px rgba(45,143,78,0.15)';
-                }}
-                onMouseLeave={e => {
-                  const el = e.currentTarget as HTMLDivElement;
-                  el.style.borderColor = '#E2E8E4';
-                  el.style.backgroundColor = '#FFFFFF';
-                  el.style.transform = '';
-                  el.style.boxShadow = '';
-                }}
-              >
-                <span className="text-2xl">{t.emoji}</span>
-                <span className="text-sm font-semibold" style={{ color: '#1C2A1E' }}>{t.name}</span>
-              </div>
+      {/* ── PROMISES ── */}
+      <section className="px-4 md:px-8 py-16 md:py-20" style={{ backgroundColor: '#F8F7F2' }}>
+        <div className="max-w-6xl mx-auto">
+          <Reveal><h2 className="text-2xl md:text-4xl font-black text-center mb-10" style={{ color: '#1C2A1E' }}>{t.promises.title}</h2></Reveal>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {t.promises.items.map((p, i) => (
+              <Reveal key={i} delay={i * 80}>
+                <div className="rounded-2xl p-5 h-full" style={{ backgroundColor: '#fff', border: '1px solid #E2E8E4' }}>
+                  <p className="font-black leading-none" style={{ fontSize: '56px', color: '#2D8F4E', fontFamily: 'Sora, sans-serif' }}>{p.big}<span className="text-lg ml-1" style={{ color: '#4A6550' }}>{p.unit}</span></p>
+                  <p className="font-bold mt-2 mb-1" style={{ color: '#1C2A1E' }}>{p.label}</p>
+                  <p className="text-sm" style={{ color: '#4A6550' }}>{p.body}</p>
+                </div>
+              </Reveal>
             ))}
           </div>
-
-          <div className="flex justify-center gap-3 mb-10">
-            {TYPE_GRID_SPECIAL.map((t, i) => (
-              <div
-                key={i}
-                className="rounded-2xl p-3 flex flex-col items-center gap-1 cursor-default"
-                style={{
-                  backgroundColor: t.rare === 'dragon' ? '#FDF8EF' : '#EFF6FF',
-                  border: `2px solid ${t.rare === 'dragon' ? '#F59E0B' : '#3B82F6'}`,
-                  minWidth: '80px',
-                }}
-              >
-                <span className="text-2xl">{t.emoji}</span>
-                <span className="text-sm font-semibold" style={{ color: '#1C2A1E' }}>{t.name}</span>
-              </div>
-            ))}
-          </div>
-
-          <p className="text-sm mb-6" style={{ color: '#4A6550' }}>
-            {t.rare} <span className="font-bold" style={{ color: '#F59E0B' }}>{t.dragon}</span> {t.rareTail}
-          </p>
-          <Link
-            to="/quiz/quick"
-            onClick={() => track('click_primary_cta', { cta: 'types_quick_quiz' })}
-            className="inline-flex items-center gap-2 font-bold transition-all"
-            style={{
-              color: '#2D8F4E',
-              border: '2px solid #2D8F4E',
-              padding: '0 32px',
-              borderRadius: '100px',
-              backgroundColor: 'transparent',
-              fontSize: '18px',
-              minHeight: '56px',
-            }}
-            onMouseEnter={e => {
-              const el = e.currentTarget as HTMLAnchorElement;
-              el.style.backgroundColor = '#2D8F4E';
-              el.style.color = '#FFFFFF';
-            }}
-            onMouseLeave={e => {
-              const el = e.currentTarget as HTMLAnchorElement;
-              el.style.backgroundColor = 'transparent';
-              el.style.color = '#2D8F4E';
-            }}
-          >
-            {t.typesCta}
-          </Link>
         </div>
       </section>
 
-      {/* ── Latest Posts ── */}
+      {/* ── MOVE EXPLORER ── */}
+      <section className="px-4 md:px-8 py-16 md:py-24" style={{ backgroundColor: '#EDF7EE' }}>
+        <div className="max-w-6xl mx-auto">
+          <Reveal>
+            <p className="text-xs font-bold tracking-widest text-center mb-3" style={{ color: '#2D8F4E' }}>{t.explorer.eyebrow}</p>
+            <h2 className="text-3xl md:text-5xl font-black text-center mb-3" style={{ color: '#1C2A1E' }}>{t.explorer.title}</h2>
+            <p className="text-center max-w-2xl mx-auto mb-10" style={{ color: '#4A6550' }}>{t.explorer.lead}</p>
+          </Reveal>
+          <Reveal delay={100}><MoveExplorer t={t} onStart={jumpToTimer} /></Reveal>
+        </div>
+      </section>
+
+      {/* ── 30-SEC CHALLENGE ── */}
+      <section ref={timerRef} className="px-4 md:px-8 py-16 md:py-24" style={{ backgroundColor: '#F8F7F2' }}>
+        <div className="max-w-5xl mx-auto">
+          <Reveal>
+            <p className="text-xs font-bold tracking-widest text-center mb-3" style={{ color: '#F59E0B' }}>{t.timer.eyebrow}</p>
+            <h2 className="text-3xl md:text-5xl font-black text-center mb-3" style={{ color: '#1C2A1E' }}>{t.timer.title}</h2>
+            <p className="text-center max-w-2xl mx-auto mb-10" style={{ color: '#4A6550' }}>{t.timer.lead}</p>
+          </Reveal>
+          <Reveal delay={100}><ChallengeTimer t={t} move={move} onPick={setMove} /></Reveal>
+        </div>
+      </section>
+
+      {/* ── LANES ── */}
+      <section className="px-4 md:px-8 py-16 md:py-24" style={{ backgroundColor: '#fff' }}>
+        <div className="max-w-6xl mx-auto">
+          <Reveal>
+            <p className="text-xs font-bold tracking-widest text-center mb-3" style={{ color: '#2D8F4E' }}>{t.lanes.eyebrow}</p>
+            <h2 className="text-3xl md:text-4xl font-black text-center mb-10" style={{ color: '#1C2A1E' }}>{t.lanes.title}</h2>
+          </Reveal>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[
+              { l: t.lanes.bad, href: bad, img: 'knee-wobble', bg: '#1a3a2a', fg: '#fff', sub: '#C8E6CA', btn: '#F5A623', btnFg: '#1a3a2a', cta: 'lane_badminton' },
+              { l: t.lanes.beg, href: beg, img: 'handstand', bg: '#FDF8EF', fg: '#1C2A1E', sub: '#4A6550', btn: '#2D8F4E', btnFg: '#fff', cta: 'lane_beginner' },
+            ].map((x, i) => (
+              <Reveal key={i} delay={i * 120}>
+                <a href={x.href} onClick={() => track('click_primary_cta', { cta: x.cta, lang })} className="block rounded-3xl p-6 md:p-8 h-full relative overflow-hidden transition-transform hover:-translate-y-1" style={{ backgroundColor: x.bg, color: x.fg }}>
+                  <img src={`/img/shocchan/${x.img}.webp`} alt="" width={512} height={512} className="absolute -right-4 -bottom-4 opacity-90" style={{ width: '170px', height: 'auto' }} />
+                  <h3 className="text-2xl font-black mb-3 pr-24">{x.l.title}</h3>
+                  <p className="text-sm mb-4 pr-24" style={{ color: x.sub }}>{x.l.body}</p>
+                  <ul className="text-sm space-y-1 mb-6 pr-28" style={{ color: x.sub }}>
+                    {x.l.bullets.map((b, k) => <li key={k}>✔ {b}</li>)}
+                  </ul>
+                  <span className="inline-flex items-center font-bold rounded-full px-5" style={{ backgroundColor: x.btn, color: x.btnFg, minHeight: '48px' }}>{x.l.cta}</span>
+                </a>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 5 AXES + QUIZ ── */}
+      <section id="axes" className="px-4 md:px-8 py-16 md:py-24" style={{ backgroundColor: '#EDF7EE' }}>
+        <div className="max-w-5xl mx-auto text-center">
+          <Reveal>
+            <p className="text-xs font-bold tracking-widest mb-3" style={{ color: '#2D8F4E' }}>{t.axes.eyebrow}</p>
+            <h2 className="text-3xl md:text-4xl font-black mb-3" style={{ color: '#1C2A1E' }}>{t.axes.title}</h2>
+            <p className="max-w-2xl mx-auto mb-8" style={{ color: '#4A6550' }}>{t.axes.lead}</p>
+            <img src="/img/shocchan/five-axes.webp" alt={tm.fiveAlt} width={1600} height={504} className="mx-auto mb-6" style={{ width: '100%', maxWidth: '760px', height: 'auto' }} loading="lazy" />
+          </Reveal>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
+            {tm.axes.map((ax, i) => (
+              <Reveal key={ax.label} delay={i * 60}>
+                <div className="rounded-xl p-4 h-full" style={{ backgroundColor: '#fff', border: '1px solid #E2E8E4' }}>
+                  <p className="text-2xl mb-1">{ax.icon}</p>
+                  <p className="text-sm font-bold mb-1" style={{ color: '#1C2A1E' }}>{ax.label}</p>
+                  <p className="text-xs" style={{ color: '#4A6550' }}>{ax.desc}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+          <Reveal>
+            <Link to="/quiz/quick" onClick={() => track('click_primary_cta', { cta: 'axes_quick_quiz', lang })} className="inline-flex items-center gap-2 font-black rounded-full px-10 transition-transform hover:-translate-y-0.5" style={{ backgroundColor: '#F59E0B', color: '#1C2A1E', minHeight: '60px', fontSize: '18px', boxShadow: '0 10px 30px rgba(245,158,11,.35)' }}>
+              {t.axes.cta}
+            </Link>
+            <p className="mt-3 text-xs" style={{ color: '#4A6550' }}>{t.axes.note}</p>
+            <p className="mt-2 text-sm flex flex-wrap justify-center gap-4">
+              <Link to="/quiz/quick?entry=badminton" className="underline font-bold" style={{ color: '#2D8F4E' }}>{t.axes.badQuiz}</Link>
+              <Link to="/quiz/quick?entry=beginner" className="underline font-bold" style={{ color: '#2D8F4E' }}>{t.axes.begQuiz}</Link>
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ── STORY ── */}
+      <section className="px-4 md:px-8 py-16 md:py-24 text-white" style={{ backgroundColor: '#1a3a2a' }}>
+        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-[160px_1fr] gap-8 items-center">
+          <Reveal><img src="/img/shocchan/joy.webp" alt="" width={370} height={320} className="mx-auto" style={{ width: '160px', height: 'auto' }} /></Reveal>
+          <Reveal delay={100}>
+            <p className="text-xs font-bold tracking-widest mb-3" style={{ color: '#6fcf97' }}>{t.story.eyebrow}</p>
+            <p className="text-xl md:text-2xl font-bold leading-relaxed mb-4">「{t.story.quote}」</p>
+            <p className="font-black">{t.story.who}</p>
+            <p className="text-xs mb-5" style={{ color: '#9DB6A0' }}>{t.story.role}</p>
+            <div className="flex flex-wrap gap-4 text-sm font-bold">
+              <Link to="/blog" className="underline underline-offset-4" style={{ color: '#F5A623' }}>{t.story.read}</Link>
+              <a href={langPath('/about-animalflow', lang)} className="underline underline-offset-4" style={{ color: '#EAF3E6' }}>{t.story.about}</a>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ── LATEST ── */}
       {(loading || posts.length > 0) && (
-        <section className="px-4 md:px-8 lg:px-12 py-16" style={{ backgroundColor: '#FDF8EF' }}>
-          <div className="max-w-5xl md:max-w-6xl mx-auto">
+        <section className="px-4 md:px-8 py-16" style={{ backgroundColor: '#FDF8EF' }}>
+          <div className="max-w-6xl mx-auto">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold" style={{ color: '#1C2A1E' }}>{t.latest}</h2>
-              <Link to="/blog" className="text-sm transition-colors hover:opacity-70 inline-flex items-center" style={{ color: '#2D8F4E', minHeight: '44px', padding: '10px 0' }}>
-                {t.seeAll}
-              </Link>
+              <h2 className="text-2xl font-bold" style={{ color: '#1C2A1E' }}>{t.latest.title}</h2>
+              <Link to="/blog" className="text-sm inline-flex items-center" style={{ color: '#2D8F4E', minHeight: '44px' }}>{t.latest.all}</Link>
             </div>
-            {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="rounded-xl overflow-hidden" style={{ backgroundColor: '#FFFFFF' }}>
-                    <div className="skeleton aspect-video" />
-                    <div className="p-4 space-y-2">
-                      <div className="skeleton h-4 w-3/4" />
-                      <div className="skeleton h-3 w-1/2" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {posts.map(post => <PostCard key={post.id} post={post} />)}
-              </div>
-            )}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {loading ? [1, 2, 3].map(i => <div key={i} className="rounded-xl overflow-hidden bg-white"><div className="skeleton aspect-video" /><div className="p-4 space-y-2"><div className="skeleton h-4 w-3/4" /><div className="skeleton h-3 w-1/2" /></div></div>)
+                : posts.map(p => <PostCard key={p.id} post={p} />)}
+            </div>
           </div>
         </section>
       )}
 
-      {/* ── Bottom CTA ── */}
-      <section className="py-20 px-4 md:px-8 lg:px-12" style={{ backgroundColor: '#2D8F4E' }}>
-        <div className="max-w-xl md:max-w-2xl mx-auto text-center">
-          <p className="text-4xl mb-4">🐾</p>
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-            {t.bottomTitle}
-          </h2>
-          {/*
-            文とボタンの行き先を合わせる（2026-09-09 UX監査 §16）。
-            もとは「60問の本格診断で…」と書きながらボタンは10問診断へ飛んでいた。
-            60問は名前とメールの入力が先に要るので、同じ扱いにはできない。
-          */}
-          <p className="mb-8" style={{ color: '#C8E6CA', fontSize: '18px', lineHeight: '1.8' }}>
-            {t.bottomBody1}<strong className="text-white">{t.bottomStrong}</strong>{t.bottomBody2}<br />
-            {t.bottomBody3}
+      {/* ── BOTTOM ── */}
+      <section className="px-4 md:px-8 py-20" style={{ backgroundColor: '#2D8F4E' }}>
+        <div className="max-w-2xl mx-auto text-center text-white">
+          <img src="/img/shocchan/beast.webp" alt="" width={512} height={512} className="mx-auto mb-4 wf-float" style={{ width: '150px', height: 'auto' }} />
+          <h2 className="text-2xl md:text-3xl font-black mb-4">{t.bottom.title}</h2>
+          <p className="mb-8" style={{ color: '#C8E6CA' }}>{t.bottom.body}</p>
+          <Link to="/quiz/quick" onClick={() => track('click_primary_cta', { cta: 'bottom_quick_quiz', lang })} className="inline-flex items-center font-black rounded-full px-10 transition-transform hover:-translate-y-0.5" style={{ backgroundColor: '#F59E0B', color: '#1C2A1E', minHeight: '58px', fontSize: '18px' }}>{t.bottom.cta}</Link>
+          <p className="mt-3 text-sm" style={{ color: '#A8D5A2' }}>{t.bottom.note}</p>
+          <p className="mt-6 flex flex-wrap justify-center gap-5 text-sm font-bold">
+            <Link to="/lessons" className="underline" style={{ color: '#EAF3E6' }}>{t.bottom.lessons}</Link>
+            <a href={kawabadoActivityUrl('home_bottom').replace('/ja/', lang === 'zh' ? '/zh/' : '/ja/')} target="_blank" rel="noopener" onClick={() => track('click_kawabado_referral', { placement: 'home_bottom', lang })} className="underline" style={{ color: '#EAF3E6' }}>{t.bottom.kawabado}</a>
           </p>
-          <Link
-            to="/quiz/quick"
-            onClick={() => track('click_primary_cta', { cta: 'bottom_quick_quiz' })}
-            className="inline-flex items-center gap-2 font-bold transition-all hover:-translate-y-0.5"
-            style={{
-              backgroundColor: '#F59E0B',
-              color: '#1C2A1E',
-              padding: '0 40px',
-              borderRadius: '100px',
-              boxShadow: '0 4px 14px rgba(245,158,11,0.4)',
-              fontSize: '18px',
-              minHeight: '56px',
-            }}
-          >
-            {t.bottomCta}
-          </Link>
-          <p className="mt-3 text-sm" style={{ color: '#A8D5A2' }}>{t.bottomNote}</p>
-          {/* 2026-09-18 P1-9（A案）: 60問への導線はトップから外した（結果ページには残る） */}
         </div>
       </section>
     </main>
