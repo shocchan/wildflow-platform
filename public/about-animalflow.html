@@ -105,15 +105,18 @@
   #wf-root .qmt ul{margin:0;padding:0;list-style:none;text-align:left;}
   #wf-root .qmt li{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;font-size:14.5px;color:var(--ink-soft);}
   #wf-root .qmt li b{display:inline-flex;flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:var(--mint);align-items:center;justify-content:center;font-size:18px;}
-  #wf-root .journey{margin-top:36px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative;}
-  #wf-root .journey::before{content:"";position:absolute;left:12%;right:12%;top:44px;height:4px;background:linear-gradient(90deg,var(--green),var(--amber));border-radius:2px;}
+  #wf-root .journey-img{display:block;width:100%;max-width:820px;margin:32px auto 0;height:auto;}
+  #wf-root .legend{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 16px;margin-top:10px;font-size:12px;font-weight:700;color:var(--ink-soft);}
+  #wf-root .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px;}
+  #wf-root .journey{margin-top:14px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative;}
+  #wf-root .journey::before{display:none;}
   #wf-root .journey .j{position:relative;text-align:center;padding:0 8px;}
   #wf-root .journey .j .dot{width:88px;height:88px;border-radius:50%;background:var(--paper);border:4px solid var(--green);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:34px;position:relative;z-index:1;overflow:hidden;}
   #wf-root .journey .j:last-child .dot{border-color:var(--amber);}
   #wf-root .journey .j .dot img{width:100%;height:100%;object-fit:contain;padding:8px;}
   #wf-root .journey .j h3{font-size:14px;font-weight:900;margin:0 0 4px;}
   #wf-root .journey .j p{font-size:12px;color:var(--ink-soft);margin:0;}
-  #wf-root .pillars{display:grid;grid-template-columns:320px 1fr;gap:32px;align-items:center;margin-top:36px;}
+  #wf-root .pillars{display:grid;grid-template-columns:360px 1fr;gap:32px;align-items:center;margin-top:36px;}
   #wf-root .pillars svg{width:100%;height:auto;display:block;}
   #wf-root .pillars .grid{margin-top:0;}
   #wf-root .flow6{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:30px;align-items:stretch;}
@@ -191,20 +194,8 @@
       <p class="lead">正式には「四足運動トレーニング（Quadrupedal Movement Training、QMT）」の一種。四点（手と足）を床につけ、複数の方向に、いろいろな負荷をかけながら動く練習のことです。</p>
       <div class="qmt">
         <figure class="fig" style="margin:0">
-          <svg viewBox="0 0 400 260" role="img" aria-label="四つん這いの人の手と足の4点が床に接し、脳とつながる図">
-            <rect x="20" y="212" width="360" height="6" rx="3" fill="#E3E2D8"/>
-            <path d="M92 200 C92 150 130 120 190 118 L270 118 C310 118 330 150 330 200" fill="none" stroke="#1C2A1E" stroke-width="10" stroke-linecap="round"/>
-            <circle cx="322" cy="96" r="30" fill="#F5A623" stroke="#1C2A1E" stroke-width="6"/>
-            <path d="M92 200 L92 212 M150 200 L150 212 M250 200 L250 212 M330 200 L330 212" stroke="#1C2A1E" stroke-width="10" stroke-linecap="round"/>
-            <circle cx="92" cy="214" r="12" fill="#2D8F4E"/><circle cx="150" cy="214" r="12" fill="#2D8F4E"/><circle cx="250" cy="214" r="12" fill="#2D8F4E"/><circle cx="330" cy="214" r="12" fill="#2D8F4E"/>
-            <text x="92" y="248" text-anchor="middle" font-size="14" font-weight="700" fill="#2D8F4E">足</text><text x="150" y="248" text-anchor="middle" font-size="14" font-weight="700" fill="#2D8F4E">足</text><text x="250" y="248" text-anchor="middle" font-size="14" font-weight="700" fill="#2D8F4E">手</text><text x="330" y="248" text-anchor="middle" font-size="14" font-weight="700" fill="#2D8F4E">手</text>
-            <path d="M322 66 C322 40 300 30 285 30" fill="none" stroke="#F5A623" stroke-width="3" stroke-dasharray="6 6"/>
-            <path d="M92 214 C120 170 200 150 322 96" fill="none" stroke="#F5A623" stroke-width="3" stroke-dasharray="6 6" opacity=".7"/>
-            <path d="M330 214 C330 170 326 130 322 96" fill="none" stroke="#F5A623" stroke-width="3" stroke-dasharray="6 6" opacity=".7"/>
-            <text x="210" y="60" text-anchor="middle" font-size="15" font-weight="900" fill="#1C2A1E">脳 ⇄ 4点</text>
-            <text x="210" y="82" text-anchor="middle" font-size="12" fill="#6A8A72">床からの情報が、体全体の通信を起こす</text>
-          </svg>
-          <figcaption>Quadrupedal ＝ 4点が床に接している</figcaption>
+          <img src="/img/shocchan/qmt-diagram.webp" alt="四つん這いの人の手と足の4点が床に接し、脳とつながる図" width="1024" height="1019" style="width:100%;height:auto;display:block">
+          <figcaption>Quadrupedal ＝ 4点が床に接している。床からの情報が、体全体の通信を起こす</figcaption>
         </figure>
         <ul>
           <li><b>🐾</b><span><b style="display:inline;width:auto;height:auto;background:none;font-size:inherit;color:var(--ink)">Quadrupedal</b>：手と足の4点を床につける。動物の形は結果であって目的ではない。</span></li>
@@ -222,11 +213,12 @@
       <p class="eyebrow">History</p>
       <h2 class="sec">どこから来たのか。</h2>
       <p class="lead">アメリカのフィットネスコーチ、マイク・フィッチ（Mike Fitch）がつくった体系です。</p>
+      <img class="journey-img" src="/img/shocchan/journey-map.webp" alt="自重トレの探求から、Animal Flow誕生、世界へ、そして上海から川口・蕨へ、という4つの旅路" width="1600" height="593" loading="lazy">
       <div class="journey">
-        <div class="j"><div class="dot">🤸</div><h3>自重トレの探求</h3><p>体操・パルクール・ブレイクダンス・逆立ち</p></div>
-        <div class="j"><div class="dot">🇺🇸</div><h3>Animal Flow® 誕生</h3><p>Mike Fitch／Global Bodyweight Training</p></div>
-        <div class="j"><div class="dot">🌏</div><h3>世界へ</h3><p>Level 1 / 2 ワークショップ、各国のインストラクター</p></div>
-        <div class="j"><div class="dot"><img src="/img/shocchan/joy.webp" alt="" width="370" height="320"></div><h3>上海 → 川口・蕨</h3><p>しょっちゃんが出会い、持ち帰る</p></div>
+        <div class="j"><h3>自重トレの探求</h3><p>体操・パルクール・ブレイクダンス・逆立ち</p></div>
+        <div class="j"><h3>Animal Flow® 誕生</h3><p>Mike Fitch／Global Bodyweight Training</p></div>
+        <div class="j"><h3>世界へ</h3><p>Level 1 / 2 ワークショップ、各国のインストラクター</p></div>
+        <div class="j"><h3>上海 → 川口・蕨</h3><p>しょっちゃんが出会い、持ち帰る</p></div>
       </div>
       <div class="timeline">
         <div class="t">
@@ -256,20 +248,10 @@
       <h2 class="sec">4つの柱。</h2>
       <p class="lead">Animal Flow は「過去の運動経験や能力に関わらず、すべてのフィジカルプラクティスのギャップを埋めるシステム」。その根本にある4つの考え方です。</p>
       <div class="pillars">
-        <svg viewBox="0 0 320 320" role="img" aria-label="コネクション・パフォーマンス・レジリエンス・コミュニティの4つが円で支え合う図">
-          <circle cx="160" cy="160" r="150" fill="#EDF7EE"/>
-          <path d="M160 160 L160 10 A150 150 0 0 1 310 160 Z" fill="#2D8F4E"/>
-          <path d="M160 160 L310 160 A150 150 0 0 1 160 310 Z" fill="#F5A623"/>
-          <path d="M160 160 L160 310 A150 150 0 0 1 10 160 Z" fill="#3B82F6"/>
-          <path d="M160 160 L10 160 A150 150 0 0 1 160 10 Z" fill="#8B5CF6"/>
-          <circle cx="160" cy="160" r="62" fill="#FFFFFF"/>
-          <text x="160" y="150" text-anchor="middle" font-size="13" font-weight="900" fill="#1C2A1E">人間という</text>
-          <text x="160" y="172" text-anchor="middle" font-size="13" font-weight="900" fill="#1C2A1E">動物の機能</text>
-          <text x="230" y="80" text-anchor="middle" font-size="24">🧠</text><text x="230" y="104" text-anchor="middle" font-size="12" font-weight="900" fill="#fff">コネクション</text>
-          <text x="238" y="238" text-anchor="middle" font-size="24">⚡</text><text x="238" y="262" text-anchor="middle" font-size="12" font-weight="900" fill="#1C2A1E">パフォーマンス</text>
-          <text x="86" y="238" text-anchor="middle" font-size="24">🛡️</text><text x="86" y="262" text-anchor="middle" font-size="12" font-weight="900" fill="#fff">レジリエンス</text>
-          <text x="86" y="80" text-anchor="middle" font-size="24">🤝</text><text x="86" y="104" text-anchor="middle" font-size="12" font-weight="900" fill="#fff">コミュニティ</text>
-        </svg>
+        <div>
+          <img src="/img/shocchan/pillars-wheel.webp" alt="コネクション・パフォーマンス・レジリエンス・コミュニティの4つが円で支え合う図" width="1024" height="1019" style="width:100%;height:auto;display:block">
+          <div class="legend"><span><i style="background:#2D8F4E"></i>コネクション</span><span><i style="background:#F5A623"></i>パフォーマンス</span><span><i style="background:#3B82F6"></i>レジリエンス</span><span><i style="background:#8B5CF6"></i>コミュニティ</span></div>
+        </div>
       <div class="grid">
         <div class="card"><small>Pillar 1</small><div class="em">🧠</div><h3>コネクション</h3><p>脳と体のつながり。床に手をつくことで、体全体の通信がよくなる。ここが出発点。</p></div>
         <div class="card"><small>Pillar 2</small><div class="em">⚡</div><h3>パフォーマンス</h3><p>可動性、安定性、力、持久力、協調性。動ける体としての機能を、まとめて底上げする。</p></div>
@@ -290,7 +272,7 @@
         <div class="f"><img src="/img/shocchan/wrist.webp" alt="手首のウォームアップ" loading="lazy"><div class="no">01</div><h3>手首の準備</h3><div class="en">Wrist Mobilizations</div></div>
         <div class="f"><img src="/img/shocchan/beast.webp" alt="スタティック・ビースト" loading="lazy"><div class="no">02</div><h3>スイッチを入れる</h3><div class="en">Activations</div></div>
         <div class="f"><img src="/img/shocchan/crab-reach.webp" alt="クラブ・リーチ" loading="lazy"><div class="no">03</div><h3>動きながら伸ばす</h3><div class="en">Form Specific Stretches</div></div>
-        <div class="f"><img src="/img/shocchan/crab.webp" alt="クラブで移動する準備" loading="lazy"><div class="no">04</div><h3>移動する</h3><div class="en">Traveling Forms</div></div>
+        <div class="f"><img src="/img/shocchan/traveling.webp" alt="トラベリング・ビースト" loading="lazy"><div class="no">04</div><h3>移動する</h3><div class="en">Traveling Forms</div></div>
         <div class="f"><img src="/img/shocchan/underswitch.webp" alt="アンダースウィッチ" loading="lazy"><div class="no">05</div><h3>つなげる</h3><div class="en">Switches &amp; Transitions</div></div>
         <div class="f"><img src="/img/shocchan/beast-reach.webp" alt="ビースト・リーチ" loading="lazy"><div class="no">06</div><h3>流れる</h3><div class="en">Flows</div></div>
         <div class="lvl"><span>やさしい・止まる</span><span>難しい・流れる</span></div>
