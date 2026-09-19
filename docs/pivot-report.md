@@ -245,3 +245,23 @@ CEO の「原型止めなくていい。アニマルフローを取り入れた�
 ## 保留
 - 動画は依然として枠のみ（9/22 撮影後、TODAY_MOVE と各ページに URL を入れる）。
 - ヒーローの背景は CSS のみ。体育館の写真1枚があれば置き換え候補。
+
+---
+
+# 追記（2026-09-19 夜）：図解を ChatGPT 生成に置き換え
+
+CEO の「図形・解剖学的なものは ChatGPT に作らせた方がいい」を受け、私が描いた SVG 図（四足の仕組み・4つの柱の円）を ChatGPT 生成の図解に置き換え、他ページにも図解を追加した。**文字はすべて画像の外（HTML側）**にしてあるので、日中切替で図は共通。
+
+| 画像（public/img/shocchan/） | 内容 | 使用箇所 |
+|---|---|---|
+| qmt-diagram.webp | ビースト姿勢の4接点が光り、脳へ点線でつながる仕組み図 | /about-animalflow「What」 |
+| pillars-wheel.webp | 4色の円＋中央にしょっちゃん。ラベルは HTML の凡例 | /about-animalflow「4つの柱」 |
+| journey-map.webp | 自重トレ→誕生→世界→上海/川口・蕨 の4駅 | /about-animalflow「History」（4つの見出しは HTML） |
+| traveling.webp | Traveling Beast（前進中） | /about-animalflow 6要素の④ |
+| court-vs-floor.webp | ランジ姿勢とビースト姿勢で同じ股関節が光る対比 | /badminton「コートの動きは床でつくれる」 |
+| knee-vs-hip.webp | 着地で膝が内に入る（赤）／股関節で支える（緑）の対比 | /badminton 症状10カードの直上 |
+| home-floor.webp | 朝のリビングでスマホを横に置いてビースト（背景あり） | /beginner「こんな方へ」 |
+
+- 生成は Chrome の ChatGPT を Claude が操作（参照画像4枚添付、1枚ずつ、画風統一）。最初に誤って既存チャット「3スライド作成」に文面が入りかけたが送信前に消去し、新規チャットで実施。
+- 検品: 文字混入なし・透過（home-floor のみ背景あり）・md5 で7枚が別物。WebP 73〜130KB。
+- 確認: build 通過、375px 横はみ出しなし、画像欠損0、zh 版も生成済み（凡例・alt は中文）。
