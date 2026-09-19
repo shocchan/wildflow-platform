@@ -1,0 +1,213 @@
+<title>wildflow 撮影台本 9/22</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Sora:wght@600;700&display=swap">
+<style>
+:root{--bg:#F8F7F2;--paper:#FFFFFF;--ink:#1C2A1E;--soft:#4A5A4E;--moss:#6A8A72;--green:#2D8F4E;--deep:#1A3A2A;--amber:#F5A623;--amber-deep:#B9760F;--mint:#EDF7EE;--line:#E3E2D8;--red:#D9534F;--blue:#3B82F6;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0F1A13;--paper:#16241B;--ink:#EEF3EC;--soft:#B9CDBB;--moss:#8FB197;--mint:#1E3326;--line:#2A3E30;--deep:#0B160F;}}
+:root[data-theme="dark"]{--bg:#0F1A13;--paper:#16241B;--ink:#EEF3EC;--soft:#B9CDBB;--moss:#8FB197;--mint:#1E3326;--line:#2A3E30;--deep:#0B160F;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans JP",system-ui,sans-serif;font-size:15px;line-height:1.75}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+header{background:var(--deep);color:#EAF3E6;padding:36px 0 28px}
+header .eyebrow{font-family:Sora,sans-serif;font-size:12px;letter-spacing:.2em;color:#6fcf97;margin:0 0 10px}
+header h1{font-size:clamp(26px,4vw,40px);font-weight:900;margin:0 0 8px;line-height:1.25;text-wrap:balance}
+header p{margin:0;color:#C8E6CA;max-width:60ch}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:22px}
+.strip div{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:10px 12px}
+.strip b{display:block;font-family:Sora,sans-serif;font-size:22px;color:var(--amber);line-height:1.2}
+.strip span{font-size:12px;color:#B9CDBB}
+section{padding:36px 0;border-bottom:1px solid var(--line)}
+h2{font-size:22px;font-weight:900;margin:0 0 6px}
+.lead{color:var(--soft);margin:0 0 18px;max-width:70ch}
+.k{font-family:Sora,sans-serif;font-size:11px;letter-spacing:.16em;color:var(--green);text-transform:uppercase;margin:0 0 6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.card h3{font-size:15px;margin:0 0 6px}
+.card p,.card li{font-size:13.5px;color:var(--soft);margin:0}
+.card ul{margin:0;padding-left:18px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--paper)}
+table{border-collapse:collapse;width:100%;min-width:900px;font-size:13px}
+th{background:var(--deep);color:#fff;text-align:left;padding:10px 12px;font-size:12px;white-space:nowrap}
+td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:top;color:var(--soft)}
+td:first-child{font-family:Sora,sans-serif;font-weight:700;color:var(--ink);white-space:nowrap}
+td b{color:var(--ink)}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--mint);color:var(--green);margin:1px 2px 1px 0;white-space:nowrap}
+.tag.a{background:#FDF2DC;color:var(--amber-deep)}
+.tag.b{background:#E3ECFF;color:#1E4FBF}
+.cam{display:inline-block;font-size:11px;padding:2px 7px;border:1px solid var(--line);border-radius:6px;color:var(--soft);white-space:nowrap}
+/* wireframes */
+.pages{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.page{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.page .ph{padding:10px 14px;background:var(--mint);font-weight:900;font-size:13px;display:flex;justify-content:space-between;align-items:center}
+.page .ph small{font-weight:400;color:var(--moss);font-family:Sora,sans-serif;font-size:11px}
+.wf{padding:12px;display:flex;flex-direction:column;gap:6px}
+.blk{border:1px dashed var(--line);border-radius:6px;padding:6px 8px;font-size:11px;color:var(--moss);min-height:22px}
+.blk.dark{background:var(--deep);color:#9DB6A0;border-style:solid;border-color:var(--deep)}
+.blk.vid{background:#FDF2DC;border:2px solid var(--amber);color:var(--amber-deep);font-weight:700;display:flex;align-items:center;gap:8px;min-height:40px}
+.blk.pic{background:#E3ECFF;border:2px solid var(--blue);color:#1E4FBF;font-weight:700;display:flex;align-items:center;gap:8px;min-height:34px}
+.blk.vid .n,.blk.pic .n{display:inline-flex;width:22px;height:22px;border-radius:50%;background:var(--amber);color:var(--deep);font-family:Sora,sans-serif;font-size:11px;font-weight:700;align-items:center;justify-content:center;flex:0 0 auto}
+.blk.pic .n{background:var(--blue);color:#fff}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.order{counter-reset:s;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.order div{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--soft);position:relative;padding-left:44px}
+.order div::before{counter-increment:s;content:counter(s);position:absolute;left:12px;top:12px;width:24px;height:24px;border-radius:50%;background:var(--green);color:#fff;font-family:Sora,sans-serif;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.order b{display:block;color:var(--ink);margin-bottom:2px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;background:var(--mint);padding:1px 6px;border-radius:4px;color:var(--ink)}
+.check label{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--soft);padding:6px 0;border-bottom:1px dashed var(--line)}
+.check input{margin-top:5px}
+.note{background:#FDF2DC;border-left:4px solid var(--amber);padding:10px 14px;border-radius:0 8px 8px 0;font-size:13px;color:var(--amber-deep);margin-top:14px}
+footer{padding:28px 0;font-size:12px;color:var(--moss)}
+@media (max-width:640px){.row2{grid-template-columns:1fr}}
+</style>
+
+<header><div class="wrap">
+  <p class="eyebrow">WILDFLOW SHOOT — 2026-09-22 — 川口・蕨</p>
+  <h1>撮影台本：床の動き 10カット と 写真 7枚</h1>
+  <p>この1枚で、機材の置き方から「どのカットが、どのページのどの枠に入るか」まで分かるようにしてあります。全カット横16:9。音は使いません（あとでテロップ）。</p>
+  <div class="strip">
+    <div><b>10</b><span>動画カット（合計 約8分の素材）</span></div>
+    <div><b>7</b><span>写真</span></div>
+    <div><b>16:9</b><span>すべて横。1080p / 30fps</span></div>
+    <div><b>約90分</b><span>準備15分＋撮影60分＋予備15分</span></div>
+    <div><b>1人</b><span>三脚固定。撮影者がいれば手元カットが楽</span></div>
+  </div>
+</div></header>
+
+<section><div class="wrap">
+  <p class="k">Setup</p>
+  <h2>準備（現地でこの順に）</h2>
+  <div class="grid">
+    <div class="card"><h3>📱 カメラ設定</h3><ul><li>スマホ<b>横向き</b>・1080p・30fps（60fpsでも可）</li><li>露出とフォーカスをロック（画面長押し）</li><li>グリッド表示ON。床の線を水平に</li><li>機内モード・通知OFF・容量5GB以上空ける</li></ul></div>
+    <div class="card"><h3>🎥 三脚の位置（基本＝真横）</h3><ul><li>レンズの高さ：<b>床から60〜70cm</b>（四つん這いの背中と同じ高さ）</li><li>距離：<b>被写体から約3m</b>。全身＋前後の余白1mずつ</li><li>「斜め前」は真横から手前に<b>45°</b>回す</li><li>一度決めたら動かさない（つなぎで違和感が出る）</li></ul></div>
+    <div class="card"><h3>👕 服装・見た目</h3><ul><li><b>グレーのパーカー＋頭に青いタオル</b>（イラストと同じ。ここが一番大事）</li><li>下は青系のパンツ。靴は履いたまま（室内用）</li><li>ラケット1本とシャトル2個を画面の隅に置く（バドの文脈）</li></ul></div>
+    <div class="card"><h3>💡 場所・光</h3><ul><li>体育館の<b>コートの線が背景に入る</b>位置。壁際より中央寄り</li><li>窓を背にしない（逆光NG）。天井照明はそのままでOK</li><li>床に反射する光が強ければ、位置を1〜2mずらす</li><li>床に置くスマホ用に、もう1台あれば手元カットが撮れる</li></ul></div>
+  </div>
+  <div class="note">各カット「3・2・1」で始めて、終わったら<b>2秒止まってから</b>録画停止。編集で前後を切るための余白です。1テイクで決めようとしない。良いのを1本選べばいい。</div>
+</div></section>
+
+<section><div class="wrap">
+  <p class="k">Cut list</p>
+  <h2>動画カット表（撮影順）</h2>
+  <p class="lead">「尺」は録画する長さ。使用先は右端。<span class="tag a">結果</span>＝10問診断の結果ページ「今日やる1動作」、<span class="tag">入門</span>＝/beginner と /animalflow の6ステップ、<span class="tag b">バド</span>＝/badminton の練習前5分。</p>
+  <div class="tbl"><table>
+    <tr><th>#</th><th>動き</th><th>尺</th><th>カメラ</th><th>やること（画面に映す要点）</th><th>NG（撮り直し）</th><th>使用先</th></tr>
+    <tr><td>A1</td><td><b>手首くるくる</b><br>Wrist Mobilizations</td><td class="num">40秒</td><td><span class="cam">斜め前 45°</span><br><span class="cam">やや手元寄り</span></td><td>四つん這いで手を床に。①前後に揺れる ②左右 ③手の甲をついて逆方向 ④空中でくるくる。各10秒。<b>手のひらと手首が大きく映る</b>こと</td><td>手が画面の端に切れる／体が入りすぎて手首が小さい</td><td><span class="tag">入門①</span><span class="tag b">バド</span></td></tr>
+    <tr><td>A2</td><td><b>スタティック・ビースト</b><br>Static Beast</td><td class="num">45秒</td><td><span class="cam">真横</span></td><td>四つん這い → <b>膝を2〜3cm浮かせて10秒</b> → 膝を下ろして5秒休む、を3回。手は肩の真下、膝は腰の真下、目線は下。<b>膝と床のすき間が見える</b>こと</td><td>膝が床についたまま／腰が反る・丸まる／頭が上がる</td><td><span class="tag a">結果：筋力</span><span class="tag">入門②</span><span class="tag b">バド</span></td></tr>
+    <tr><td>A3</td><td><b>スタティック・クラブ</b><br>Static Crab</td><td class="num">45秒</td><td><span class="cam">真横</span></td><td>仰向けで手と足をつき、<b>お尻を2〜3cm浮かせて10秒</b>×3回（間5秒）。指先は後ろ、胸を天井へ。<b>お尻が浮いている</b>のが見えること</td><td>お尻が床についている／腰だけで反っている</td><td><span class="tag a">結果：持久力</span><span class="tag">入門②</span></td></tr>
+    <tr><td>A4</td><td><b>クラブ・リーチ</b><br>Crab Reach</td><td class="num">40秒</td><td><span class="cam">斜め前 45°</span></td><td>クラブから片手を頭上後方へ伸ばし、胸を天井に開く。<b>ゆっくり呼吸1回分</b>止めて戻す。左右交互に3回ずつ。目線は手の先</td><td>お尻が落ちる／腰で反って胸が開いていない／速すぎる</td><td><span class="tag a">結果：柔軟性</span><span class="tag">入門③</span><span class="tag b">バド</span></td></tr>
+    <tr><td>A5</td><td><b>伸ばす3種</b><br>Loaded Beast → Ape Reach → Scorpion Reach</td><td class="num">60秒</td><td><span class="cam">斜め前 45°</span></td><td>各動きを<b>3回ずつ、間を空けずに</b>。Loaded Beast（お尻をかかとへ引く）→ Ape Reach（しゃがんで背中を丸め開く）→ Scorpion Reach（足を後ろに振る）。編集で3分割する</td><td>3種の切り替えで立ち上がる／カメラ位置を変える</td><td><span class="tag">入門③</span></td></tr>
+    <tr><td>A6</td><td><b>動物歩き</b><br>Traveling Beast ＋ Traveling Crab</td><td class="num">60秒</td><td><span class="cam">真横</span><br><span class="cam">距離4mに広げる</span></td><td>ビーストで<b>前へ4歩・後ろへ4歩</b>を2往復 → クラブで同じく2往復。<b>上下動を抑えて</b>フラットに。画面の端から端まで使う</td><td>画面から出る／膝が床につく／速すぎて形が崩れる</td><td><span class="tag">入門④</span></td></tr>
+    <tr><td>A7</td><td><b>アンダースウィッチ</b><br>Underswitch</td><td class="num">40秒</td><td><span class="cam">斜め前 45°</span></td><td>ビースト → 片足を反対の手の下にくぐらせてクラブへ → 戻る。<b>左右交互に5回、ゆっくり</b>。腰がひねれて向きが変わる瞬間が見えること</td><td>足が手の下を通っていない／勢いで回る</td><td><span class="tag a">結果：スピード</span><span class="tag">入門⑤</span></td></tr>
+    <tr><td>A8</td><td><b>サイドキックスルー</b><br>Side Kickthrough</td><td class="num">30秒</td><td><span class="cam">斜め前 45°</span></td><td>ビーストから片足を横へ蹴り出し、反対の手を上げる。左右3回ずつ。A7と合わせて「⑤つなげる」の動画になる</td><td>蹴った足が床についている／体がねじれすぎて倒れる</td><td><span class="tag">入門⑤</span></td></tr>
+    <tr><td>A9</td><td><b>ビースト・リーチ</b><br>Beast Reach</td><td class="num">40秒</td><td><span class="cam">真横 やや前</span></td><td>ビーストから<b>対角の手と足を同時に前へ</b>伸ばし、3点で支えて2秒キープ → 戻す。左右5回。骨盤が傾かないこと</td><td>伸ばした手足が床につく／骨盤が回る／膝が床につく</td><td><span class="tag a">結果：調整力</span><span class="tag">入門⑥</span></td></tr>
+    <tr><td>A10</td><td><b>フロー</b><br>Beast Flow（自由）</td><td class="num">60秒</td><td><span class="cam">真横</span><br><span class="cam">距離4m</span></td><td>ここまでの動きを<b>止まらずにつなげて60秒</b>。きれいでなくていい。「流れている」ことが伝わればOK。最後に1回ビーストで止まって終わる</td><td>途中で立ち上がる／カメラを見る</td><td><span class="tag">入門⑥</span><span class="tag">トップ将来</span></td></tr>
+  </table></div>
+  <div class="note"><b>「バド：練習前5分」の動画は撮り足し不要。</b> A1・A2・A4 をつないで60秒に編集して作ります。結果ページの5本も A2・A3・A4・A7・A9 をそのまま使うので、撮るのは上の10本だけです。</div>
+</div></section>
+
+<section><div class="wrap">
+  <p class="k">Photos</p>
+  <h2>写真 7枚（動画の合間に、同じ三脚で）</h2>
+  <p class="lead">スマホの写真モードに切り替えて、<b>横16:9</b>のまま。1枚につき3〜5枚連写して、あとで選ぶ。</p>
+  <div class="tbl"><table>
+    <tr><th>#</th><th>被写体</th><th>カメラ</th><th>要点</th><th>使用先</th></tr>
+    <tr><td>P1</td><td><b>ビースト・真横</b></td><td><span class="cam">真横・床60cm</span></td><td>膝が浮いているのが分かる高さ。背中が平ら</td><td>ブログ①サムネ／/badminton 予備</td></tr>
+    <tr><td>P2</td><td><b>ビースト・正面</b></td><td><span class="cam">正面・床50cm</span></td><td>膝が外を向いている角度。目線は下のまま</td><td>ブログ①本文</td></tr>
+    <tr><td>P3</td><td><b>クラブ・真横</b></td><td><span class="cam">真横</span></td><td>お尻が浮き、胸が天井を向く</td><td>ブログ②サムネ</td></tr>
+    <tr><td>P4</td><td><b>クラブリーチ・斜め前</b></td><td><span class="cam">斜め前 45°</span></td><td>手を頭上後方へ伸ばし、胸が開いた瞬間。2枚組（構え→リーチ）</td><td>ブログ③サムネ＋本文</td></tr>
+    <tr><td>P5</td><td><b>体育館ワイド</b></td><td><span class="cam">やや引き・床80cm</span></td><td>コートの線を入れて、ビースト姿勢。脇にラケットとシャトル。<b>/badminton のヒーロー背景候補</b>（1600×900で使う）</td><td>/badminton ヒーロー・OGP</td></tr>
+    <tr><td>P6</td><td><b>プロフィール</b></td><td><span class="cam">胸から上・目線カメラ</span></td><td>青タオル＋パーカーで笑顔。体育館背景。正方形にも切れる構図</td><td>/profile・トップ講師カード</td></tr>
+    <tr><td>P7</td><td><b>手首の手元</b></td><td><span class="cam">寄り</span></td><td>床についた手と手首だけ。A1の途中で</td><td>/routine STEP1</td></tr>
+  </table></div>
+</div></section>
+
+<section><div class="wrap">
+  <p class="k">Where it goes</p>
+  <h2>ページ配置マップ</h2>
+  <p class="lead"><span class="tag a">黄＝動画枠</span><span class="tag b">青＝写真枠</span>。番号はカット表の A／P に対応。灰色はすでに出来ている部分（イラスト・文章）。</p>
+  <div class="pages">
+
+    <div class="page"><div class="ph">診断結果ページ <small>/quiz/quick/result</small></div><div class="wf">
+      <div class="blk">見出し「コートで先に音を上げるのは…」＋伸びしろの軸</div>
+      <div class="blk dark">今日やる1動作（イラスト＋手順3つ）</div>
+      <div class="blk vid"><span class="n">A</span>軸ごとに1本：筋力=A2／持久力=A3／柔軟性=A4／スピード=A7／調整力=A9（各30〜45秒）</div>
+      <div class="blk">5軸スコア／出口3ブロック／メール登録</div>
+    </div></div>
+
+    <div class="page"><div class="ph">バド向け <small>/badminton</small></div><div class="wf">
+      <div class="blk pic"><span class="n">P5</span>ヒーロー背景（任意）体育館ワイド</div>
+      <div class="blk">コートと床の対比図／5軸表／症状10カード（イラスト済み）</div>
+      <div class="row2"><div class="blk">練習前5分：手順3つ</div><div class="blk vid"><span class="n">A1+A2+A4</span>ルーティン通し 60秒（編集で作る）</div></div>
+      <div class="blk">出口3つ</div>
+    </div></div>
+
+    <div class="page"><div class="ph">はじめての方 <small>/beginner（/animalflow も同じ6枠）</small></div><div class="wf">
+      <div class="blk">ヒーロー／こんな方へ／まず1分（イラスト済み）</div>
+      <div class="row2"><div class="blk">① 手首くるくる</div><div class="blk vid"><span class="n">A1</span>40秒</div></div>
+      <div class="row2"><div class="blk vid"><span class="n">A2+A3</span>スイッチ 60秒</div><div class="blk">② 体のスイッチ</div></div>
+      <div class="row2"><div class="blk">③ 伸ばす</div><div class="blk vid"><span class="n">A4+A5</span>60〜90秒</div></div>
+      <div class="row2"><div class="blk vid"><span class="n">A6</span>動物歩き 60秒</div><div class="blk">④ 動物歩き</div></div>
+      <div class="row2"><div class="blk">⑤ つなげる</div><div class="blk vid"><span class="n">A7+A8</span>60秒</div></div>
+      <div class="row2"><div class="blk vid"><span class="n">A10</span>フロー 60秒</div><div class="blk">⑥ 流れる</div></div>
+      <div class="blk">出口3つ</div>
+    </div></div>
+
+    <div class="page"><div class="ph">練習前5分 A4 <small>/routine</small></div><div class="wf">
+      <div class="blk">見出し（イラスト3枚が入っている）</div>
+      <div class="blk pic"><span class="n">P7</span>STEP1 手元写真に差し替え可（任意）</div>
+      <div class="blk pic"><span class="n">P1</span>STEP2 ビースト真横に差し替え可（任意）</div>
+      <div class="blk pic"><span class="n">P4</span>STEP3 クラブリーチに差し替え可（任意）</div>
+    </div></div>
+
+    <div class="page"><div class="ph">ブログ3本 <small>docs/blog-drafts</small></div><div class="wf">
+      <div class="blk pic"><span class="n">P1 P2</span>①膝の記事：サムネ＋本文</div>
+      <div class="blk pic"><span class="n">P3</span>②持久力の記事：サムネ</div>
+      <div class="blk pic"><span class="n">P4</span>③肩の記事：サムネ＋2枚組</div>
+    </div></div>
+
+    <div class="page"><div class="ph">トップ <small>/（将来）</small></div><div class="wf">
+      <div class="blk dark">ヒーロー（イラスト。写真は使わない）</div>
+      <div class="blk">動きを触る：6タブ（今はイラスト）</div>
+      <div class="blk vid"><span class="n">A2 A3 A4 A7 A9 A1</span>将来、タブごとに結果ページと同じ動画を流用</div>
+      <div class="blk pic"><span class="n">P6</span>講師カード（プロフィール写真）</div>
+    </div></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <p class="k">Run of show</p>
+  <h2>当日の流れ（90分）</h2>
+  <div class="order">
+    <div><b>0:00 設営 15分</b>三脚・真横位置・高さ60cm・距離3m。テスト録画10秒→再生して床が水平か確認</div>
+    <div><b>0:15 真横カット</b>A2 → A3 → A9 → A6（距離を4mに）→ A10。合間に P1・P3 を撮る</div>
+    <div><b>0:45 斜め前カット</b>三脚を45°回す。A1（P7も）→ A4（P4も）→ A5 → A7 → A8</div>
+    <div><b>1:10 写真</b>P2 正面、P5 ワイド（引く）、P6 プロフィール</div>
+    <div><b>1:20 予備</b>NGの撮り直し。余裕があれば A2 と A4 を<b>縦9:16</b>でも1本ずつ（SNS用）</div>
+    <div><b>帰宅後</b>スマホから AirDrop でMacへ。<code>~/Downloads/shoot-0922/</code> に <code>A1.mov</code>〜<code>A10.mov</code>、<code>P1.jpg</code>〜 の名前で保存するだけ。編集・アップ・貼り込みはこちらでやります</div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <p class="k">After</p>
+  <h2>納品後にこちらでやること（参考）</h2>
+  <div class="grid">
+    <div class="card"><h3>編集</h3><p>前後カット、ルーティン60秒の結合、A2+A3 などの結合。テロップは入れない（言語切替のため、文字はページ側）。</p></div>
+    <div class="card"><h3>アップ</h3><p>YouTube 限定公開に10本＋結合4本。URL を <code>src/data/entryCopy.ts</code>（結果ページ）、<code>public/beginner.html</code>・<code>animalflow.html</code>・<code>badminton.html</code> の <code>WF_VIDEOS</code> に貼る。</p></div>
+    <div class="card"><h3>写真</h3><p>WebP 化して <code>public/img/photo/</code> へ。ブログ3本の下書きに差し込み、/badminton ヒーロー背景は CEO 確認後に切替。</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <p class="k">Checklist</p>
+  <h2>出発前チェック</h2>
+  <div class="check">
+    <label><input type="checkbox">スマホの空き容量 5GB以上・充電100%・モバイルバッテリー</label>
+    <label><input type="checkbox">三脚（スマホホルダー付き）</label>
+    <label><input type="checkbox">グレーのパーカー・青いタオル・青系パンツ・室内シューズ</label>
+    <label><input type="checkbox">ラケット1本・シャトル2個</label>
+    <label><input type="checkbox">この台本（スマホで開けるようにリンクを保存）</label>
+    <label><input type="checkbox">体育館の床が使える時間帯を確認（他の利用者が映り込まない時間）</label>
+  </div>
+</div></section>
+
+<footer><div class="wrap">wildflow 撮影台本 2026-09-22 版。動きの名称は Animal Flow® Level 1 の正式名称。効果の断定表現はページ側でも使わない方針。</div></footer>
