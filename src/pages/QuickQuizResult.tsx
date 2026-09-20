@@ -13,6 +13,7 @@ import { getEntry } from '../utils/entry';
 import { ENTRY_COPY } from '../data/entryCopy';
 import { TodayMove } from '../components/TodayMove';
 import { ResultCard } from '../components/ResultCard';
+import { XLogo, LineLogo, LinkIcon } from '../components/BrandIcons';
 
 const ABILITY_ORDER = ['strength', 'endurance', 'speed', 'flexibility', 'coordination'] as const;
 
@@ -323,7 +324,7 @@ export function QuickQuizResult() {
             className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-bold text-sm text-white transition-opacity hover:opacity-80"
             style={{ backgroundColor: '#000000' }}
           >
-            {tr.shareX}
+            <XLogo /> {tr.shareX}
           </a>
           <a
             href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareTextLine)}`}
@@ -332,14 +333,14 @@ export function QuickQuizResult() {
             className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-bold text-sm text-white transition-opacity hover:opacity-80"
             style={{ backgroundColor: '#06C755' }}
           >
-            {tr.shareLine}
+            <LineLogo /> {tr.shareLine}
           </a>
           <button
             onClick={handleCopy}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-bold text-sm border-2 transition-opacity hover:opacity-80"
             style={{ borderColor: '#E2E8E4', color: '#1C2A1E', backgroundColor: '#F8F7F2' }}
           >
-            {copied ? tr.copied : tr.copy}
+            <LinkIcon /> {copied ? tr.copied : tr.copy}
           </button>
         </div>
       </div>
