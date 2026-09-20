@@ -22,7 +22,7 @@ DICT = ROOT / 'scripts' / 'zh'
 PAGES = ['badminton', 'beginner', 'routine', 'about-animalflow']
 STATIC_LINKS = ['/badminton', '/beginner', '/routine', '/about-animalflow']
 
-JA_RE = re.compile(r'[぀-ヿ]')  # ひらがな・カタカナ（漢字だけの語は中国語でも使うので対象外）
+JA_RE = re.compile(r'[ぁ-ゟァ-ヺ]')  # ひらがな・カタカナ（漢字だけの語は中国語でも使うので対象外）
 
 
 def norm(s: str) -> str:
@@ -69,6 +69,17 @@ def translate_page(name: str, check_only: bool) -> list[str]:
     body = re.sub(r'\b(alt|aria-label|title|data-alt|placeholder)="([^"]*)"', attr, body)
     head = re.sub(r'\b(content)="([^"]*)"', attr, head)
     head = re.sub(r'<title>([^<]+)</title>', lambda m: f'<title>{tr(m.group(1))}</title>', head)
+    # JSON-LD（構造化データ）は辞書のキーを文字列置換して zh 化。残った日本語は missing に出る
+    def ld(m):
+        body_ = m.group(1)
+        for k, v in sorted(table.items(), key=lambda kv: -len(kv[0])):
+            if k in body_:
+                used.add(k); body_ = body_.replace(k, v)
+        for frag in re.findall(r'"[^"]*[ぁ-ゟァ-ヺ][^"]*"', body_):
+            if frag not in missing: missing.append('(json-ld) ' + frag[:80])
+        body_ = body_.replace('"inLanguage": "ja"', '"inLanguage": "zh"').replace('"inLanguage":"ja"', '"inLanguage":"zh"').replace('og/about-ja.jpg', 'og/about-zh.jpg')
+        return '<script type="application/ld+json">' + body_ + '</script>'
+    head = re.sub(r'<script type="application/ld\+json">(.*?)</script>', ld, head, flags=re.S)
 
     # --- head: lang / canonical / hreflang / og
     head = head.replace('<html lang="ja">', '<html lang="zh-CN">')

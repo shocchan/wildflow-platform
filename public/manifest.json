@@ -1,0 +1,28 @@
+{
+  "name": "wildflow — Animal Flow 川口・蕨",
+  "short_name": "wildflow",
+  "description": "道具ゼロ、床1枚、1日1分の全身運動。30秒チャレンジと10問の身体チェック。",
+  "start_url": "/?utm_source=pwa",
+  "display": "standalone",
+  "background_color": "#F8F7F2",
+  "theme_color": "#1a3a2a",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
