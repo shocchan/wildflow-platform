@@ -12,6 +12,7 @@ import { fetchProductHealth, type ProductHealth } from '../services/productHealt
 import { getEntry } from '../utils/entry';
 import { ENTRY_COPY } from '../data/entryCopy';
 import { TodayMove } from '../components/TodayMove';
+import { ResultCard } from '../components/ResultCard';
 
 const ABILITY_ORDER = ['strength', 'endurance', 'speed', 'flexibility', 'coordination'] as const;
 
@@ -224,6 +225,9 @@ export function QuickQuizResult() {
         lesson={lesson}
         health={health}
       />
+
+      {/* 結果を画像で保存（XHS・Instagram 用。個人情報なし） */}
+      <ResultCard ability={lowestAbility} scores={scores} entry={entry} />
 
       {/* 結果保存（任意のメール登録）— 結果を見せたあとに置く。ゲートしない */}
       <div

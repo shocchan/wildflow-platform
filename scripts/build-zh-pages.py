@@ -78,6 +78,7 @@ def translate_page(name: str, check_only: bool) -> list[str]:
     head = re.sub(r'<link rel="alternate" hreflang="[^"]*" href="[^"]*">\n?', '', head)
     head = head.replace('<link rel="canonical"', f'<link rel="alternate" hreflang="ja" href="https://wild-flow.com/{name}">\n<link rel="alternate" hreflang="zh" href="https://wild-flow.com/zh/{name}">\n<link rel="canonical"', 1)
     head = head.replace('content="ja_JP"', 'content="zh_CN"')
+    head = re.sub(r'/og/([a-z-]+)-ja\.jpg', r'/og/\1-zh.jpg', head)
     # 生成物であることを先頭コメントに
     head = head.replace('<!doctype html>\n<!--', '<!doctype html>\n<!-- 自動生成: scripts/build-zh-pages.py（元: public/' + name + '.html）。直接編集せず、scripts/zh/' + name + '.json を直す -->\n<!--', 1)
 
