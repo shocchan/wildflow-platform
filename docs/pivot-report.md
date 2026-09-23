@@ -265,3 +265,12 @@ CEO の「図形・解剖学的なものは ChatGPT に作らせた方がいい�
 - 生成は Chrome の ChatGPT を Claude が操作（参照画像4枚添付、1枚ずつ、画風統一）。最初に誤って既存チャット「3スライド作成」に文面が入りかけたが送信前に消去し、新規チャットで実施。
 - 検品: 文字混入なし・透過（home-floor のみ背景あり）・md5 で7枚が別物。WebP 73〜130KB。
 - 確認: build 通過、375px 横はみ出しなし、画像欠損0、zh 版も生成済み（凡例・alt は中文）。
+
+---
+
+# 追記（2026-09-24）：本番リリース
+
+CEO の「staging の内容を全部本番に出したい」を受け、`feat/badminton-pivot`（先端 b31b157、34コミット）を main に fast-forward マージして push。GitHub Actions「Deploy to Cloudflare Workers」run 35935027942 が success。
+
+- 確認: wild-flow.com のトップ HTML が staging と md5 一致。`/badminton` `/beginner` `/routine` `/about-animalflow` `/zh/badminton` `/zh/about-animalflow` `/quiz/quick` `/lessons` すべて 200。新 favicon（icon-180）・構造化データも本番に出ている。
+- 未実施のまま: Supabase `20260824_quiz_leads_source.sql`（フロントは未適用でも動く。管理画面では `name='（開催通知）'` で見分ける）、ブログ3本の公開（`docs/blog-drafts/`）、動画URLの差し込み（9/22撮影分）、中国語訳の本人通読。
